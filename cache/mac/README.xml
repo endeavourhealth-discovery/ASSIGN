@@ -5,6 +5,7 @@ README	;
 	; Initial commit
 	W !,"HELLO WORLD"
 	W !,"Test!"
+	W !,"Line 3"
 	QUIT
 ]]></Routine>
 </Export>
