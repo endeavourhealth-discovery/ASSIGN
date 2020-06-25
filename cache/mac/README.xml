@@ -6,6 +6,7 @@ README	;
 	W !,"HELLO WORLD"
 	W !,"Test!"
 	W !,"Line 3"
+	W !,"Line 4"
 	QUIT
 ]]></Routine>
 </Export>
