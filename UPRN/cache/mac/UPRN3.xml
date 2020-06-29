@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26">
+<Routine name="UPRN3" type="MAC" languagemode="0"><![CDATA[
+UPRN3 ;NEW PROGRAM [ 06/05/2018  5:35 PM ]
+ s adno=""
+ for  s adno=$O(^UPRN("Stats","Unmatched",adno)) q:adno=""  d
+ .w !,adno
+ .d tomatch^UPRN(adno,"",0)
+ Q
+ 
+]]></Routine>
+</Export>
