@@ -703,6 +703,7 @@ isno(word)         ;is it a number
 flatbld(adflat,adbuild) ;
  ;is it a flat or number and if so what piece is the rest?
  s adbuild=$$co(adbuild)
+ I adbuild["flat-" s adbuild=$tr(adbuild,"-"," ")
  
  ;Welsh 'y'
 f36 i adbuild?1n.n1" "1"y"1" "1l.e d

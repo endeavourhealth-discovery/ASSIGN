@@ -192,7 +192,7 @@ farpost ;No post code match
  ...s matchrec="Pi,Se,Ne,Be,Fe"
  ...s ^TBEST($J,matchrec,tbno,tbuild,tflat)=""
  ...s ^TBEST($J,matchrec)=post
- ..i tbuild'="" d  q
+ ..i tbuild'="",tflat'="" d  q
  ...i $D(^UPRNX("X5",post,tstreet,tbno,"",tflat)) d
  ....s matchrec="Pi,Se,Ne,Bd,Fe"
  ....s ^TBEST($J,matchrec,tbno,"",tflat)=""
@@ -700,15 +700,16 @@ bestv2        ;
  .s vertical=$p(tflat," ",2,20)
  .I $D(^UPRNS("VERTICALS",vertical)) d
  ..s qual=^(vertical)
- ..f suffix=$c(96+fnum),$c(96+fnum-1) d  q:matched
- ...I $D(^UPRNX("X5",tpost,tstreet,tbno_suffix,tbuild)) d
- ....s flat=""
- ....for  s flat=$O(^UPRNX("X5",tpost,tstreet,tbno_suffix,tbuild,flat)) q:flat=""  d  q:matched
- .....I $D(^UPRNS("VERTICALS",flat)) d
- ......i flat=vertical d
- .......s matchrec="Pe,Se,Nf,Be,Fp>N"
- .......S ^TBEST($J,matchrec,tbno_suffix,tbuild,flat)=""
- .......S matched=1
+ ..I fnum<10 d
+ ...f suffix=$c(96+fnum),$c(96+fnum-1) d  q:matched
+ ....I $D(^UPRNX("X5",tpost,tstreet,tbno_suffix,tbuild)) d
+ .....s flat=""
+ .....for  s flat=$O(^UPRNX("X5",tpost,tstreet,tbno_suffix,tbuild,flat)) q:flat=""  d  q:matched
+ ......I $D(^UPRNS("VERTICALS",flat)) d
+ .......i flat=vertical d
+ ........s matchrec="Pe,Se,Nf,Be,Fp>N"
+ ........S ^TBEST($J,matchrec,tbno_suffix,tbuild,flat)=""
+ ........S matched=1
  ..I matched q
  ..n subvert
  ..s subvert=""
