@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26">
+<Routine name="UPRN58" type="MAC" languagemode="0"><![CDATA[
+UPRNX	;
+	;
+	; GET DELTA'S
+	;
+	K ^PS
+	S F="D:\TEMP\files\APR-2019\ID24_LPI_Records.csv"
+	C F
+	O F:"R"
+	U F R STR
+	F  U F R STR Q:STR=""  D
+	.S UPRN=$P(STR,",",4)
+	.U 0 W !,UPRN
+	.S ^PS("LPI",UPRN)=""
+	.Q
+	C F
+	quit
+	;
+	; UPRN-58
+	; Provide an ABP baseline with subsequent Epoch(s) to summarise change
+STT	;
+	K ^ARCHIVE
+	D BLPU(67),STREET(67),DPA(67),LPI(67),CLASS(67)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\","ID15_StreetDesc_Records.csv","^STREET","ID15_StreetDesc_Records.new.csv",67)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\","ID21_BLPU_Records.csv","^BLPU","ID21_BLPU_Records.new.csv",67)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\","ID24_LPI_Records.csv","^LPI","ID24_LPI_Records.new.csv",67)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\","ID28_DPA_Records.csv","^DPA","ID28_DPA_Records.new.csv",67)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\","ID32_Class_Records.csv","^CLASS","ID32_Class_Records.new.csv",67)
+	
+B	D BLPU(68),STREET(68),DPA(68),LPI(68),CLASS(68)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID15_StreetDesc_Records.67.csv","^STREET","ID15_StreetDesc_Records.new.csv",68)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID21_BLPU_Records.67.csv","^BLPU","ID21_BLPU_Records.new.csv",68)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID24_LPI_Records.67.csv","^LPI","ID24_LPI_Records.new.csv",68)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID28_DPA_Records.67.csv","^DPA","ID28_DPA_Records.new.csv",68)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID32_Class_Records.67.csv","^CLASS","ID32_Class_Records.new.csv",68)
+	
+C	D BLPU(69),STREET(69),DPA(69),LPI(69),CLASS(69)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID15_StreetDesc_Records.67.csv","^STREET","ID15_StreetDesc_Records.new.csv",69)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID21_BLPU_Records.67.csv","^BLPU","ID21_BLPU_Records.new.csv",69)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID24_LPI_Records.67.csv","^LPI","ID24_LPI_Records.new.csv",69)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID28_DPA_Records.67.csv","^DPA","ID28_DPA_Records.new.csv",69)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID32_Class_Records.67.csv","^CLASS","ID32_Class_Records.new.csv",69)
+	D ARCHIVE
+	QUIT
+	
+BLPU(EPOCH)	K ^BLPU
+	
+	;S FILE="D:\47\ID21_BLPU_Records.csv"
+	S FILE="D:\TEMP\abp-delta-audit-test\epoch"_EPOCH_"\ID21_BLPU_Records.csv"
+	CLOSE FILE
+	O FILE:"R"
+	F  U FILE R STR Q:$ZEOF  D
+	.;U 0 W !,STR
+	.S UPRN=$P(STR,",",4)
+	.I $D(^BLPU(UPRN)) BREAK
+	.S ^BLPU(UPRN)=STR
+	.QUIT
+	C FILE
+	QUIT
+	
+STREET(EPOCH)
+	K ^STREET
+	;S FILE="D:\47\ID15_StreetDesc_Records.csv"
+	S FILE="D:\TEMP\abp-delta-audit-test\epoch"_EPOCH_"\ID15_StreetDesc_Records.csv"
+	CLOSE FILE
+	O FILE:"R"
+	F  U FILE R STR Q:$ZEOF  D
+	.;U 0 W !,STR
+	.S UPRN=$P(STR,",",4)
+	.;U 0 W !,UPRN
+	.I $D(^STREET(UPRN)) BREAK
+	.S ^STREET(UPRN)=STR
+	.QUIT
+	C FILE
+		
+	QUIT
+
+	; D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\","ID15_StreetDesc_Records.csv","^STREET","ID15_StreetDesc_Records.new.csv",67)
+	; D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\","ID21_BLPU_Records.csv","^BLPU","ID21_BLPU_Records.new.csv",67)
+	; D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\","ID24_LPI_Records.csv","^LPI","ID24_LPI_Records.new.csv",67)
+	; D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\","ID28_DPA_Records.csv","^DPA","ID28_DPA_Records.new.csv",67)
+	; D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\","ID32_Class_Records.csv","^CLASS","ID32_Class_Records.new.csv",67)
+GENBASE(BDIR,B,G1,NEW,EPOCH)	; MERGE DELTAS INTO BASELINE
+	K ^UPDATES,^DELETES,^INSERTS
+	;S F="D:\TEMP\abp-delta-audit-test\baseline-24042019\ID15_StreetDesc_Records.csv"
+	;S F="D:\TEMP\abp-delta-audit-test\baseline-24042019\"_B
+	S F=BDIR_B
+	C F
+	O F:"R"
+	; LOAD BASELINE FILE
+	F  U F R STR Q:$ZEOF  DO
+	.S UPRN=$P(STR,",",4)
+	.;S TYPE=$REPLACE($P(STR,",",2),"""","")
+	.;S ^BSTREET(UPRN)=STR
+	.S DSTR=$GET(@G1@(UPRN))
+	.I DSTR'="" DO
+	..S TYPE=$REPLACE($P(DSTR,",",2),"""","")
+	..I TYPE="U" S ^UPDATES(UPRN)=$E(G1,2,999)_"`"_DSTR
+	..I TYPE="D" S ^DELETES(UPRN)=$E(G1,2,999)_"`"_DSTR
+	..QUIT
+	.QUIT
+	C F
+	
+	; INSERTS
+	S UPRN=""
+	F  S UPRN=$O(@G1@(UPRN)) Q:UPRN=""  DO
+	.S DSTR=^(UPRN)
+	.S TYPE=$REPLACE($P(DSTR,",",2),"""","")
+	.I TYPE="I" S ^INSERTS(UPRN)=$E(G1,2,999)_"`"_DSTR
+	.QUIT
+	
+	; CREATE A NEW BASELINE
+	;S F="D:\TEMP\abp-delta-audit-test\newbaseline\ID15_StreetDesc_Records.new.csv"
+	;BREAK
+	S NEW=$REPLACE(NEW,".new.",("."_EPOCH_"."))
+	S F="D:\TEMP\abp-delta-audit-test\newbaseline\"_NEW
+	C F
+	O F:"WNS"
+	;S BASE="D:\TEMP\abp-delta-audit-test\baseline-24042019\ID15_StreetDesc_Records.csv"
+	;S BASE="D:\TEMP\abp-delta-audit-test\baseline-24042019\"_B
+	S BASE=BDIR_B
+	C BASE
+	O BASE:"R"
+	F  U BASE R STR Q:$ZEOF  DO
+	.S UPRN=$P(STR,",",4)
+	.I $D(^UPDATES(UPRN)) USE F W $PIECE(^UPDATES(UPRN),"`",2,9999),! QUIT
+	.I $D(^DELETES(UPRN)) QUIT ; FORGET DELETES
+	.U F W STR,!
+	.QUIT
+	; INSERTS
+	S UPRN=""
+	F  S UPRN=$O(^INSERTS(UPRN)) Q:UPRN=""  U F W $P(^(UPRN),"`",2,9999),!
+	CLOSE F,BASE
+	;
+	; ARCHIVE OF UPDATED, DELETED AND INSERTED RECORD
+	;
+	F GLOB="^INSERTS","^UPDATES","^DELETES" DO
+	.S UPRN=""
+	.F  S UPRN=$O(@GLOB@(UPRN)) Q:UPRN=""  DO
+	..S ^ARCHIVE(UPRN,EPOCH,$E(GLOB,2))=^(UPRN)
+	..QUIT
+	.QUIT
+	
+	QUIT
+	
+ARCHIVE
+	S file="D:\TEMP\abp-delta-audit-test\newbaseline\archive_"_+$H_".csv"
+	c file
+	o file:("wns")
+	S (UPRN,EPOCH,CHANGE)=""
+	F  S UPRN=$O(^ARCHIVE(UPRN)) Q:UPRN=""  DO
+	.F  S EPOCH=$O(^ARCHIVE(UPRN,EPOCH)) Q:EPOCH=""  DO
+	..F  S CHANGE=$O(^ARCHIVE(UPRN,EPOCH,CHANGE)) Q:CHANGE=""  DO
+	...S STR=EPOCH_"`"_^(CHANGE)
+	...use file W STR,!
+	...QUIT
+	close file
+	QUIT
+	
+DPA(EPOCH)	;
+	K ^DPA
+	
+	;S FILE="D:\47\ID28_DPA_Records.csv"
+	S FILE="D:\TEMP\abp-delta-audit-test\epoch"_EPOCH_"\ID28_DPA_Records.csv"
+	CLOSE FILE
+	
+	O FILE:"R"
+	F  U FILE R STR Q:$ZEOF  D
+	.;U 0 W !,STR
+	.S UPRN=$P(STR,",",4)
+	.;U 0 W !,UPRN
+	.I $D(^DPA(UPRN)) ; BREAK
+	.S ^DPA(UPRN)=STR
+	.QUIT
+	
+	C FILE
+		
+	QUIT
+	
+LPI(EPOCH)	;
+	K ^LPI
+
+	;S FILE="D:\47\ID24_LPI_Records.csv"
+	S FILE="D:\TEMP\abp-delta-audit-test\epoch"_EPOCH_"\ID24_LPI_Records.csv"
+	
+	CLOSE FILE
+	
+	O FILE:"R"
+	F  U FILE R STR Q:$ZEOF  D
+	.;U 0 W !,STR
+	.S UPRN=$P(STR,",",4)
+	.;U 0 W !,UPRN
+	.I $D(^LPI(UPRN)) ; BREAK
+	.S ^LPI(UPRN)=STR
+	.QUIT
+	
+	C FILE
+		
+	QUIT
+	
+CLASS(EPOCH) ;
+	K ^CLASS
+	
+	;S FILE="D:\47\ID32_Class_Records.csv"
+	S FILE="D:\TEMP\abp-delta-audit-test\epoch"_EPOCH_"\ID32_Class_Records.csv"
+	CLOSE FILE
+	
+	O FILE:"R"
+	F  U FILE R STR Q:$ZEOF  D
+	.;U 0 W !,STR
+	.S UPRN=$P(STR,",",4)
+	.;U 0 W !,UPRN
+	.I $D(^CLASS(UPRN)) ; BREAK
+	.S ^CLASS(UPRN)=STR
+	.QUIT
+	
+	C FILE
+		
+	QUIT
+	
+	; D CHK^UPRNX("D:\TEMP\files\APR-2019\ID21_BLPU_Records.csv","d:\temp\cmp_blpu.csv","^BLPU")
+	; D CHK^UPRNX("D:\TEMP\files\APR-2019\ID15_StreetDesc_Records.csv","d:\temp\cmp_street.csv","^STREET")
+	; D CHK^UPRNX("D:\TEMP\files\APR-2019\ID28_DPA_Records.csv","d:\temp\cmp_dpa.csv","^DPA")
+	; D CHK^UPRNX("D:\TEMP\files\APR-2019\ID24_LPI_Records.csv","d:\temp\cmp_lpi.csv","^LPI")
+	; D CHK^UPRNX("D:\TEMP\files\APR-2019\ID32_Class_Records.csv","d:\temp\cmp_class.csv","^CLASS")
+	;
+	; D CHK^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\ID21_BLPU_Records.csv","d:\temp\cmp_blpu.csv","^BLPU")
+	; D CHK^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\ID15_StreetDesc_Records.csv","d:\temp\cmp_street.csv","^STREET")
+	; D CHK^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\ID28_DPA_Records.csv","d:\temp\cmp_dpa.csv","^DPA")
+	; D CHK^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\ID24_LPI_Records.csv","d:\temp\cmp_lpi.csv","^LPI")
+	; D CHK^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\ID32_Class_Records.csv","d:\temp\cmp_class.csv","^CLASS")
+CHK(FILE,FILE2,GLOBAL)
+	
+	;S FILE="D:\TEMP\files\ID21_BLPU_Records.csv"
+	;S FILE2="D:\TEMP\CMP_BLPU.csv"
+	
+	CLOSE FILE
+	CLOSE FILE2
+	
+	O FILE2:"WNS"
+	
+	O FILE:"R"
+	U FILE R HDR
+	U FILE2 W HDR,!
+	F  U FILE R STR Q:$ZEOF  D
+	.S UPRN=$P(STR,",",4)
+	.;U 0 W !,UPRN
+	.I $D(@GLOBAL@(UPRN)) D
+	..S BLPU=@GLOBAL@(UPRN)
+	..S STR=$REPLACE(STR,"""","")
+	..S BLPU=$REPLACE(BLPU,"""","")
+	..U FILE2 W !,STR,!
+	..F I=1:1:$P(STR,",") DO
+	...I $P(STR,",",I)'=$P(BLPU,",",I) U FILE2 W "*",$P(BLPU,",",I),","
+	...ELSE  U FILE2 W $P(STR,",",I),","
+	...Q
+	..;U 0 W ! R *Y
+	..U FILE2 W !
+	..Q
+	.QUIT
+	C FILE
+	C FILE2
+	QUIT
+	
+FILE ;
+	K ^PS
+	S FILE="D:\TEMP\files\APR-2019\ID21_BLPU_Records.csv"
+	C FILE
+	O FILE:"R"
+	S C=0
+	for i=1:1 use FILE read z q:$zeof  S S=$P($H,",",2),Q=$O(^PS(S,""),-1 )+1 S ^PS(S,Q)=$h_"~"_z S C=C+1 I C#10000=0 u 0 W !,z
+	CLOSE FILE
+	QUIT
+	
+CNT	;
+	K ^CNT
+	S S="",Q=""
+	F  S S=$O(^PS(S)) Q:S=""  D
+	.F  S Q=$O(^PS(S,Q)) Q:Q=""  D
+	..S T=$$HT^STDDATE(S)
+	..S ^CNT(T)=$G(^CNT(T))+1
+	..S ^CNT(T,"Q")=Q
+	..Q
+	.Q
+	QUIT
+	
+API	;
+	K ^MISS,^HIT
+	S FILE="D:\TEMP\cmp_dpa.csv"
+	CLOSE FILE
+	O FILE:"R"
+	U FILE R HDR
+	F  U FILE R STR Q:$ZEOF  D
+	.;BREAK
+	.;U 0 W !,STR
+	.I $P(STR,",",2)'="*U" QUIT
+	.S UPRN=$P(STR,",",4)
+	.S SUBBLD=$P(STR,",",8)
+	.S BUILDING=$P(STR,",",9)
+	.S BUILDNUM=$P(STR,",",10)
+	.S DEPTHROUGH=$P(STR,",",11)
+	.S THROUGHFARE=$P(STR,",",12)
+	.S POSTTOWN=$P(STR,",",15)
+	.S POSTCODE=$P(STR,",",16)
+	.S ORGNAME=$P(STR,",",6)
+	.S ADR=ORGNAME_","_SUBBLD_","_BUILDING_","_BUILDNUM_","_DEPTHROUGH_","_THROUGHFARE_","_POSTTOWN_","_POSTCODE
+	.S ADR=$REPLACE(ADR,"*","")
+	.U 0
+	.S ADR2=$REPLACE(ADR," ","%20")
+	.S ADR2=$REPLACE(ADR2,"&","%26")
+	.S ADR2=$REPLACE(ADR2,"-","%2D")
+	.D GO^KEYCLOAK("A",ADR2)
+	.S RETUPRN=$get(B("UPRN"))
+	.I RETUPRN=UPRN S ^HIT($O(^HIT(""),-1)+1)=ADR
+	.I RETUPRN'=UPRN DO
+	..U 0 W !
+	..U 0 W !,ADR
+	..U 0 W !,RETUPRN," * ",UPRN
+	..S ^MISS($O(^MISS(""),-1)+1)=UPRN_"~"_RETUPRN_"~"_ADR
+	..;R *Y
+	..QUIT
+	.QUIT
+	CLOSE FILE
+	QUIT
+	
+MISS	;
+	S FILE="D:\TEMP\MISS.TXT"
+	CLOSE FILE
+	O FILE:"WNS"
+	S A="" F  S A=$O(^MISS(A)) Q:A=""  DO
+	.S REC=^MISS(A)
+	.S ADR=$P(REC,"~",3),UPRN=$P(REC,"~",1),RETUPRN=$P(REC,"~",2)
+	.USE FILE
+	.W !,ADR
+	.W !,"FILES UPRN:",UPRN
+	.W !,"RETUPRN: ",RETUPRN
+	.S ADR2=$REPLACE(ADR," ","%20")
+	.S ADR2=$REPLACE(ADR2,"&","%26")
+	.S ADR2=$REPLACE(ADR2,"-","%2D")
+	.U 0 W !,ADR
+	.D GO^KEYCLOAK("A",ADR2)
+	.USE FILE W !,JSON(1),!
+	.QUIT
+	CLOSE FILE
+	QUIT
+]]></Routine>
+</Export>
