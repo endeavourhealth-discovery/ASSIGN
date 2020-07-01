@@ -45,6 +45,16 @@ C	D BLPU(69),STREET(69),DPA(69),LPI(69),CLASS(69)
 	D ARCHIVE
 	QUIT
 	
+	
+FOLD	;
+	D BLPU(76),STREET(76),DPA(76),LPI(76),CLASS(76)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID15_StreetDesc_Records.csv","^STREET","ID15_StreetDesc_Records.new.csv",76)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID21_BLPU_Records.csv","^BLPU","ID21_BLPU_Records.new.csv",76)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID24_LPI_Records.csv","^LPI","ID24_LPI_Records.new.csv",76)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID28_DPA_Records.csv","^DPA","ID28_DPA_Records.new.csv",76)
+	D GENBASE^UPRNX("D:\TEMP\abp-delta-audit-test\newbaseline\","ID32_Class_Records.csv","^CLASS","ID32_Class_Records.new.csv",76)	
+	QUIT
+	
 BLPU(EPOCH)	K ^BLPU
 	
 	;S FILE="D:\47\ID21_BLPU_Records.csv"
@@ -231,6 +241,13 @@ CLASS(EPOCH) ;
 	; D CHK^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\ID28_DPA_Records.csv","d:\temp\cmp_dpa.csv","^DPA")
 	; D CHK^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\ID24_LPI_Records.csv","d:\temp\cmp_lpi.csv","^LPI")
 	; D CHK^UPRNX("D:\TEMP\abp-delta-audit-test\baseline-24042019\ID32_Class_Records.csv","d:\temp\cmp_class.csv","^CLASS")
+	;
+	; D CHK^UPRN58("D:\TEMP\abp-delta-audit-test\newbaseline\ID15_StreetDesc_Records.csv","D:\TEMP\abp-delta-audit-test\newbaseline\cmp_street.csv","^STREET")
+	; D CHK^UPRN58("D:\TEMP\abp-delta-audit-test\newbaseline\ID21_BLPU_Records.csv","D:\TEMP\abp-delta-audit-test\newbaseline\cmp_blpu.csv","^BLPU")
+	; D CHK^UPRN58("D:\TEMP\abp-delta-audit-test\newbaseline\ID24_LPI_Records.csv","D:\TEMP\abp-delta-audit-test\newbaseline\cmp_lpi.csv","^LPI")
+	; D CHK^UPRN58("D:\TEMP\abp-delta-audit-test\newbaseline\ID28_DPA_Records.csv","D:\TEMP\abp-delta-audit-test\newbaseline\cmp_dpa.csv","^DPA")
+	; D CHK^UPRN58("D:\TEMP\abp-delta-audit-test\newbaseline\ID32_Class_Records.csv","D:\TEMP\abp-delta-audit-test\newbaseline\cmp_class.csv","^CLASS")
+	;
 CHK(FILE,FILE2,GLOBAL)
 	
 	;S FILE="D:\TEMP\files\ID21_BLPU_Records.csv"
