@@ -3,6 +3,23 @@
 <Routine name="UPRNU" type="MAC" languagemode="0"><![CDATA[
 UPRNU ;Library functionset for UPRN matching [ 06/19/2020  12:23 PM ]
  ;
+area(post)         ;
+ n area,done
+ s area="",done=0
+ f i=1:1:$l(post) d  q:done
+ .i $e(post,i)?1n s done=1 q
+ .s area=area_$e(post,i)
+ q area
+district(post)       ;returns post code district
+ n (post)
+ s outward=$e(post,1,$l(post)-3)
+ s area="",done=0
+ f i=1:1:$l(outward) d  q:done
+ .i $e(outward,i)?1n s done=1 q
+ .s area=area_$e(outward,i)
+ s district=area_$p(outward,area,2,10)
+ q district
+ 
 isok(uprn)        ;
  n (uprn)
  I $G(^TPARAMS($J,"commercials")) q 1
@@ -478,6 +495,7 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fev" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Bf,Ff" s fix=fix+1
+ S ^UPRNS("BESTFIT",fix)="Pe,Se,N>Ff,Be,Ff" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ni,Be,Fev" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ni,Be,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Nd,Be,Fev" s fix=fix+1
@@ -532,7 +550,9 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
  S ^UPRNS("FLOOR","ground floor",1)=""
  S ^UPRNS("FLOOR","first floor",2)=""
  S ^UPRNS("FLOOR","second floor",3)=""
+ S ^UPRNS("FLOOR","second floor","c")=""
  S ^UPRNS("FLOOR","third floor",4)=""
+ S ^UPRNS("FLOOR","third floor","d")=""
  S ^UPRNS("VERTICALS","upper floors")="high"
  d crossv("upper","top")
  D crossv("ground","ground")
@@ -858,6 +878,7 @@ PLURAL(text)       ;Removeset plurals
  .set word=$p(text," ",i)
  .if $e(word,$l(word))="s" d
  ..set word=$e(word,1,$l(word)-1)
+ ..q:word=""
  ..set $p(text," ",i)=word
  ..S PLURAL=1
  q text
@@ -916,6 +937,7 @@ plural(text)       ;
  .q:word=""
  .if $l(word)>1,$e(word,$l(word))="s" d
  ..set word=$e(word,1,$l(word)-1)
+ ..i word="" q
  ..set $p(text," ",i)=word
  q text
 dupl(text)         ;Removes duplicate
@@ -925,11 +947,11 @@ dupl(text)         ;Removes duplicate
  f i=1:1:$l(text," ") d
  .set word=$p(text," ",i)
  .q:word=""
- .if $e(word,$l(word))="s" d  q:word=""
+ .if $e(word,$l(word))="s" d
  ..set word=$e(word,1,$l(word)-1)
- ..;set $p(text," ",i)=word
  ..i word="" q
  ..set $p(text," ",i)=word
+ .i word="" q
  .if $d(wordlist(word)) do  q
  ..set text=$p(text," ",1,i-1)_" "_$p(text," ",i+1,20)
  .set wordlist(word)=""

@@ -16,9 +16,9 @@ bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
  .d choose
  s matched=0
  ;debug global
- K ^DLS,^DLS1
- M ^DLS=^UPRNX("X5",tpost,tstreet,tbno)
- M ^DLS1=^UPRNX("X5",tpost,tstreet)
+ ;K ^DLS,^DLS1
+ ;M ^DLS=^UPRNX("X5",tpost,tstreet,tbno)
+ ;M ^DLS1=^UPRNX("X5",tpost,tstreet)
  ;B
  d bestfitv
  i $g(^TUPRN($J,"MATCHED")) Q
@@ -186,11 +186,13 @@ isres(uprn)        ;
 farpost ;No post code match
  n matched,post,town,loc
  s matched=0
+ s tdist=$$district^UPRNU(tpost)
  i $D(^UPRNX("X3",tstreet,tbno)) d
  .i tflat'=""!(tbuild'="") d
  .s post=""
  .for  s post=$O(^UPRNX("X3",tstreet,tbno,post)) q:post=""  d  q:matched
  ..q:post=tpost
+ ..i $$district^UPRNU(post)'=tdist q
  ..i $D(^UPRNX("X5",post,tstreet,tbno,tbuild,tflat)) d  q
  ...s matchrec="Pi,Se,Ne,Be,Fe"
  ...s ^TBEST($J,matchrec,tbno,tbuild,tflat)=""
@@ -316,14 +318,28 @@ bestfito ;
  ....S matched=1
  i matched q
  I tbno?1n.n1l d
+ .s suffix=$p(tbno,tbno*1,2)
+ .S fnum=$a(suffix)-96
  .i '$D(^UPRNX("X5",tpost,tstreet,tbno)) d
- ..s suffix=$p(tbno,tbno*1,2)
- ..S fnum=$a(suffix)-96
  ..f var="suffix","fnum" d  q:matched
  ...I $d(^UPRNX("X5",tpost,tstreet,tbno*1,tbuild,@var)) d
  ....s matchrec="Pe,Se,Nf,Be,Fp>N"
  ....S ^TBEST($J,matchrec,tbno*1,tbuild,@var)=""
  ....s matched=1
+ ..I $d(^UPRNX("X5",tpost,tstreet,tbno*1,tbuild,tbno)) d
+ ...s matchrec="Pe,Se,Np,Be,F=N"
+ ...S ^TBEST($J,matchrec,tbno*1,tbuild,tbno)=""
+ ...s matched=1
+ .i matched q
+ .i tflat="" d
+ ..s flat=""
+ ..for  s flat=$O(^UPRNX("X5",tpost,tstreet,tbno*1,tbuild,flat)) q:flat=""  d
+ ...i flat=suffix d  q
+ ....s matchrec="Pe,Se,N>Ff,Be,Ff"
+ ....S ^TBEST($J,matchrec,tbno*1,tbuild,flat)=""
+ ...i $d(^UPRNS("FLOOR",flat,suffix)) d
+ ....s matchrec="Pe,Se,N>Ff,Be,Ff"
+ ....S ^TBEST($J,matchrec,tbno*1,tbuild,flat)=""
  i matched q
  
  ;Best of the fuzzy building matches
