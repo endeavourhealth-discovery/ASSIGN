@@ -657,6 +657,13 @@ f151 ;Street is building
  .I $D(^UPRNX("X.BLD",adstreet)) d
  ..s adbuild=adstreet,adstreet=""
  
+f152 ;Flat contains street number
+ i adflat?1n.n1" "1n.n,adbno="",$d(^UPRNX("X.STR",adbuild_" "_adstreet))  d
+ .s adbno=$p(adflat," ",2)
+ .s adflat=$p(adflat," ")
+ .s adstreet=adbuild_" "_adstreet
+ .s adbuild=""
+ 
  
  
 setadd ;set address object values

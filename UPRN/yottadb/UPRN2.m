@@ -322,18 +322,13 @@ OUT(adno,uprn,table)
  .if $g(out52) use out52 W !,adno_d_$tr(disco,"~",",")_d_abp_d_alg_d_matchrec_d_uprn_d_table_d_key
  q
 qual(matchrec)     ;
+ N (matchrec)
  i matchrec="" q ""
- i matchrec["Fc" q "Child"
- i matchrec["Fa" q "Parent"
- i matchrec["Fs" q "Sibling"
- i matchrec["Ns" q "Sibling"
- i matchrec["Ba" q "Parent"
- i matchrec["Nds" q "Child"
- i matchrec["Nis" q "Parent"
- i matchrec["Fds" q "Child"
- i matchrec["Fis" q "Parent"
- i matchrec["Fi" q "Parent"
- Q "Equivalent"
+ i matchrec["c" q "Child"
+ i matchrec["a" q "Parent"
+ i matchrec["s" q "Sibling"
+ s qual="Best match "_$s('$D(^TPARAMS($J,"commercials")):"(residential)",1:"(+commercial)")_"match"
+ Q qual
  q
 EXPORT ;
  set out51="/MSM/"_folder_"/UPRN_Summary.txt"
@@ -446,20 +441,26 @@ degree(degree)     ;Returns the text of the degree to which it matches
  i degree["&" d
  .s result="mapped also to "_$$part($p(degree,"&",2))_" "
  i degree[">" d
- .s result="swapped to "_$$part($p(degree,">",2))_" "
+ .s result="moved to "_$$part($p(degree,">",2))_" "
+ i degree["<" d
+ .s result="moved from "_$$part($p(degree,"<",2))_" "
  i degree["f" d
- .s result="field fixed "
+ .s result=$s(result="":"",1:" ")_"field merged"
  
  i degree["i" d
- .s result="dropped to match"
+ .s result="ABP field ignored"
  i degree["d" d
- .s result="ignored to match"
+ .I degree["xd" d  q
+ ..s result=$s(result'="":result_" ",1:"")_"candidate prefix dropped to match"
+ .s result="candidate field dropped"
  i degree["e" s result="equivalent"
- i degree["l" s result=result_"+levenshtein"
+ i degree["l" s result=result_"possible spelling error"
  i degree["a" s result=$s(result'="":result_" ",1:"")_"matched as parent"
  i degree["c" s result=$s(result'="":result_" ",1:"")_"matched as child"
  i degree["s" s result=$s(result'="":result_" ",1:"")_"matched as sibling"
  i degree["p" s result=$s(result'="":result_" ",1:"")_"partial match"
+ I degree["v" s result=$s(result'="":result_" ",1:"")_"level based match"
+ I degree["xd" s result=$s(result'="":result_" ",1:"")_"level based match"
  Q result
 
 EOF;
