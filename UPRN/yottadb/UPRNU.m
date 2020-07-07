@@ -492,6 +492,7 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fev" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Bf,Ff" s fix=fix+1
+ S ^UPRNS("BESTFIT",fix)="Pe,Se,Np,Be,F=N" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,N>Ff,Be,Ff" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ni,Be,Fev" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ni,Be,Fe" s fix=fix+1

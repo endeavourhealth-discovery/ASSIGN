@@ -1,0 +1,86 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          exampledaemon
+# Required-Start:    $local_fs $network $syslog
+# Required-Stop:     $local_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: M Web Server
+# Description:       Example start-stop-daemon - Debian
+### END INIT INFO
+
+NAME="MSTU"
+
+#PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
+#APPDIR="/"
+#APPBIN="/usr/bin/python"
+#APPARGS="-m SimpleHTTPServer 8000"
+USER="root"
+#GROUP="example"
+
+# Include functions 
+set -e
+. /lib/lsb/init-functions
+
+start() {
+  printf "Starting PS > '$NAME'... "
+
+  export USER=$USER
+
+  #start-stop-daemon --start --chuid "$USER:$GROUP" --background --make-pidfile --pidfile /var/run/$NAME.pid --chdir "$APPDIR" --exec "$APPBIN" -- $APPARGS || true
+
+  monkey=$(cat '/opt/apiuprn/certs/monkey3.txt')
+
+  printf $monkey
+
+  export ydb_dist=/usr/local/lib/yottadb/r126
+  export ydb_gbldir=/root/.yottadb/r1.26_x86_64/g/yottadb.gld
+  export ydb_dir=/root/.yottadb
+  export ydb_rel=r1.26_x86_64
+
+  export gtmtls_passwd_dev=$monkey
+  export gtmcrypt_config="/opt/apiuprn/gtmcrypt_config.libconfig"
+  export ydb_routines=/root/.yottadb/r1.26_x86_64/r/
+
+  cd /root/.yottadb/r1.26_x86_64/r/
+  /usr/local/lib/yottadb/r126/mumps -run ^START
+  printf "done\n"
+}
+
+stop() {
+  printf "Stopping PS > '$NAME'... "
+
+  export USER=$USER
+
+  export ydb_dist=/usr/local/lib/yottadb/r126
+  export ydb_gbldir=/root/.yottadb/r1.26_x86_64/g/yottadb.gld
+  export ydb_dir=/root/.yottadb
+  export ydb_rel=r1.26_x86_64
+
+  export ydb_routines=/root/.yottadb/r1.26_x86_64/r/
+
+  cd /root/.yottadb/r1.26_x86_64/r/
+  /usr/local/lib/yottadb/r126/mumps -run STOP^START
+
+  printf "done\n"
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    stop
+    start
+    ;;
+  *)
+    echo "Usage: $NAME {start|stop|restart}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0

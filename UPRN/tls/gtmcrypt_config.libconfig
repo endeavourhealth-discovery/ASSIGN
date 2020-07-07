@@ -1,0 +1,9 @@
+tls: {
+  dev: {
+    format: "PEM";
+    cert: "/opt/apiuprn/certs/mycert.pem";
+    key:  "/opt/apiuprn/certs/mycert.key";
+    ssl-options: "SSL_OP_NO_SSLv2:SSL_OP_NO_SSLv3:SSL_OP_NO_TLSv1:SSL_OP_NO_TLSv1_1";
+    cipher-list: "ECDH+AESGCM:ECDH+CHACHA20:ECDH+AES256:!aNULL:!SHA1:!AESCCM";
+  }
+}
