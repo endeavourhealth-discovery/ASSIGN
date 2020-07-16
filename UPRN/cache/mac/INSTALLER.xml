@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26">
+<Routine name="INSTALLER" type="MAC" languagemode="0"><![CDATA[
+INSTALLER	;
+	New tFile,tLog,prop
+	Set ns=$namespace
+	// Mounts an empty database (contains MIS namespace)
+	// IRIS.DAT is pulled from s3 by bash script
+	// Creates the certs
+	Set sc=$zf(-1,"mkdir /tmp/iris-certs/")
+	Set tFile="/tmp/iris-certs/iris_installer.sh",tLog="/tmp/iris-certs/iris-installer-log.txt"
+	Close tFile,tLog
+	Open tFile:"WNS"
+	Open tLog:"WNS"
+	Set uuid=$System.Util.CreateGUID()
+	Use tFile Write "openssl genrsa -aes128 -passout pass:"_uuid_" -out /tmp/iris-certs/mycert.key 2048",!
+	Use tFile Write "openssl req -new -key /tmp/iris-certs/mycert.key -passin pass:"_uuid_" -subj '/C=UK/ST=Yorkshire/L=Leeds/CN=dummy' -out /tmp/iris-certs/mycert.csr",!
+	Use tFile Write "openssl req -x509 -days 3660 -sha256 -in /tmp/iris-certs/mycert.csr -key /tmp/iris-certs/mycert.key -passin pass:"_uuid_" -out /tmp/iris-certs/mycert.pem",!
+	Close tFile
+	Set tStatus=$zf(-1,"chmod +x /tmp/iris-certs/iris_installer.sh")
+	Set tStatus=$zf(-1,"/tmp/iris-certs/iris_installer.sh")
+	Use tLog Write "openssl status: ",tStatus,!
+	ZN "%SYS"
+	
+	// need to chmod -R 777
+	Set sc=$zf(-1,"chmod -R 777 /tmp/iris-certs/")
+	
+	Set prop("CertificateFile")="/tmp/iris-certs/mycert.pem"
+	Set prop("Name")="ZKingLane"
+	Set prop("PrivateKeyFile")="/tmp/iris-certs/mycert.key"
+	Set prop("PrivateKeyPassword")=uuid
+	Set prop("PrivateKeyType")=2
+	Set prop("Protocols")=16
+	Set prop("Type")=1
+	Set prop("Enabled")=1
+	Set prop("CipherList")="ECDH+AESGCM:ECDH+CHACHA20:ECDH+AES256:!aNULL:!SHA1:!AESCCM"
+	S tStatus=##class(Security.SSLConfigs).Create("ZKingLane",.prop)
+	Use tLog Write "cert setup status: ",tStatus,!
+	Close tLog
+	
+	ZN ns
+	
+	// empty IRIS.DAT needs to be copied to 
+	D CREATEDB
+	
+	ZN "MIZ"
+	
+	// restore the routines
+	do $System.OBJ.ImportDir("/tmp/MGIT/UPRN/cache/mac","*.xml;*.cls;*.mac;*.int;*.inc;*.dfi","ck",,1)
+	
+	// job off the web server
+	J START^VPRJREQ(9080,"","ZKingLane")
+	
+	// do we do an ABP load?
+	QUIT
+	
+MOUNT	;
+	N db,ns
+	Set ns=$namespace
+	ZN "%SYS"
+	S db=$ZU(12)_"DISCOVERY/"
+	Set tStatus=##class(SYS.Database).%OpenId(db).Mount()
+	ZN ns
+	QUIT
+	
+CREATEDB	;
+	ZN "%SYS"
+	Set ns=$namespace
+	set dbName="DISCOVERY"
+	set dbProperties("Directory") = $ZU(12)_"DISCOVERY/"
+	set status=##Class(Config.Databases).Create(dbName,.dbProperties)
+	write:'status $system.Status.DisplayError(status)
+	write "DB """_dbName_""" was created!",!!
+	
+	write "Create namespace ...",!
+	set nsName="MIZ"
+	set nsProperties("Globals") = dbName
+	set nsProperties("Routines") = dbName
+	set status=##Class(Config.Namespaces).Create(nsName,.nsProperties)
+	write:'status $system.Status.DisplayError(status)
+	write "Namespace """_nsName_""" was created!",!!
+	
+	ZN ns
+	
+	D MOUNT
+	
+	QUIT
+]]></Routine>
+</Export>
