@@ -7,27 +7,27 @@ INSTALLER	;
 	// Mounts an empty database (contains MIS namespace)
 	// IRIS.DAT is pulled from s3 by bash script
 	// Creates the certs
-	Set sc=$zf(-1,"mkdir /tmp/iris-certs/")
-	Set tFile="/tmp/iris-certs/iris_installer.sh",tLog="/tmp/iris-certs/iris-installer-log.txt"
+	Set sc=$zf(-1,"mkdir /opt/iris-certs/")
+	Set tFile="/opt/iris-certs/iris_installer.sh",tLog="/opt/iris-certs/iris-installer-log.txt"
 	Close tFile,tLog
 	Open tFile:"WNS"
 	Open tLog:"WNS"
 	Set uuid=$System.Util.CreateGUID()
-	Use tFile Write "openssl genrsa -aes128 -passout pass:"_uuid_" -out /tmp/iris-certs/mycert.key 2048",!
-	Use tFile Write "openssl req -new -key /tmp/iris-certs/mycert.key -passin pass:"_uuid_" -subj '/C=UK/ST=Yorkshire/L=Leeds/CN=dummy' -out /tmp/iris-certs/mycert.csr",!
-	Use tFile Write "openssl req -x509 -days 3660 -sha256 -in /tmp/iris-certs/mycert.csr -key /tmp/iris-certs/mycert.key -passin pass:"_uuid_" -out /tmp/iris-certs/mycert.pem",!
+	Use tFile Write "openssl genrsa -aes128 -passout pass:"_uuid_" -out /opt/iris-certs/mycert.key 2048",!
+	Use tFile Write "openssl req -new -key /opt/iris-certs/mycert.key -passin pass:"_uuid_" -subj '/C=UK/ST=Yorkshire/L=Leeds/CN=dummy' -out /opt/iris-certs/mycert.csr",!
+	Use tFile Write "openssl req -x509 -days 3660 -sha256 -in /opt/iris-certs/mycert.csr -key /opt/iris-certs/mycert.key -passin pass:"_uuid_" -out /opt/iris-certs/mycert.pem",!
 	Close tFile
-	Set tStatus=$zf(-1,"chmod +x /tmp/iris-certs/iris_installer.sh")
-	Set tStatus=$zf(-1,"/tmp/iris-certs/iris_installer.sh")
+	Set tStatus=$zf(-1,"chmod +x /opt/iris-certs/iris_installer.sh")
+	Set tStatus=$zf(-1,"/opt/iris-certs/iris_installer.sh")
 	Use tLog Write "openssl status: ",tStatus,!
 	ZN "%SYS"
 	
 	// need to chmod -R 777
-	Set sc=$zf(-1,"chmod -R 777 /tmp/iris-certs/")
+	Set sc=$zf(-1,"chmod -R 777 /opt/iris-certs/")
 	
-	Set prop("CertificateFile")="/tmp/iris-certs/mycert.pem"
+	Set prop("CertificateFile")="/opt/iris-certs/mycert.pem"
 	Set prop("Name")="ZKingLane"
-	Set prop("PrivateKeyFile")="/tmp/iris-certs/mycert.key"
+	Set prop("PrivateKeyFile")="/opt/iris-certs/mycert.key"
 	Set prop("PrivateKeyPassword")=uuid
 	Set prop("PrivateKeyType")=2
 	Set prop("Protocols")=16
