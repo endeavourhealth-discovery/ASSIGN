@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26">
+<Routine name="GFIND" type="MAC" languagemode="0"><![CDATA[
+GFIND ; ; 3/22/20 11:01am
+	N glb,str,query
+	R "Which global? ",glb,!
+	R "String? ",str,!
+	F  S glb=$q(@glb) Q:glb=""  D
+	.I glb[str!(@glb[str) W !,glb,"=",@glb
+	.Q
+	Q
+]]></Routine>
+</Export>
