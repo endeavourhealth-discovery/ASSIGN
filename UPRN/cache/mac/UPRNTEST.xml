@@ -44,9 +44,9 @@ GETCSV(result,arguments) ;
  set QUAL=$get(b("Qualifier"))
  set MATPATBUILD=$get(b("Match_pattern","Building"))
  set MATPATFLAT=$get(b("Match_pattern","Flat"))
- set MATPATNUMBER=$get(b("Match_patrtern","Number"))
- set MATPATPSTCDE=$get(b("Match_patrtern","Postcode"))
- set MATPATSTRT=$get(b("Match_patrtern","Street"))
+ set MATPATNUMBER=$get(b("Match_pattern","Number"))
+ set MATPATPSTCDE=$get(b("Match_pattern","Postcode"))
+ set MATPATSTRT=$get(b("Match_pattern","Street"))
  set QUALITY=$get(b("Address_format"))
  ;S ^PS($O(^PS(""),-1)+1)=$G(LONG)
  S (COORD,LAT,LONG,POINT,X,Y,CLASS)=""
