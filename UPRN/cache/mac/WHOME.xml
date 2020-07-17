@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26">
+<Routine name="WHOME" type="MAC" languagemode="0"><![CDATA[
+WHOME ; VEN/SMH - Home page processor;2018-08-17  9:19 AM
+ ;;
+ ;
+EN(RESULT) ; PEP
+ S RESULT("mime")="text/html; charset=utf-8"
+ N CRLF S CRLF=$C(13,10)
+ SET RESULT(1)="<html><b>Home page</b></html>"
+ quit
+]]></Routine>
+</Export>

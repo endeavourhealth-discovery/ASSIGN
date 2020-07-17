@@ -12,7 +12,7 @@ RESPOND ; find entry point to handle request and call it
  ; TODO: check cache of HEAD requests first and return that if there?
  K:'$G(NOGBL) ^TMP($J)
  N ROUTINE,LOCATION,HTTPARGS,HTTPBODY
- I HTTPREQ("path")="/",HTTPREQ("method")="GET" D EN^%WHOME(.HTTPRSP) QUIT  ; Home page requested.
+ I HTTPREQ("path")="/",HTTPREQ("method")="GET" D EN^WHOME(.HTTPRSP) QUIT  ; Home page requested.
  if $get(^ICONFIG("CORS"))'="",HTTPREQ("method")="OPTIONS" set HTTPRSP="OPTIONS,POST,GET" quit
  D MATCH(.ROUTINE,.HTTPARGS) I $G(HTTPERR) QUIT  ; Resolve the URL and authenticate if necessary
  D QSPLIT(.HTTPARGS) I $G(HTTPERR) QUIT          ; Split the query string
@@ -196,14 +196,14 @@ SENDATA ; write out the data as an HTTP response
  . I $D(@HTTPRSP)>1 D
  . . N ORIG,OL S ORIG=HTTPRSP,OL=$QL(HTTPRSP) ; Orig, Orig Length
  . . ; ZSHOW "*":^KBANTEMP
- . . F  S HTTPRSP=$Q(@HTTPRSP) Q:(($G(HTTPRSP)="")!($NA(@HTTPRSP,OL)'=$NA(@ORIG,OL)))  D W(@HTTPRSP)
+ . . ;F  S HTTPRSP=$Q(@HTTPRSP) Q:(($G(HTTPRSP)="")!($NA(@HTTPRSP,OL)'=$NA(@ORIG,OL)))  D W(@HTTPRSP)
  . . ; Vertical rewrite & fixes for GT.M 6.3
- . . ;N HTTPEXIT S HTTPEXIT=0
- . . ;F  D  Q:HTTPEXIT
- . . ;. S HTTPRSP=$Q(@HTTPRSP)
- . . ;. D:$G(HTTPRSP)'="" W(@HTTPRSP)
- . . ;. I $G(HTTPRSP)="" S HTTPEXIT=1
- . . ;. E  I $G(@HTTPRSP),$G(@ORIG),$NA(@HTTPRSP,OL)'=$NA(@ORIG,OL) S HTTPEXIT=1
+ . . N HTTPEXIT S HTTPEXIT=0
+ . . F  D  Q:HTTPEXIT
+ . . . S HTTPRSP=$Q(@HTTPRSP)
+ . . . D:$G(HTTPRSP)'="" W(@HTTPRSP)
+ . . . I $G(HTTPRSP)="" S HTTPEXIT=1
+ . . . E  I $G(@HTTPRSP),$G(@ORIG),$NA(@HTTPRSP,OL)'=$NA(@ORIG,OL) S HTTPEXIT=1
  . . ; End ~ vertical rewrite
  . . ;S HTTPRSP=ORIG
  I RSPTYPE=3 D            ; write out pageable records

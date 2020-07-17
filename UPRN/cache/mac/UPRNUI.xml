@@ -94,7 +94,8 @@ UPLOAD(arguments,body,result)
  set line=$order(body(""),-1)
  if line'="" set body(line)=$piece(body(line),"------WebKitFormBoundary",1)
  ;
- open file:newversion
+ I $ZV'["IRIS" open file:newversion
+ I $ZV["IRIS" open file:"WNS"
  set line=""
  for  set line=$order(body(line)) q:line=""  do
  .use file write body(line)
@@ -109,7 +110,8 @@ UPLOAD(arguments,body,result)
 PROCESS(file) ;
  K ^FILE(file)
  close file
- o file:(readonly):0
+ I $ZV'["IRIS" o file:(readonly):0
+ I $ZV["IRIS" o file:"R"
  S cnt=1
  f  u file r str q:$zeof  do
  .s adrec=$p(str,",",2,99)

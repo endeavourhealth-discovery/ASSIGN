@@ -16,6 +16,7 @@ B;
   QUIT $P($zstatus,",")
   
 6(dir) ; make dir
+	I $ZV["IRIS" S result=$ZF(-1,"mkdir "_dir) quit
 	zsystem "mkdir "_dir
 	quit
 	
