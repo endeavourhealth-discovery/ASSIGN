@@ -340,7 +340,8 @@ IMPDPA ;Imports and indexes the DPA file.
 ds7 .s ukey="U"
  .s post=$tr($p(rec,del,16)," ")
  .S key=$p(rec,del,5)
- .S change=$p(rec,del,2)
+ .S change=$$lc^UPRNL($p(rec,del,2))
+ .i change="d" k ^UPRN(ukey,uprn,"D",key) quit
  .set org=$p(rec,del,6)
  .set dep=$p(rec,del,7)
  .s flat=$p(rec,del,8)
@@ -420,6 +421,7 @@ IMPLPI ;Imports and indexes LPI file
  .s uprn=$p(rec,del,4)
 ds20 .s ukey="U"
  .s key=$p(rec,del,5)
+ .i change="d" k ^UPRN(ukey,uprn,"L",key) quit
 LPIREC .s saos=$p(rec,del,12)
  .s saosf=$p(rec,del,13)
  .s saoe=$p(rec,del,14)
@@ -527,12 +529,14 @@ IMPSTR ;
  .u file r rec
  .q:rec=""
  .s rec=$tr($$lc^UPRNL(rec),"""")
+ .s change=$p(rec,del,2)
  .s usrn=$p(rec,del,4)
  .s name=$p(rec,del,5)
  .s locality=$p(rec,del,6)
  .s town=$p(rec,del,7)
  .s admin=$p(rec,del,8)
  .S lang=$p(rec,del,9)
+ .i change="d" k ^UPRN("LPSTR",usrn_"-"_lang) quit
  .s newrec=name_"~"_locality_"~"_admin_"~"_town
  .i newrec'=$G(^UPRN("LPSTR",usrn_"-"_lang)) d
  ..S ^UPRN("LPSTR",usrn_"-"_lang)=name_"~"_locality_"~"_admin_"~"_town
@@ -582,7 +586,10 @@ IMPBLP ;
  .s insdate=$p(rec,del,16)
  .s update=$p(rec,del,18)
  .s parent=$p(rec,del,8)
- .i change="d" Q
+ .i change="d" do  quit
+ ..k ^UPRN(ukey,uprn)
+ ..i parent'="" k ^UPRN("UPC",parent,uprn)
+ ..quit
  .s coord1=$p(rec,del,9)_","_$P(rec,del,10)_","_$p(rec,del,11)_","_$p(rec,del,12)_","_$p(rec,del,13)
  .s local=$p(rec,del,14)
  .s adpost=$p(rec,del,20)
