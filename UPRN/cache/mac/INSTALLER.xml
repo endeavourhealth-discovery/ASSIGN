@@ -38,6 +38,9 @@ INSTALLER	;
 	Use tLog Write "cert setup status: ",tStatus,!
 	Close tLog
 	
+	// turn journalling off
+	Set sc=##class(%SYS.Journal.System).Stop()
+	
 	ZN ns
 	
 	// empty IRIS.DAT needs to be copied to 
