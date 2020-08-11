@@ -1728,10 +1728,13 @@ match18z ;
  .s $p(matchrec,",",4)="Be"
  .i tbno="",bno'="" s $p(matchrec,",",3)="Ni"
  .i bno="",tbno'="" s $p(matchrec,",",3)="Nd"
+ .i bno=tbno s $p(matchrec,",",3)="Ne"
+ .i bno'="",tbno'="" s $p(matchrec,",",3)="Ns"
  .i tflat'="",flat="" s $p(matchrec,",",5)="Fd"
  .i flat'="",tflat="" s $p(matchrec,",",5)="Fi"
- .s matched=$$set(uprn,table,key)
+ .i flat=tflat s $p(matchrec,",",5)="Fe"
  .s ALG=ALG_"match18a"
+ .s matched=$$set(uprn,table,key)
  i $D(^TUPRN($J,"MATCHED")) Q
  
  ;street equivalent, building equivalent to street
@@ -2646,7 +2649,7 @@ match45(tpost,tstreet,tbno,tbuild,tflat)
  ....s $p(matchrec,",",5)="Fe"
  ....I $$equiv^UPRNU(street,tstreet,5,2) d
  .....I $$equiv^UPRNU(build,tbuild,5,3) d
- ......s $p(matchrec,",",1)="Sl"
+ ......s $p(matchrec,",",2)="Sl"
  ......s $p(matchrec,",",4)="Bp"
  ......S ALG=ALG_"match45"
  ......s matched=$$set(uprn,table,key)

@@ -25,7 +25,13 @@ DOWNLOAD(result,arguments)
  ;s file="/opt/files/50000.txt"
  S file="/opt/files/"_file
  S l="",c=1
- F  S l=$order(^FILE(file,l)) q:l=""  s ^TMP($J,c)=^(l),c=c+1
+ S h="UPRN,Address_format,Algorithm,Classification,"
+ S h=h_"Match_pattern_Building,Match_pattern_Flat,Match_pattern_Number,"
+ S h=h_"Match_pattern_Postcode,Match_pattern_Street,"
+ S h=h_"ABPAddress_Number,ABPAddress_Postcode,ABPAddress_Street,"
+ S h=h_"ABPAddress_Town,Qualifier,candidate_address"
+ S ^TMP($j,c)=h_$c(13,10),c=c+1
+ F  S l=$order(^FILE(file,l)) q:l=""  s ^TMP($J,c)=^(l)_$C(13,10),c=c+1
  S result("mime")="text/plain, */*"
  S result=$NA(^TMP($J))
  QUIT
@@ -61,11 +67,17 @@ RETFILE(result,arguments)
  S ^PS24=file
  ;m ^TMP($J)=^FILE(file)
  S c="",line=1
+ LOCK ^UPRNUI("process",file):1
+ s processing=0
+ i '$t s processing=1
+ LOCK -^UPRNUI("process",file)
+ i processing s ^TMP($J,line)="*** still processing ***"_$c(13,10),line=line+1
  f  s c=$o(^FILE(file,c)) q:c=""  D
  .s ^TMP($J,line)=^(c)_$c(13,10)
  .;S ^PS25($J,line)=^(c)_$c(13,10)
  .s line=line+1
  .QUIT
+ i processing s ^TMP($J,line)="*** still processing ***"
  set result("mime")="text/plain, */*"
  set result=$na(^TMP($J))
  QUIT
@@ -81,6 +93,9 @@ UPLOAD(arguments,body,result)
  ;
  set file=$piece(body(1),$c(10),2)
  set file=$piece(file,"""",4)
+ lock ^UPRNUI("process",file):1
+ i '$t s ^UPRNUI("process",file)="Already being processed "_$h quit
+ lock -^UPRNUI("process",file)
  do 6^ZOS("/opt/files")
  set file="/opt/files/"_file
  ;
@@ -104,6 +119,8 @@ UPLOAD(arguments,body,result)
  quit 1
  
 PROCESS(file) ;
+ LOCK ^UPRNUI("process",file):1
+ I '$T S ^UPRNUI("process",file)="Already being processed "_$h quit
  K ^FILE(file)
  close file
  o file:(readonly):0
@@ -128,7 +145,7 @@ PROCESS(file) ;
  .S ABPS=$GET(B("ABPAddress","Street"))
  .S ABPT=$GET(B("ABPAddress","Town"))
  .S QUAL=$GET(B("Qualifier"))
- .S ^FILE(file,cnt)=UPRN_","_ADDFORMAT_","_ALG_","_CLASS_","_MATCHB_","_MATCHF_","_MATCHN_","_MATCHP_","_MATCHS_","_QUAL_","_ABPN_","_ABPP_","_ABPS_","_ABPT_","_adrec
+ .S ^FILE(file,cnt)=UPRN_","_ADDFORMAT_","_ALG_","_CLASS_","_MATCHB_","_MATCHF_","_MATCHN_","_MATCHP_","_MATCHS_","_ABPN_","_ABPP_","_ABPS_","_ABPT_","_QUAL_","""_adrec_""""
  .s cnt=cnt+1
  .quit
  close file

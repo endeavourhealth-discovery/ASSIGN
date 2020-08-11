@@ -105,7 +105,13 @@ MATCHK(json,summary)       ;populates match details
  .s json=json_"""UPRN"":"""_uprn_""","
  .s json=json_"""Qualifier"":"""_$$qual^UPRN2(matchrec)_""""
  .I $D(^UPRN("CLASS",uprn)) d
- ..s json=json_",""Classification"":"""_$tr($p(^UPRN("CLASS",uprn),"~"),"""")_""""
+ ..s classcode=$tr($p(^UPRN("CLASS",uprn),"~"),"""")
+ ..s json=json_",""Classification"":"""_$tr($p(^UPRN("CLASS",uprn),"~"),"""")_""","
+ ..s json=json_"""ClassTerm"":"""_$g(^UPRN("CLASSIFICATION",classcode,"term"))_""""
+ ..;s json=json_",""Classification"": {"
+ ..;s classcode=$tr($p(^UPRN("CLASS",uprn),"~"),"""")
+ ..;s json=json_"""code"": """_classcode_""","
+ ..;s json=json_"""term"": """_$g(^UPRN("CLASSIFICATION",classcode,"term"))_"""}"
  .I $G(summary) q
  .s json=json_","
  .s alg=^TUPRN($J,"MATCHED",uprn,table,key,"A")

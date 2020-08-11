@@ -327,7 +327,7 @@ qual(matchrec)     ;
  i matchrec["c" q "Child"
  i matchrec["a" q "Parent"
  i matchrec["s" q "Sibling"
- s qual="Best match "_$s('$D(^TPARAMS($J,"commercials")):"(residential)",1:"(+commercial)")_"match"
+ s qual="Best "_$s('$D(^TPARAMS($J,"commercials")):"(residential)",1:"(+commercial)")_" match"
  Q qual
  q
 EXPORT ;
