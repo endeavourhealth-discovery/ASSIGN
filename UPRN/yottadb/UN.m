@@ -1,4 +1,4 @@
-UN ; ; 9/3/20 11:28am
+UN ; ; 9/4/20 9:25am
  W !
  ZWR ^IMPORT
  W !
@@ -78,4 +78,46 @@ CALC ;
  W !,"UPRN TO NULL ",B
  W !,"76UPRN <> 77UPRN (BOTH NOT NULL) ",C
  W !,"TOTAL DIFFS (D) ",D
+ QUIT
+ 
+HTML ;
+ W !
+ ZWR ^IMPORT
+ W !
+ ;S F="/tmp/77.html"
+ W !,"filename (inc dir): "
+ R F
+ I F="." Q
+ C F
+ O F:(newversion)
+ USE F
+ W "<HTML>",!
+ W "<TABLE BORDER=1>",!
+ W "<TD>correct?</TD><TD>UPRN</TD><TD>candidate address</TD><TD>UPRN</TD><TD>ABP address</TD><TR>",!
+ F GLOB="^A","^B","^C" DO
+ .S CADR=""
+ .F  S CADR=$O(@GLOB@(CADR)) Q:CADR=""  DO
+ ..S REC=^(CADR)
+ ..S UPRN1=$P(REC,"~",1)
+ ..S UPRN2=$P(REC,"~",2)
+ ..;W !,GLOB," ",CADR," ",REC
+ ..; GET ABP ADDRESS
+ ..D GETUPRN^UPRNMGR(CADR,"","","",0,0)
+ ..K b
+ ..D DECODE^VPRJSON($name(^temp($j,1)),$name(b),$name(err))
+ ..;w ! zwr b r *y
+ ..S FLAT=$GET(b("ABPAddress","Flat"))
+ ..S BUILD=$GET(b("ABPAddress","Building"))
+ ..S NUMBER=$GET(b("ABPAddress","Number"))
+ ..S PCODE=$GET(b("ABPAddress","Postcode"))
+ ..S STREET=$GET(b("ABPAddress","Street"))
+ ..S TOWN=$GET(b("ABPAddress","Town"))
+ ..;W !,GLOB," ",CADR," ",NUMBER," ",STREET," ",TOWN," ",PCODE
+ ..S ABP=FLAT_","_NUMBER_","_BUILD_","_STREET_","_TOWN_","_PCODE
+ ..W "<TD></TD><TD>",UPRN1,"</TD><TD>",CADR,"</TD><TD>",UPRN2,"</TD><TD>",ABP,"</TD><TR>",!
+ ..QUIT
+ .QUIT
+ W "</TABLE>",!
+ W "</HTML>"
+ CLOSE F
  QUIT

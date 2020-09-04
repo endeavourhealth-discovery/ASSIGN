@@ -1,4 +1,4 @@
-UPRN58 ; ; 9/3/20 1:46pm
+UPRN58 ; ; 9/4/20 8:58am
  N FILES
  
  W !,"BASELINE FOLDER? "
@@ -20,6 +20,14 @@ YN W !,"Continue (Y/N)? "
  S FILES(3)="ID24_LPI_Records."_EPOCHNO_".csv"
  S FILES(4)="ID28_DPA_Records."_EPOCHNO_".csv"
  S FILES(5)="ID32_Class_Records."_EPOCHNO_".csv"
+ 
+ I EPOCHNO="" DO
+ .S FILES(1)="ID15_StreetDesc_Records.csv"
+ .S FILES(2)="ID21_BLPU_Records.csv"
+ .S FILES(3)="ID24_LPI_Records.csv"
+ .S FILES(4)="ID28_DPA_Records.csv"
+ .S FILES(5)="ID32_Class_Records.csv"
+ .QUIT
  
  S F(1)="ID15_StreetDesc_Records.csv"
  S F(2)="ID21_BLPU_Records.csv"
@@ -49,7 +57,7 @@ YN W !,"Continue (Y/N)? "
  ;QUIT
  
  F I=1:1:5 DO
- .S F=EPOC_F(I)
+ .S F=EPOCH_F(I)
  .S C=0
  .C F
  .O F:(readonly)
