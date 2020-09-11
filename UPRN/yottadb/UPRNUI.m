@@ -1,4 +1,4 @@
-UPRNUI ; ; 6/22/20 2:03pm
+UPRNUI ; ; 9/10/20 10:53am
  ;set ^%W(17.6001,"B","GET","ui/login","LOGIN^UPRNUI",0)=""
  ;set ^%W(17.6001,"B","POST","check/login","CHECK^UPRNUI",8)=""
  ;set ^%W(17.6001,"B","POST","ui/calculate","CALC^UPRNUI",8)=""
@@ -15,23 +15,22 @@ UPRNUI ; ; 6/22/20 2:03pm
  set ^%W(17.6001,124,0)="GET"
  set ^%W(17.6001,124,1)="api/filedownload"
  set ^%W(17.6001,124,2)="DOWNLOAD^UPRNUI"
+ 
+X set ^%W(17.6001,130,0)="GET"
+ set ^%W(17.6001,130,1)="api/sessionid"
+ set ^%W(17.6001,130,2)="SESSION^UPRNUI"
+ set ^%W(17.6001,"B","GET","api/sessionid","SESSION^UPRNUI",130)=""
  quit
  
 DOWNLOAD(result,arguments) 
  K ^TMP($J)
- ;S ^TMP($J,1)="TEST DATA"
  set file=$get(arguments("filename"))
- S ^FRED=file
- ;s file="/opt/files/50000.txt"
- S file="/opt/files/"_file
- S l="",c=1
- S h="UPRN,Address_format,Algorithm,Classification,"
- S h=h_"Match_pattern_Building,Match_pattern_Flat,Match_pattern_Number,"
- S h=h_"Match_pattern_Postcode,Match_pattern_Street,"
- S h=h_"ABPAddress_Number,ABPAddress_Postcode,ABPAddress_Street,"
- S h=h_"ABPAddress_Town,Qualifier,candidate_address"
- S ^TMP($j,c)=h_$c(13,10),c=c+1
- F  S l=$order(^FILE(file,l)) q:l=""  s ^TMP($J,c)=^(l)_$C(13,10),c=c+1
+ set user=$get(arguments("userid"))
+ I file'["/opt/" S file="/opt/files/"_file
+ s c=1,^TMP($J,c)="[",c=c+1,l="" f  s l=$order(^NGX(user,file,l)) q:l=""  S ^TMP($J,c)=^(l)_$C(13,10),c=c+1
+ S z=$o(^TMP($J,""),-1)
+ i z'="" s json=^TMP($J,z) i $e(json,$l(json)-2)="," s ^TMP($J,z)=$e(json,1,$l(json)-3)
+ s ^TMP($J,c)="]"
  S result("mime")="text/plain, */*"
  S result=$NA(^TMP($J))
  QUIT
@@ -56,6 +55,15 @@ LOGIN(result,arguments) ;
  
 GETFILENAM(disposition) 
  ;
+ quit
+ 
+SESSION(result,arguments) 
+ ;set ^TMP($J,1)=$$UUID^AUTH()
+ ;S J="{""name"":""John"", ""age"":31, ""city"":""New York""}"
+ S J="{""session"":"""_$$UUID^AUTH()_"""}"
+ set ^TMP($J,1)=J
+ set result("mime")="text/plain, */*"
+ set result=$na(^TMP($J))
  quit
  
 RETFILE(result,arguments) 
@@ -85,14 +93,16 @@ RETFILE(result,arguments)
 UPLOAD(arguments,body,result) 
  new file,line
  K ^TMP($J)
- M ^FILES=body
+ ;M ^FILES=body
+ 
+ S X=$O(body(""),-1)
+ S ZZ=body(X)
+ 
  set result("mime")="text/html"
- ;
- ;set ^FILES=$I(^FILES)
- ;set file="file"_^FILES_".csv"
- ;
+ 
  set file=$piece(body(1),$c(10),2)
  set file=$piece(file,"""",4)
+ 
  lock ^UPRNUI("process",file):1
  i '$t s ^UPRNUI("process",file)="Already being processed "_$h quit
  lock -^UPRNUI("process",file)
@@ -100,13 +110,12 @@ UPLOAD(arguments,body,result)
  set file="/opt/files/"_file
  ;
  if $data(body(1)) set body(1)=$p(body(1),$c(10),5,9999999999)
- ;
- ;open file:(writeonly)
- ;
+ 
  set line=$order(body(""),-1)
  if line'="" set body(line)=$piece(body(line),"------WebKitFormBoundary",1)
- ;
- open file:newversion
+ 
+ ;open file:newversion
+ O file:(newversion:stream:nowrap:chset="M")
  set line=""
  for  set line=$order(body(line)) q:line=""  do
  .use file write body(line)
@@ -115,18 +124,36 @@ UPLOAD(arguments,body,result)
  ;
  s ^TMP($J,1)="{""upload"": { ""status"": ""OK""}}"
  set result=$na(^TMP($J))
- Job PROCESS(file)
- quit 1
  
-PROCESS(file) ;
+ S USER=$P($P(ZZ,"name=""userid"""_$C(13,10,13,10),2),$C(13,10))
+ 
+ S I=$O(^ACTIVITY(USER,""),-1)+1
+ S ^ACTIVITY(USER,I)=$H_"~"_file_" uploaded ok~"_file
+ 
+ Job PROCESS(file,USER)
+ quit 1
+
+ETCODE ;
+ ;;S HTTPLOG("DT")=+$H
+ ;;S HTTPLOG("ID")=99999
+ ;;D LOGERR^VPRJREQ
+ S I=$O(^ACTIVITY(user,""),-1)+1
+ S ^ACTIVITY(user,I)=$H_"~"_$ZSTATUS
+ S $ETRAP=""
+ QUIT
+ 
+PROCESS(file,user) ;
+ S $ETRAP="G ETCODE^UPRNUI"
  LOCK ^UPRNUI("process",file):1
  I '$T S ^UPRNUI("process",file)="Already being processed "_$h quit
- K ^FILE(file)
+ K ^FILE(file),^NGX(user,file)
  close file
  o file:(readonly):0
  S cnt=1
  f  u file r str q:$zeof  do
- .s adrec=$p(str,",",2,99)
+ .S ZID=$$TR^LIB($P(str,",",1),"""","")
+ .I ZID=""!(ZID=$C(13)) QUIT
+ .s adrec=$$TR^LIB($p(str,",",2,99),$C(13),"")
  .D GETUPRN^UPRNMGR(adrec)
  .s json=^temp($j,1)
  .K B,C
@@ -145,11 +172,46 @@ PROCESS(file) ;
  .S ABPS=$GET(B("ABPAddress","Street"))
  .S ABPT=$GET(B("ABPAddress","Town"))
  .S QUAL=$GET(B("Qualifier"))
- .S ^FILE(file,cnt)=UPRN_","_ADDFORMAT_","_ALG_","_CLASS_","_MATCHB_","_MATCHF_","_MATCHN_","_MATCHP_","_MATCHS_","_ABPN_","_ABPP_","_ABPS_","_ABPT_","_QUAL_","""_adrec_""""
- .s cnt=cnt+1
+ .S J=$$JSON(UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,$$ESC^VPRJSON(adrec),ZID)
+ .I '$D(^NGX(user,file,ZID)) set ^NGX(user,file,ZID)=J
+ .I $D(^NGX(user,file,ZID)) DO
+ ..S Z=$O(^NGX(user,file,ZID,""),-1)+1
+ ..S ^NGX(user,file,ZID,Z)=J
+ ..QUIT
  .quit
+ 
+ ; remove extra comma
+ S cnt=$o(^NGX(user,file,""),-1)
+ I cnt'="" do
+ .s rec=^NGX(user,file,cnt)
+ .s rec=$e(rec,1,$l(rec)-1)
+ .S ^NGX(user,file,cnt)=rec
+ .quit
+ 
  close file
+ LOCK -^UPRNUI("process",file)
+ S I=$O(^ACTIVITY(user,""),-1)+1
+ S ^ACTIVITY(user,I)=$H_"~"_file_" processed ok~"_file
  QUIT
+ 
+JSON(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,ZID)
+ S JS="{""ID"":"""_ZID_""","
+ S JS=JS_"""UPRN"":"""_A_""","
+ S JS=JS_"""add_format"":"""_B_""","
+ S JS=JS_"""alg"":"""_C_""","
+ S JS=JS_"""class"":"""_D_""","
+ S JS=JS_"""match_build"":"""_E_""","
+ S JS=JS_"""match_flat"":"""_F_""","
+ S JS=JS_"""match_number"":"""_G_""","
+ S JS=JS_"""match_postcode"":"""_H_""","
+ S JS=JS_"""match_street"":"""_I_""","
+ S JS=JS_"""abp_number"":"""_J_""","
+ S JS=JS_"""abp_postcode"":"""_K_""","
+ S JS=JS_"""abp_street"":"""_L_""","
+ S JS=JS_"""abp_town"":"""_M_""","
+ S JS=JS_"""qualifier"":"""_N_""","
+ S JS=JS_"""add_candidate"":"""_O_"""},"
+ QUIT JS
  
 CALC(arguments,body,result) ;
  new data,a
