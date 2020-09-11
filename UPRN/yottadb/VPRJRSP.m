@@ -10,7 +10,7 @@ RESPOND ; find entry point to handle request and call it
  K:'$G(NOGBL) ^TMP($J)
  N ROUTINE,LOCATION,HTTPARGS,HTTPBODY
  I HTTPREQ("path")="/",HTTPREQ("method")="GET" D EN^%WHOME(.HTTPRSP) QUIT  ; Home page requested.
- if $get(^ICONFIG("CORS"))'="",HTTPREQ("method")="OPTIONS" set HTTPRSP="OPTIONS,POST,GET" quit
+ if $get(^ICONFIG("CORS"))'="",HTTPREQ("method")="OPTIONS" set HTTPRSP="OPTIONS,POST,GET,DELETE" quit
  D MATCH(.ROUTINE,.HTTPARGS) I $G(HTTPERR) QUIT  ; Resolve the URL and authenticate if necessary
  D QSPLIT(.HTTPARGS) I $G(HTTPERR) QUIT          ; Split the query string
  S HTTPREQ("paging")=$G(HTTPARGS("start"),0)_":"_$G(HTTPARGS("limit"),999999)
@@ -170,8 +170,9 @@ SENDATA ; write out the data as an HTTP response
  ;
  ; Add CORS Header
  if $G(^ICONFIG("CORS"))'="" do
- .I $G(HTTPREQ("method"))="OPTIONS" D W("Access-Control-Allow-Methods: OPTIONS, POST"_$C(13,10))
- .I $G(HTTPREQ("method"))="OPTIONS" D W("Access-Control-Allow-Headers: Content-Type,authorization"_$C(13,10))
+ .I $G(HTTPREQ("method"))="OPTIONS" D W("Access-Control-Allow-Methods: OPTIONS, POST, GET, DELETE"_$C(13,10))
+ .S userprojectid=$p($get(HTTPREQ("header","access-control-request-headers")),",",2)
+ .I $G(HTTPREQ("method"))="OPTIONS" D W("Access-Control-Allow-Headers: Content-Type,authorization"_$s(userprojectid'="":","_userprojectid,1:"")_$C(13,10))
  .I $G(HTTPREQ("method"))="OPTIONS" D W("Access-Control-Max-Age: 86400"_$C(13,10))
  .D W("Access-Control-Allow-Origin: *"_$C(13,10))
  .quit
