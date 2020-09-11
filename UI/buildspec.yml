@@ -1,9 +1,6 @@
 version: 0.2
 
 phases:
-  install:
-    runtime-versions:
-      java: openjdk8
   pre_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
@@ -33,4 +30,5 @@ artifacts:
   files:
     - FrontEndv8/frontend
     - API/api
+    - aws_scripts/**/*
   discard-paths: yes

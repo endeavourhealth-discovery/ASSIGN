@@ -2,9 +2,9 @@ version: 0.0
 os: linux
 files:
   - source: /dist
-    destination: //usr/share/nginx/html/data-sharing-manager
+    destination: //usr/share/nginx/html/uprn-match
 hooks:
   BeforeInstall:
-    - location: cleanup
+    - location: awsscripts/cleanup
       timeout: 300
       runas: root

@@ -1,1 +1,1 @@
-rm -rf /opt/tomcat/webapps/data-sharing-manager
+rm -rf /opt/tomcat/webapps/uprn-match
