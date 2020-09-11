@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.endeavourhealth.dataSharingManager</groupId>
+    <artifactId>DataSharingManager</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.endeavourhealth</groupId>
+                <artifactId>discovery-versions</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
+        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+        <quartz.version>2.3.0</quartz.version>
+
+        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <frontend-maven-plugin.version>1.4</frontend-maven-plugin.version>
+        <node.version>v12.2.0</node.version>
+
+        <maven-sonar-plugin.version>3.5.0.1254</maven-sonar-plugin.version>
+
+        <sonar.projectKey>endeavourhealth-discovery_DataSharingManager</sonar.projectKey>
+        <sonar.organization>endeavourhealth-discovery</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.login>8ddba9bbb23a08a7cff43ecc620be3738a152b65</sonar.login>
+        <sonar.typescript.node>FrontEnd/node/node</sonar.typescript.node>
+        <sonar.coverage.exclusions>**/api/**/*, **/dal/**/*, **/models/**/*</sonar.coverage.exclusions>
+        <sonar.junit.reportPaths>target/surefire-reports</sonar.junit.reportPaths>
+    </properties>
+
+    <modules>
+        <module>API</module>
+        <module>FrontEndv8</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <snapshots />
+            <id>snapshots</id>
+            <name>libs-snapshot</name>
+            <url>http://maven.endeavourhealth.net:8081/artifactory/libs-snapshot</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>libs-release</name>
+            <url>http://maven.endeavourhealth.net:8081/artifactory/libs-release</url>
+        </repository>
+    </repositories>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <name>maven.endeavourhealth.org-snapshots</name>
+      <url>http://maven.endeavourhealth.net:8081/artifactory/libs-snapshot-local</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${maven-sonar-plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>

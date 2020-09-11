@@ -1,0 +1,36 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: openjdk8
+  pre_build:
+    commands:
+      - IP=$(curl http://checkip.amazonaws.com)/32
+      - echo $IP of CodeBuild Instance
+  build:
+    commands:
+      - chmod +x aws_scripts/build.sh
+      - echo Main build started on `date`
+      - aws_scripts/build.sh mvn -B deploy
+      - echo Analysis started on `date`
+      - mvn sonar:sonar
+
+  post_build:
+    commands:
+      - IP=$(curl http://checkip.amazonaws.com)/32
+      - echo $IP of CodeBuild Instance
+      - echo Packaging application
+      - cd FrontEndv8
+      - zip -r frontend.zip appspec.yml cleanup dist/
+      - mv frontend.zip frontend
+      - echo Packaging core
+      - cd ../API
+      - zip -r api.zip appspec.yml cleanup target/API-0.0.1/
+      - mv api.zip api
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - FrontEndv8/frontend
+    - API/api
+  discard-paths: yes

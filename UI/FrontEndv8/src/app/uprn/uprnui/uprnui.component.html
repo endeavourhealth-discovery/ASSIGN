@@ -1,0 +1,244 @@
+<mat-card>
+  <mat-card-header>
+    <div mat-card-avatar>
+      <i class="fad fa-analytics"></i></div>
+    <mat-card-title>UPRN</mat-card-title>
+    <mat-card-subtitle>YottaDB r1.26 Linux x86_64</mat-card-subtitle>
+    <div fxFlex></div>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-tab-group (selectedTabChange)="tabChanged($event)">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          Input address
+        </ng-template>
+        <mat-card-content>
+          <!-- <p>This is where you'll enter the address</p> -->
+          <!-- 10 Downing St,Westminster,London,SW1A2AA -->
+          <!-- <p> -->
+          <mat-form-field appearance="outline" fxFlex="50" fxFill>
+            <mat-label>Address</mat-label>
+            <input type="string" value="1" matInput [(ngModel)]="adrec" name="adrec">
+          </mat-form-field>
+            <button mat-icon-button matTooltip="Filter the results" (click)="findUPRN()">
+              <i class="far fa-fw fa-search"></i>
+            </button>
+          <!-- </p> -->
+        </mat-card-content>
+        <br>
+        <div class="flex" fxLayout="row wrap" fxLayout.xs="column" fxLayoutGap="16px grid" fxLayoutAlign="start">
+          <div *ngIf="UPRNData" fxFlex="100">
+            <div class="flex" fxLayout="row wrap" fxLayout.xs="column" fxLayoutGap="16px grid" fxLayoutAlign="start">
+              <div fxFlex="100">
+                <mat-card class="example-card">
+                  <mat-card-content>
+                    <p>UPRN : {{UPRN}}</p>
+                    <p>Building: {{building}}</p>
+                    <p>Flat: {{flat}}</p>
+                    <p>Number : {{number}}</p>
+                    <p>Street: {{street}}</p>
+                    <p>Town: {{town}}</p>
+                    <p>Postcode: {{postcode}}</p>
+                    <p>Classification code: {{classcode}}</p>
+                    <p>Classification Term: {{classterm}}</p>
+                    <br>
+                    <p><u>match patterns</u></p>
+                    <p>Post code: {{matchpcode}}</p>
+                    <p>Number: {{matchnumber}}</p>
+                    <p>Building: {{matchbuilding}}</p>
+                    <p>Flat: {{matchflat}}</p>
+                    <br>
+                    <p><u>algorithm</u></p>
+                    <p>{{algorithm}}</p>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          Upload
+        </ng-template>
+        <mat-card-content>
+
+          <!-- <p>This is where you'll do the CSV stuff</p>
+          <p>Session Id: {{sessionId}}</p> -->
+
+          <!-- <p>Select a candidate file to upload by clicking on the Choose File button</p> -->
+          <Label id="item1" (loaded)="onItemLabelLoaded($event)"></Label>
+
+          <button type="button" mat-flat-button (click)="fileInput.click()">Choose File</button>
+          <input hidden (click)="onClicky($event)" (change)="postMethod($event.target.files)" #fileInput type="file" id="file">
+          <!-- <input hidden (change)="postMethod($event.target.files)" #fileInput type="file" id="file"> -->
+
+          <p>csv file format (input):</p>
+          <table class="table table-bordered table-hover table-condensed" border="1" width="100%">
+            <thead><tr><th title="Field #1">ID</th>
+              <th title="Field #2">address_candidate</th>
+            </tr></thead>
+            <tbody><tr>
+              <td align="right">1</td>
+              <td>10 Downing St,Westminster,London,SW1A2AA</td>
+            </tr>
+            <tr>
+              <td align="right">2</td>
+              <td>Bridge Street,London,SW1A 2LW</td>
+            </tr>
+            <tr>
+              <td align="right">3</td>
+              <td>221b Baker St,Marylebone,London,NW1 6XE</td>
+            </tr>
+            <tr>
+              <td align="right">4</td>
+              <td>3 Abbey Rd,St John&#39;s Wood,London,NW8 9AY</td>
+            </tr>
+            </tbody></table>
+          <br>
+          <!--
+          <p>output:</p>
+          <table class="table table-bordered table-hover table-condensed" border="1">
+            <thead><tr><th title="Field #1">ID</th>
+              <th title="Field #2">UPRN</th>
+              <th title="Field #3">add_format</th>
+              <th title="Field #4">alg</th>
+              <th title="Field #5">class</th>
+              <th title="Field #6">match_build</th>
+              <th title="Field #7">match_flat</th>
+              <th title="Field #8">match_number</th>
+              <th title="Field #9">match_postcode</th>
+              <th title="Field #10">match_street</th>
+              <th title="Field #11">abp_number</th>
+              <th title="Field #12">abp_postcode</th>
+              <th title="Field #13">abp_street</th>
+              <th title="Field #14">abp_town</th>
+              <th title="Field #15">qualifier</th>
+              <th title="Field #16">add_candidate</th>
+            </tr></thead>
+            <tbody><tr>
+              <td align="right">1</td>
+              <td align="right">100023336956</td>
+              <td>good</td>
+              <td>10-match1</td>
+              <td>RD04</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td>10</td>
+              <td>SW1A 2AA</td>
+              <td>Downing Street</td>
+              <td>London</td>
+              <td>Best  (residential) match</td>
+              <td>10 Downing St,Westminster,London,SW1A2AA</td>
+            </tr>
+            <tr>
+              <td align="right">2</td>
+              <td align="right">200002501505</td>
+              <td>good</td>
+              <td>130-bestfit</td>
+              <td>PP</td>
+              <td>ABP field ignored</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td> </td>
+              <td>SW1A 2LW</td>
+              <td>Bridge Street</td>
+              <td>London</td>
+              <td>Best  (residential) match</td>
+              <td>Bridge Street,London,SW1A 2LW</td>
+            </tr>
+            <tr>
+              <td align="right">3</td>
+              <td align="right">10033529326</td>
+              <td>good</td>
+              <td>2583-match44</td>
+              <td>U</td>
+              <td>ABP field ignored</td>
+              <td>ABP field ignored</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td>215-229</td>
+              <td>NW1 6XE</td>
+              <td>Baker Street</td>
+              <td>City Of Westminster</td>
+              <td>Best  (residential) match</td>
+              <td>221b Baker St,Marylebone,London,NW1 6XE</td>
+            </tr>
+            <tr>
+              <td align="right">4</td>
+              <td align="right">10033534899</td>
+              <td>good</td>
+              <td>130-bestfit</td>
+              <td>RD04</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td>equivalent</td>
+              <td>ABP field ignored</td>
+              <td>equivalent</td>
+              <td>3</td>
+              <td>NW8 9AZ</td>
+              <td>Abbey Road</td>
+              <td>London</td>
+              <td>Best  (residential) match</td>
+              <td>3 Abbey Rd,St John&#39;s Wood,London,NW8 9AY</td>
+            </tr>
+            </tbody></table> -->
+
+          <!-- <input id="myForm" type="file" name="file" (change)="postMethod($event.target.files)"> -->
+          <!-- <button mat-button color="warn" (click)="onClickUpload()">
+            <mat-icon>file_upload</mat-icon>
+            Upload
+          </button> -->
+
+          <!-- <p>Download the output from the previously uploaded candidate file</p>
+          <button type="button" mat-flat-button (click)="onClickDownload()">Download</button> -->
+          <!-- <mat-icon>file_download</mat-icon> -->
+          <!-- </button> -->
+
+        </mat-card-content>
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          Downloads + Activity
+        </ng-template>
+        <!-- <div [innerHTML]="HTML"></div> -->
+        <br>
+
+        <button type="button" mat-flat-button (click)="onActivityRefresh()">Refresh</button>
+        <br><br>
+
+        <table *ngIf="arrActivity" border="1" style="width: 100%;">
+        <!-- <table mat-table border="1"> -->
+          <tr>
+            <th>Time</th>
+            <th>Action</th>
+            <th>Download</th>
+          </tr>
+
+          <tr *ngFor="let activity of arrActivity">
+            <td>{{activity.DT}}</td>
+            <td>{{activity.A}}</td>
+            <td *ngIf = "activity.F">
+            <button type="button" mat-stroked-button (click)="onClickDownloadTable(activity.F)">Download</button></td>
+            <td *ngIf = "!activity.F"></td>
+          </tr>
+        </table>
+      </mat-tab>
+      <!--
+      <mat-tab>
+        <ng-template mat-tab-label>
+          Google maps
+        </ng-template>
+        <br>
+        <button type="button" mat-flat-button (click)="onClickGoogleMaps()">Launch</button>
+      </mat-tab> -->
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>
