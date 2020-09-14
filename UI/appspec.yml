@@ -1,12 +1,12 @@
 version: 0.0
 os: linux
 files:
-  - source: /dist
+  - source: /UI/FrontEndv8/dist
     destination: //opt/tomcat/webapps/uprn-match
-  - source: /dist
+  - source: /UI/API/target/API-0.0.1
     destination: //opt/tomcat/webapps/uprn-match
 hooks:
   BeforeInstall:
-    - location: aws_script/cleanup
+    - location: UI/aws_script/cleanup
       timeout: 300
       runas: root
