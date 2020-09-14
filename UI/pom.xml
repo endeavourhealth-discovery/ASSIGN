@@ -34,11 +34,11 @@
 
         <maven-sonar-plugin.version>3.5.0.1254</maven-sonar-plugin.version>
 
-        <sonar.projectKey>endeavourhealth-discovery_DataSharingManager</sonar.projectKey>
+        <sonar.projectKey>endeavourhealth-discovery_UPRN</sonar.projectKey>
         <sonar.organization>endeavourhealth-discovery</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.login>8ddba9bbb23a08a7cff43ecc620be3738a152b65</sonar.login>
-        <sonar.typescript.node>FrontEnd/node/node</sonar.typescript.node>
+        <sonar.typescript.node>FrontEndv8/node/node</sonar.typescript.node>
         <sonar.coverage.exclusions>**/api/**/*, **/dal/**/*, **/models/**/*</sonar.coverage.exclusions>
         <sonar.junit.reportPaths>target/surefire-reports</sonar.junit.reportPaths>
     </properties>
