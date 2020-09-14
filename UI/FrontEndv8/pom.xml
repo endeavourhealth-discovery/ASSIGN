@@ -4,15 +4,15 @@
 
   <parent>
     <relativePath>../pom.xml</relativePath>
-    <groupId>org.endeavourhealth.dataSharingManager</groupId>
-    <artifactId>DataSharingManager</artifactId>
+    <groupId>org.endeavourhealth.uprn</groupId>
+    <artifactId>UPRN</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>frontendv8</artifactId>
 
   <properties>
-    <sonar.projectKey>endeavourhealth-discovery_DataSharingManager::FrontEnd</sonar.projectKey>
+    <sonar.projectKey>endeavourhealth-discovery_UPRN::FrontEnd</sonar.projectKey>
     <sonar.sources>src</sonar.sources>
     <sonar.typescript.tsconfigPath>tsconfig.json</sonar.typescript.tsconfigPath>
     <sonar.ts.tslint.configPath>tslint.json</sonar.ts.tslint.configPath>
