@@ -32,6 +32,11 @@ import { MatTabChangeEvent } from '@angular/material';
 export class UPRNComponent implements OnInit {
   @ViewChild("fileUpload", {static: false}) fileUpload: ElementRef;files  = [];
   adrec: string;
+  jsondata: string;
+  jsonlatlong: string;
+
+  Latitude: String;
+  Longitude: String;
 
   userId: string;
   reportComplete = true;
@@ -220,7 +225,11 @@ export class UPRNComponent implements OnInit {
     // https://www.google.com/maps/search/?api=1&query=47.5951518,-122.3316393
 
     // window.open('https://www.google.com/maps/search/?api=1&query=51.5135848,-.0481910',"_blank");
-    window.open('https://www.google.com/maps/search/?api=1&query=535533.00,181212.00',"_blank");
+    // window.open('https://www.google.com/maps/search/?api=1&query=535533.00,181212.00',"_blank");
+
+    //window.open('https://www.google.com/maps/search/?api=1&query=51.5338247,-0.1776856',"_blank"); // mumps API returns -.1776856
+
+    window.open("https://www.google.com/maps/search/?api=1&query="+this.Latitude+","+this.Longitude,"_blank");
   }
 
   onClickDownloadTable(filetodownload: string)
@@ -326,12 +335,49 @@ export class UPRNComponent implements OnInit {
 
   }
 
+  onClickJSON() {
+    if (this.jsonlatlong == undefined) {
+      this.jsonlatlong = "Click on Google maps";
+    }
+    alert(this.jsonlatlong);
+  }
+
+  onClickDownGoogleMaps(uprn: string) {
+    // api/getuprn
+    this.Longitude=""; this.Latitude="";
+    this.UPRNService.getUPRNI(uprn).
+      subscribe(
+        result => {
+          this.processCoord(result);
+        },
+      error => {
+        this.log.error('Unable to process uprn');
+        this.reportComplete = true;
+      }
+    )
+  }
+
+  processCoord(activityData: any[]) {
+    console.log(JSON.stringify(activityData));
+    this.jsonlatlong = JSON.stringify(activityData);
+
+    let jsonObj = JSON.parse(JSON.stringify(activityData));
+    let lat = jsonObj.Latitude;
+    let long = jsonObj.Longitude;
+
+    this.Latitude = lat;
+    this.Longitude = long;
+
+    window.open("https://www.google.com/maps/search/?api=1&query="+this.Latitude+","+this.Longitude,"_blank");
+  }
+
   findUPRN() {
     console.log(this.adrec);
     this.getUPRN(this.adrec);
   }
 
   getUPRN(adrec: string) {
+    this.jsondata = "";
     this.UPRNService.getUPRNStuff(adrec).
       subscribe(
         result => {
@@ -346,6 +392,7 @@ export class UPRNComponent implements OnInit {
 
   processUPRN(activityData: any[]) {
     console.log(JSON.stringify(activityData));
+    this.jsondata = JSON.stringify(activityData);
 
     //this.UPRNData.map<UPRNData>(({UPRN}) => JSON.parse(JSON.stringify(activityData)));
 

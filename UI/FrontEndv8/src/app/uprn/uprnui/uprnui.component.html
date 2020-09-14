@@ -32,24 +32,25 @@
               <div fxFlex="100">
                 <mat-card class="example-card">
                   <mat-card-content>
-                    <p>UPRN : {{UPRN}}</p>
-                    <p>Building: {{building}}</p>
-                    <p>Flat: {{flat}}</p>
-                    <p>Number : {{number}}</p>
-                    <p>Street: {{street}}</p>
-                    <p>Town: {{town}}</p>
-                    <p>Postcode: {{postcode}}</p>
-                    <p>Classification code: {{classcode}}</p>
-                    <p>Classification Term: {{classterm}}</p>
+                    <table>
+                      <td><button type="button" mat-stroked-button (click)="onClickDownGoogleMaps(UPRN)">Google maps</button></td>
+                      <td><button type="button" mat-stroked-button (click)="onClickJSON()">JSON</button></td>
+                    </table>
+                    <br><br>
+                    <table border="1" width="100%">
+                      <td>Details</td><td></td><td>match patterns</td><td></td><td>Algorithm</td><tr>
+                      <td>UPRN: </td><td>{{UPRN}}</td><td>Post code: </td><td>{{matchpcode}}</td><td>{{algorithm}}</td><tr>
+                      <td>Building: </td><td>{{building}}</td><td>Number: </td><td>{{matchnumber}}</td><td></td><tr>
+                      <td>Flat: </td><td>{{flat}}</td><td>Building: </td><td>{{matchbuilding}}</td><td></td><tr>
+                      <td>Number: </td><td>{{number}}</td><td>Flat: </td><td>{{matchflat}}</td><td></td><tr>
+                      <td>Street: </td><td>{{street}}</td><tr>
+                      <td>Town: </td><td>{{town}}</td><tr>
+                      <td>Post code: </td><td>{{postcode}}</td><tr>
+                      <td>Classification code: </td><td>{{classcode}}</td><tr>
+                      <td>Classification term: </td><td>{{classterm}}</td><tr>
+                    </table>
                     <br>
-                    <p><u>match patterns</u></p>
-                    <p>Post code: {{matchpcode}}</p>
-                    <p>Number: {{matchnumber}}</p>
-                    <p>Building: {{matchbuilding}}</p>
-                    <p>Flat: {{matchflat}}</p>
-                    <br>
-                    <p><u>algorithm</u></p>
-                    <p>{{algorithm}}</p>
+                    <textarea readonly rows="8" cols="100">{{jsondata}}</textarea>
                   </mat-card-content>
                 </mat-card>
               </div>
@@ -237,7 +238,13 @@
           Google maps
         </ng-template>
         <br>
-        <button type="button" mat-flat-button (click)="onClickGoogleMaps()">Launch</button>
+        <mat-form-field appearance="outline" fxFlex="50" fxFill>
+          <mat-label>UPRN</mat-label>
+          <input type="string" value="1" matInput [(ngModel)]="uprn" name="uprn">
+        </mat-form-field>
+        <button mat-icon-button matTooltip="Filter the results" (click)="getUPRNI()">
+          <i class="far fa-fw fa-search"></i>
+        </button>
       </mat-tab> -->
     </mat-tab-group>
   </mat-card-content>

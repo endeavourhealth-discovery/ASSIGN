@@ -19,6 +19,11 @@ export class UPRNService {
     return this.http.get<any[]>(this.SERVER_URL + 'api/activity?',{params});
   }
 
+  getUPRNI(uprn: string): Observable<any> {
+    let params = new HttpParams({fromString: 'uprn='+uprn});
+    return this.http.get<any[]>(this.SERVER_URL + 'api/getuprn?',{params});
+  }
+
   getUPRNStuff(adrec: string): Observable<any> {
 
     let params = new HttpParams({fromString: 'adrec='+adrec});

@@ -185,8 +185,11 @@ GETUPRNI(uprn,writejson)     ;
  .I class'="" d
  ..s json=json_"""Classification"":"""_class_""","
  .s coord=$p(^UPRN("U",uprn),"~",7)
- .s json=json_"""Latitude"":"""_$p(coord,",",3)_""","
- .s json=json_"""Longitude"":"""_$p(coord,",",4)_""","
+ .S lat=$p(coord,",",3),long=$p(coord,",",4)
+ .s lat=$j(lat,0,$l($p(lat,".",2)))
+ .s long=$j(long,0,$l($p(long,".",2)))
+ .s json=json_"""Latitude"":"""_lat_""","
+ .s json=json_"""Longitude"":"""_long_""","
  .s json=json_"""Pointcode"":"""_$p(coord,",",5)_""","
  .s json=json_"""XCoordinate"":"""_$p(coord,",",1)_""","
  .s json=json_"""YCoordinate"":"""_$p(coord,",",2)_""""
