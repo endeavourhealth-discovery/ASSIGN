@@ -29,6 +29,6 @@ phases:
       - echo Build completed on `date`
 artifacts:
   files:
-    - FrontEndv8/frontend
-    - API/api
+    - UI/FrontEndv8/frontend
+    - UI/API/api
   discard-paths: yes
