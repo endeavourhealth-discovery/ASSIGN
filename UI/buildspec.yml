@@ -31,5 +31,4 @@ artifacts:
   files:
     - FrontEndv8/frontend
     - API/api
-    - aws_scripts/**/*
   discard-paths: yes
