@@ -5,6 +5,6 @@ files:
     destination: //opt/tomcat/webapps/uprn-match
 hooks:
   BeforeInstall:
-    - location: awsscripts/cleanup
+    - location: cleanup
       timeout: 300
       runas: root

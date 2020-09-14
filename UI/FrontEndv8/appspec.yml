@@ -5,6 +5,6 @@ files:
     destination: //usr/share/nginx/html/uprn-match
 hooks:
   BeforeInstall:
-    - location: awsscripts/cleanup
+    - location: cleanup
       timeout: 300
       runas: root
