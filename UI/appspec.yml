@@ -2,9 +2,11 @@ version: 0.0
 os: linux
 files:
   - source: /dist
-    destination: //usr/share/nginx/html/uprn-match
+    destination: //opt/tomcat/webapps/uprn-match
+  - source: /dist
+    destination: //opt/tomcat/webapps/uprn-match
 hooks:
   BeforeInstall:
-    - location: cleanup
+    - location: aws_script/cleanup
       timeout: 300
       runas: root

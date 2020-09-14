@@ -21,7 +21,7 @@ phases:
       - echo Build completed on `date`
 artifacts:
   files:
-    - UI/FrontEndv8/frontend/**/*
-    - UI/API/api/**/*
+    - UI/FrontEndv8/dist/**/*
+    - UI/API/target/API-0.0.1/**/*
     - UI/appspec.yml
     - UI/aws_scripts/**/*
