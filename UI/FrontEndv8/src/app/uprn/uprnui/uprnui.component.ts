@@ -35,28 +35,28 @@ export class UPRNComponent implements OnInit {
   jsondata: string;
   jsonlatlong: string;
 
-  Latitude: String;
-  Longitude: String;
+  Latitude: string;
+  Longitude: string;
 
   userId: string;
   reportComplete = true;
   UPRNData: any[];
 
-  UPRN: String;
-  number: String;
-  flat: String;
-  street: String;
-  town: String;
-  postcode: String;
-  classcode: String;
-  classterm: String;
+  UPRN: string;
+  number: string;
+  flat: string;
+  street: string;
+  town: string;
+  postcode: string;
+  classcode: string;
+  classterm: string;
 
-  matchpcode: String;
-  matchnumber: String;
-  matchbuilding: String;
-  matchflat: String;
+  matchpcode: string;
+  matchnumber: string;
+  matchbuilding: string;
+  matchflat: string;
 
-  algorithm: String;
+  algorithm: string;
 
   sessionId: any;
   filetoupload: string;
@@ -66,7 +66,7 @@ export class UPRNComponent implements OnInit {
 
   options = {
     fieldSeparator: ',',
-    quoteStrings: '"',
+    quotestrings: '"',
     decimalseparator: '.',
     showLabels: true,
     headers: ['ID,UPRN,add_format,alg,class,match_build,match_flat,match_number,match_postcode,match_street,abp_number,abp_postcode,abp_street,abp_town,qualifier,add_candidate'],
@@ -138,7 +138,7 @@ export class UPRNComponent implements OnInit {
     this.HTML = "<b>session:</b> "+this.sessionId;
   }
 
-  download(p: String) {
+  download(p: string) {
     // this.service.downloadFile("test.csv");
 
     console.log(this.filetoupload);
@@ -282,7 +282,7 @@ export class UPRNComponent implements OnInit {
   }
 
   postMethod(files: FileList) {
-    this.filetoupload = String(files.item(0).name);
+    this.filetoupload = files.item(0).name;
     console.log(this.filetoupload);
 
     let ret = this.UPRNService.postFile(files, this.userId);
