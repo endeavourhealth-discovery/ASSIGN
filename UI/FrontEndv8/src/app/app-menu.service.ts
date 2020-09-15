@@ -8,14 +8,16 @@ export class AppMenuService implements  AbstractMenuProvider {
   static getRoutes(): Routes {
     return [
       { path: '', redirectTo : 'uprn', pathMatch: 'full' }, // Default route
-      { path: 'uprn', component: UPRNComponent, data: {role: 'Admin', helpContext: 'UPRN#view'}},
+      //{ path: 'uprn', component: UPRNComponent, data: {role: 'Admin', helpContext: 'UPRN#view'}},
+      // breaks localhost
+      { path: 'uprn', component: UPRNComponent, data: {role: 'uprn-match:uprn', helpContext: 'UPRN#view'}},
     ];
   }
 
   getClientId(): string {
-    // ** TODO
-    // return 'uprn';
-    return 'eds-dsa-manager';
+    // breaks localhost
+    return 'uprn-match';
+    // return 'eds-dsa-manager';
   }
 
   getApplicationTitle(): string {

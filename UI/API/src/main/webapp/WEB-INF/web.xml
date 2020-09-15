@@ -63,7 +63,9 @@
     <!-- startup class, initializes config manager -->
     <context-param>
         <param-name>app_id</param-name>
-        <param-value>data-sharing-manager</param-value>
+        <!-- BREAKS LOCALHOST -->
+        <!-- <param-value>data-sharing-manager</param-value> -->
+        <param-value>uprn-match</param-value>
     </context-param>
     <listener>
         <listener-class>
