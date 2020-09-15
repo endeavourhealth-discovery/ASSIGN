@@ -64,8 +64,8 @@
     <context-param>
         <param-name>app_id</param-name>
         <!-- BREAKS LOCALHOST -->
-        <param-value>data-sharing-manager</param-value>
-        <!-- <param-value>uprn-match</param-value> -->
+        <!-- <param-value>data-sharing-manager</param-value> -->
+        <param-value>uprn-match</param-value>
     </context-param>
     <listener>
         <listener-class>
@@ -145,6 +145,7 @@
         <filter-class>org.endeavourhealth.coreui.framework.AppAccessFilter</filter-class>
         <init-param>
             <param-name>app_name</param-name>
+            <!-- BREAKS LOCALHOST -->
             <!-- <param-value>eds-dsa-manager</param-value> -->
             <param-value>uprn-match</param-value>
         </init-param>
