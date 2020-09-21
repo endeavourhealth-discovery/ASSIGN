@@ -47,7 +47,26 @@ export class UPRNService {
     let params = new HttpParams({fromString: 'filename='+filename+"&userid="+userid});
 
     console.log('filename: '+params.get('filename'));
-    return this.http.get<Blob>(this.SERVER_URL+"api/filedownload?",{params});
+    return this.http.get<Blob>(this.SERVER_URL+"api/filedownload2?",{params});
+  }
+
+  async getRegistration(userid: string) {
+    let params = new HttpParams({fromString: 'userid='+userid});
+    let x = await this.http.get(this.SERVER_URL + 'api/getreg?',{params}).toPromise();
+    return JSON.stringify(x);
+  }
+
+  async postRegistration (name: string, org: string, userid: string) {
+    let formData = new FormData();
+    formData.append('name', name);
+    formData.append('organisation', org);
+    formData.append('userid', userid);
+
+    let x = await this.http.post(this.SERVER_URL+"api/register", formData).toPromise();
+
+    let jsonObj = JSON.parse(JSON.stringify(x));
+    console.log(jsonObj.status);
+    return jsonObj.status;
   }
 
   postFile(files: FileList, userid: string) {
@@ -58,8 +77,7 @@ export class UPRNService {
     formData.append('file', fileToUpload, fileToUpload.name);
     formData.append('userid', userid);
 
-    this.http.post<any>(this.SERVER_URL+"api/fileupload", formData).subscribe((val) => {
-
+    this.http.post<any>(this.SERVER_URL+"api/fileupload2", formData).subscribe((val) => {
       this.processval(val);
       console.log(val);
       return val;
@@ -69,10 +87,11 @@ export class UPRNService {
 
   processval(val)
   {
-    console.log("in process val");
-    let x=JSON.stringify(val);
     if (val.upload["status"] == 'OK') {
-      alert('File has been successfully posted (to check progress, click on activity tab)');
+      alert("To check progress, click on 'Downloads + activity' tab");
+    }
+    if (val.upload["status"] == 'NOK') {
+      alert('Incorrect file format - please make sure the file you are uploading is tab delimited, and each row contains a numeric identifier');
     }
   }
 

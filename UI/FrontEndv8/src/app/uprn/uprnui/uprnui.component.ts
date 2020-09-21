@@ -1,6 +1,12 @@
 import {Component, OnInit, ViewChild, ElementRef} from '@angular/core';
 import {UPRNService} from "../uprn.service";
-import {GenericTableComponent, ItemLinkageService, LoggerService, UserManagerService} from "dds-angular8";
+import {
+  GenericTableComponent,
+  ItemLinkageService,
+  LoggerService,
+  MessageBoxDialogComponent,
+  UserManagerService
+} from "dds-angular8";
 import {ngxCsv} from "ngx-csv";
 import {DatePipe} from "@angular/common";
 import {UserProject} from "dds-angular8/user-manager";
@@ -11,9 +17,11 @@ import {Router} from "@angular/router";
 import {HttpEventType, HttpErrorResponse } from "@angular/common/http";
 import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-// npm install @types/file-saver --save-dev
+// npm install @types/file-saver --save-devtabChanged
 import {saveAs as importedSaveAs} from "file-saver";
-import { MatTabChangeEvent } from '@angular/material';
+import { MatTabChangeEvent, MatDialog } from '@angular/material';
+import {matDialogAnimations} from "@angular/material/dialog";
+import {MatYearView} from "@angular/material/datepicker";
 
 //import {DataProcessingAgreementService} from "../../data-processing-agreement/data-processing-agreement.service";
 //import {Dpa} from "../../data-processing-agreement/models/Dpa";
@@ -30,31 +38,32 @@ import { MatTabChangeEvent } from '@angular/material';
   styleUrls: ['./uprnui.component.css']
 })
 export class UPRNComponent implements OnInit {
-  @ViewChild("fileUpload", {static: false}) fileUpload: ElementRef;files  = [];
+  @ViewChild("fileUpload", {static: false}) fileUpload: ElementRef;
+  files = [];
+
+  lf: string = "[lf]";
+  tab: string = "[tab]";
+
+  stuff: any;
+
   adrec: string;
   jsondata: string;
   jsonlatlong: string;
 
-  Latitude: string;
-  Longitude: string;
+  wName: string; wOrganisation: string; wRegDate: string;
+
+  latitude: string; longitude: string; qualifier: string; xcoordinate: string; ycoordinate: string; pointcode: string;
 
   userId: string;
   reportComplete = true;
   UPRNData: any[];
 
-  UPRN: string;
-  number: string;
-  flat: string;
-  street: string;
-  town: string;
-  postcode: string;
-  classcode: string;
-  classterm: string;
+  downloads: string;
 
-  matchpcode: string;
-  matchnumber: string;
-  matchbuilding: string;
-  matchflat: string;
+  UPRN: string; number: string; flat: string; street: string; town: string; postcode: string; classcode: string; classterm: string;
+  dogsEnabled: string;
+
+  matchpcode: string; matchnumber: string; matchbuilding: string; matchflat: string;
 
   algorithm: string;
 
@@ -63,6 +72,8 @@ export class UPRNComponent implements OnInit {
   HTML: any;
   arrActivity: string [];
   building: string;
+
+  selectedIndex: any;
 
   options = {
     fieldSeparator: ',',
@@ -83,32 +94,29 @@ export class UPRNComponent implements OnInit {
               private log: LoggerService,
               private itemLinkageService: ItemLinkageService,
               private datePipe: DatePipe,
-              private router: Router,) { }
+              private router: Router,
+  ) {
+  }
 
   ngOnInit() {
-    // need to call the api here to get a session id
-    // tickle the server
-    //this.getSess();
-    //console.log(this.sessionId);
+    this.dogsEnabled = "1";
+    this.selectedIndex = 0;
 
-    //this.HTML = "<html><br><b><u>test</u></b></html>";
-    //this.HTML = "<br><br><table border='1'><td>test 1</td><td>test2</td><tr><td>test3</td><td>test4</td></tr></table>";
-    this.HTML = "<br><br><b>no activity recorded</b>";
+    this.downloads = "1";
 
-    //this.sessionId = "1";
     this.userManagerService.onProjectChange.subscribe(active => {
-    this.activeProject = active;
+      this.activeProject = active;
       this.roleChanged();
     });
 
-    console.log("user id? "+this.activeProject.userId+ " "+this.activeProject.organisationId);
-    this.userId=this.activeProject.userId;
-    // log some activity
+    console.log("user id? " + this.activeProject.userId + " " + this.activeProject.organisationId);
+    this.userId = this.activeProject.userId;
+
+    this.getRegistration(this.userId);
   }
 
   getSess() {
-    this.UPRNService.getSessionId().
-    subscribe(
+    this.UPRNService.getSessionId().subscribe(
       result => {
         this.processSession(result);
       },
@@ -116,60 +124,30 @@ export class UPRNComponent implements OnInit {
         this.log.error('Unable to get session');
       }
     )
-
-    console.log("user id? "+this.userId);
-
-    /*
-    const result = this.UPRNService.getSessionId().toPromise();
-    console.log(result);
-    let jsonObj = JSON.parse(JSON.stringify(result));
-    let u: string = jsonObj.name;
-    this.sessionId = u;
-    */
   }
 
-  processSession(sessionData: any[])
-  {
+  processSession(sessionData: any[]) {
     console.log(sessionData);
     let jsonObj = JSON.parse(JSON.stringify(sessionData));
     this.sessionId = jsonObj.session;
     console.log(this.sessionId);
-
-    this.HTML = "<b>session:</b> "+this.sessionId;
   }
 
   download(p: string) {
-    // this.service.downloadFile("test.csv");
-
     console.log(this.filetoupload);
-
-    //this.UPRNService.downloadFile2(this.filetoupload).subscribe(blob => {
-    //    importedSaveAs(blob, this.filetoupload);
-    //  }
-    //)
-
     this.UPRNService.downloadFile2(this.filetoupload, this.userId).subscribe(data => saveAs(data, this.filetoupload));
 
   }
 
   roleChanged() {
-
-
     if (this.activeProject.applicationPolicyAttributes.find(x => x.applicationAccessProfileName == 'Super User') != null) {
       this.userId = null;
     } else {
       this.userId = this.activeProject.userId;
     }
-
-    //this.getAvailableReports();
   }
 
   /*
-  organisationClicked(repData: ReportData) {
-    window.open('#/organisation/' + repData.orgUUID + '/edit');
-  }
-  */
-
   uploadFile(file) {
     const formData = new FormData();
     formData.append('file', file.data);
@@ -193,60 +171,43 @@ export class UPRNComponent implements OnInit {
       }
     });
   }
+   */
 
+  /*
   private uploadFiles() {
     this.fileUpload.nativeElement.value = '';
     this.files.forEach(file => {
       this.uploadFile(file);
     });
   }
+   */
 
-  onClickUpload()
-  {
+  /*
+  onClickUpload() {
     console.log("Upload stuff");
-    const fileUpload = this.fileUpload.nativeElement;fileUpload.onchange = () => {
-    for (let index = 0; index < fileUpload.files.length; index++)
-    {
-      const file = fileUpload.files[index];
-      this.files.push({ data: file, inProgress: false, progress: 0});
-    }
-    this.uploadFiles();
-  };
+    const fileUpload = this.fileUpload.nativeElement;
+    fileUpload.onchange = () => {
+      for (let index = 0; index < fileUpload.files.length; index++) {
+        const file = fileUpload.files[index];
+        this.files.push({data: file, inProgress: false, progress: 0});
+      }
+      this.uploadFiles();
+    };
     fileUpload.click();
   }
+   */
 
-  onClickGoogleMaps()
-  {
-    //alert("google maps");
-    //window.open('#/organisation/' + repData.orgUUID + '/edit');
-
-    //window.open('https://www.google.com/maps/search/?api=1&query=58.698017,-152.522067',"_blank");
-
-    // https://www.google.com/maps/search/?api=1&query=47.5951518,-122.3316393
-
-    // window.open('https://www.google.com/maps/search/?api=1&query=51.5135848,-.0481910',"_blank");
-    // window.open('https://www.google.com/maps/search/?api=1&query=535533.00,181212.00',"_blank");
-
-    //window.open('https://www.google.com/maps/search/?api=1&query=51.5338247,-0.1776856',"_blank"); // mumps API returns -.1776856
-
-    window.open("https://www.google.com/maps/search/?api=1&query="+this.Latitude+","+this.Longitude,"_blank");
+  onClickGoogleMaps() {
+    window.open("https://www.google.com/maps/search/?api=1&query=" + this.latitude + "," + this.longitude, "_blank");
   }
 
-  onClickDownloadTable(filetodownload: string)
-  {
+  onClickDownloadTable(filetodownload: string) {
     alert(filetodownload);
     this.filetoupload = filetodownload;
     this.onClickDownload();
   }
 
   onClickDownload() {
-    console.log(this.filetoupload);
-    console.log("Download stuff");
-
-    this.HTML = "<br>clicked download";
-
-    console.log("?????? "+this.userId);
-
     this.UPRNService.downloadFile2(this.filetoupload, this.userId).subscribe(
       result => {
         this.processIT(result);
@@ -257,37 +218,23 @@ export class UPRNComponent implements OnInit {
     );
   }
 
-  // test
-  processIT(csvdata: Blob)
-  {
-    //var csvdata = '[{"name":"test","DOB":"test"},{"name":"test2","DOB":"test2"}]';
-
+  processIT(csvdata: Blob) {
     let file = this.filetoupload.split("/", 4);
-
-    //console.log(file);
-    //console.log("file: "+file[3]);
-    let out = file[3]+"-output";
-
-    //new ngxCsv(csvdata, 'test', this.options);
+    let out = file[3] + "-output";
     new ngxCsv(csvdata, out, this.options);
   }
 
   onItemLabelLoaded(event) {
-      this.sessionId = "1";
-      //alert(event);
+    this.sessionId = "1";
   }
 
   onClicky(event) {
-    event.target.value=''
+    event.target.value = ''
   }
 
   postMethod(files: FileList) {
     this.filetoupload = files.item(0).name;
-    console.log(this.filetoupload);
-
     let ret = this.UPRNService.postFile(files, this.userId);
-
-    //alert(ret);
   }
 
   onActivityRefresh() {
@@ -298,39 +245,48 @@ export class UPRNComponent implements OnInit {
     this.UPRNService.getActivity(this.userId).subscribe(
       data => {
         this.arrActivity = data as string[];
+        let jsonObj = JSON.parse(JSON.stringify(this.arrActivity[0]));
+        console.log(JSON.stringify(this.arrActivity[0]));
+        this.downloads = "1";
+        if (jsonObj.A == "?") {
+          console.log("no activity logged");
+          this.arrActivity.splice(0);
+          this.downloads = "";
+        }
       },
       error => {
-        this.log.error('Unable to get refresh activity');
+        this.log.error('Unable to get activity');
       }
     )
 
   }
 
   tabChanged(tabChangeEvent: MatTabChangeEvent): void {
+    // update Welcome registration date
+    if (tabChangeEvent.index == 3) {this.getRegistration(this.userId);}
 
-    //console.log('tabChangeEvent => ', tabChangeEvent);
-    //console.log('index => ', tabChangeEvent.index);
-
-    // Activity tab
-    if (tabChangeEvent.index==2) {
-      console.log("call the activity interface");
-
-      // this.getSess();
-
-      //let data = "[{\"ID\": \"001\",\"Name\": \"Eurasian Collared-Dove\",\"Type\": \"Dove\",\"Scientific Name\": \"Streptopelia\"},{\"ID\": \"002\",\"Name\": \"Bald Eagle\",\"Type\": \"Hawk\",\"Scientific Name\": \"Haliaeetus leucocephalus\"},{\"ID\": \"003\",\"Name\": \"Cooper's Hawk\",\"Type\": \"Hawk\",\"Scientific Name\": \"Accipiter cooperii\"}]";
+    if (tabChangeEvent.index == 2) {
       let data = "[{\"DT\":\"?\",\"A\":\"?\"}]";
       this.arrActivity = JSON.parse(data);
 
+      this.onActivityRefresh();
+
+      /*
       this.UPRNService.getActivity(this.userId).subscribe(
         data => {
           this.arrActivity = data as string[];
+          let jsonObj = JSON.parse(JSON.stringify(this.arrActivity[0]));
+          console.log(JSON.stringify(this.arrActivity[0]));
+          if (jsonObj.A == "?") {
+            console.log("no activity logged");
+            this.downloads = "";
+          }
         },
-      error => {
-        this.log.error('Unable to get activity');
-      }
+        error => {
+          this.log.error('Unable to get activity');
+        }
       )
-
-      console.log(this.arrActivity);
+       */
     }
 
   }
@@ -339,16 +295,56 @@ export class UPRNComponent implements OnInit {
     if (this.jsonlatlong == undefined) {
       this.jsonlatlong = "Click on Google maps";
     }
-    alert(this.jsonlatlong);
+    // alert(this.jsonlatlong.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]+/g, " "));
+
+    // MessageBoxDialogComponent.open(,"a","b","ok");
+
+    window.alert('{"Address_format":"good","Postcode_quality":"good","Matched":true,"UPRN":"46079547","Qualifier":"Best  (residential) match","Classification":"RD04","ClassTerm":"Terraced","Algorithm":"1-match","ABPAddress":{"Number":"32","Street":"West Road","Town":"London","Postcode":"E15 3PY"},"Match_pattern":{"Postcode":"equivalent","Number":"equivalent","Building":"equivalent","Flat":"equivalent"}}');
   }
 
-  onClickDownGoogleMaps(uprn: string) {
+  async getRegistration(userid: string) {
+    let j = await this.UPRNService.getRegistration(this.activeProject.userId);
+    let jsonObj = JSON.parse(j);
+
+    console.log(jsonObj.name);
+    if (jsonObj.name != "?") {
+      this.wName = jsonObj.name;
+      this.wOrganisation = jsonObj.organization;
+      this.wRegDate = jsonObj.regdate;
+    }
+
+    if (jsonObj.name == "?") {
+      // switch to Welcome tab
+      this.dogsEnabled = "";
+      this.selectedIndex = 4;
+    }
+  }
+
+  async onClickAgree(wname: string, worg: string) {
+
+    //this.tabs.splice(0, 1);
+
+    if (wname == undefined || (worg == undefined)) {
+      alert("Please enter your Name and Organisation");
+      return;
+    }
+
+    this.stuff = await this.UPRNService.postRegistration(wname, worg, this.userId);
+
+    if (this.stuff == "OK") {
+      //alert("Registration filed OK");
+      this.dogsEnabled = "1";
+      this.selectedIndex = 0;
+    }
+  }
+
+  onClickDownGoogleMaps(uprn: string, launch: any) {
     // api/getuprn
-    this.Longitude=""; this.Latitude="";
+    this.longitude=""; this.latitude="";
     this.UPRNService.getUPRNI(uprn).
       subscribe(
         result => {
-          this.processCoord(result);
+          this.processCoord(result, launch);
         },
       error => {
         this.log.error('Unable to process uprn');
@@ -357,22 +353,26 @@ export class UPRNComponent implements OnInit {
     )
   }
 
-  processCoord(activityData: any[]) {
+  processCoord(activityData: any[], launch: any) {
     console.log(JSON.stringify(activityData));
     this.jsonlatlong = JSON.stringify(activityData);
 
     let jsonObj = JSON.parse(JSON.stringify(activityData));
-    let lat = jsonObj.Latitude;
-    let long = jsonObj.Longitude;
+    let lat = jsonObj.Latitude; let long = jsonObj.Longitude;
+    let x = jsonObj.XCoordinate; let y = jsonObj.YCoordinate;
 
-    this.Latitude = lat;
-    this.Longitude = long;
+    this.latitude = lat; this.longitude = long;
+    this.xcoordinate = x; this.ycoordinate= y;
+    this.pointcode = jsonObj.Pointcode;
 
-    window.open("https://www.google.com/maps/search/?api=1&query="+this.Latitude+","+this.Longitude,"_blank");
+    if (launch==1) {
+      window.open("https://www.google.com/maps/search/?api=1&query=" + this.latitude + "," + this.longitude, "_blank");
+    }
   }
 
   findUPRN() {
     console.log(this.adrec);
+
     this.getUPRN(this.adrec);
   }
 
@@ -391,34 +391,22 @@ export class UPRNComponent implements OnInit {
   }
 
   processUPRN(activityData: any[]) {
+
     console.log(JSON.stringify(activityData));
     this.jsondata = JSON.stringify(activityData);
-
-    //this.UPRNData.map<UPRNData>(({UPRN}) => JSON.parse(JSON.stringify(activityData)));
 
     let jsonObj = JSON.parse(JSON.stringify(activityData));
     let u: string = jsonObj.UPRN;
     let classcode = jsonObj.Classification;
     let classterm = jsonObj.ClassTerm;
+    let qualifier = jsonObj.Qualifier;
 
-    let building = "?";
-    let flat = "?";
-    let number = "?";
-    let street = "?";
-    let town = "?";
-    let postcode = "?";
-
-    let matchpcode = "?";
-    let matchnumber = "?";
-    let matchbuilding = "?";
-    let matchflat = "?";
+    let building = "?"; let flat = "?"; let number = "?"; let street = "?"; let town = "?"; let postcode = "?";
+    let matchpcode = "?"; let matchnumber = "?"; let matchbuilding = "?"; let matchflat = "?";
 
     let algorithm = jsonObj.Algorithm;
 
-    console.log(jsonObj.hasOwnProperty('ABPAddress'));
-
     if (jsonObj.hasOwnProperty('ABPAddress')) {
-      console.log("here");
       flat = jsonObj.ABPAddress["Flat"];
       number = jsonObj.ABPAddress["Number"];
       street = jsonObj.ABPAddress["Street"];
@@ -434,25 +422,15 @@ export class UPRNComponent implements OnInit {
       matchbuilding = jsonObj.Match_pattern["Building"];
     }
 
-    console.log(number);
-
     this.UPRNData = activityData;
-    this.UPRN = u;
-    this.number = number;
-    this.flat = flat;
-    this.building = building;
-    this.town =town;
-    this.street = street;
-    this.postcode = postcode;
-    this.classcode = classcode;
-    this.classterm = classterm;
+    this.UPRN = u; this.number = number; this.flat = flat; this.building = building;
+    this.town =town; this.street = street; this.postcode = postcode; this.classcode = classcode; this.classterm = classterm;
 
-    this.matchpcode=matchpcode;
-    this.matchnumber = matchnumber;
-    this.matchflat= matchflat;
-    this.matchbuilding = matchbuilding;
+    this.matchpcode=matchpcode; this.matchnumber = matchnumber; this.matchflat= matchflat; this.matchbuilding = matchbuilding;
 
-    this.algorithm = algorithm;
+    this.algorithm = algorithm; this.qualifier = qualifier;
+
+    this.onClickDownGoogleMaps(this.UPRN,"");
   }
 }
 

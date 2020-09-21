@@ -7,50 +7,64 @@
     <div fxFlex></div>
   </mat-card-header>
   <mat-card-content>
-    <mat-tab-group (selectedTabChange)="tabChanged($event)">
-      <mat-tab>
+    <mat-tab-group (selectedTabChange)="tabChanged($event)" [(selectedIndex)]=selectedIndex>
+      <mat-tab [disabled]="!dogsEnabled">
         <ng-template mat-tab-label>
-          Input address
+          Input single address
         </ng-template>
         <mat-card-content>
           <!-- <p>This is where you'll enter the address</p> -->
           <!-- 10 Downing St,Westminster,London,SW1A2AA -->
           <!-- <p> -->
-          <mat-form-field appearance="outline" fxFlex="50" fxFill>
-            <mat-label>Address</mat-label>
-            <input type="string" value="1" matInput [(ngModel)]="adrec" name="adrec">
-          </mat-form-field>
+
+          <div class="flex" fxLayoutGap="16px grid" fxLayout="row wrap">
+            <div fxFlex="100">Enter a single address string with commas between the address and postcode</div>
+            <div fxFlex="100"><b>The algorithm will not work without a postcode</b></div>
+            <div fxFlex="100">e.g. 10 Downing St,Westminster,London,SW1A2AA</div>
+
+            <mat-form-field appearance="outline" fxFlex="50" fxFill>
+              <mat-label>Address</mat-label>
+              <input type="string" value="1" matInput [(ngModel)]="adrec" name="adrec">
+            </mat-form-field>
             <button mat-icon-button matTooltip="Filter the results" (click)="findUPRN()">
               <i class="far fa-fw fa-search"></i>
             </button>
           <!-- </p> -->
+          </div>
         </mat-card-content>
-        <br>
+        <!-- <br> -->
         <div class="flex" fxLayout="row wrap" fxLayout.xs="column" fxLayoutGap="16px grid" fxLayoutAlign="start">
           <div *ngIf="UPRNData" fxFlex="100">
             <div class="flex" fxLayout="row wrap" fxLayout.xs="column" fxLayoutGap="16px grid" fxLayoutAlign="start">
               <div fxFlex="100">
                 <mat-card class="example-card">
                   <mat-card-content>
+                    <!--
                     <table>
-                      <td><button type="button" mat-stroked-button (click)="onClickDownGoogleMaps(UPRN)">Google maps</button></td>
+                      <td><button type="button" mat-stroked-button (click)="onClickDownGoogleMaps(UPRN,'1')">Google maps</button></td>
                       <td><button type="button" mat-stroked-button (click)="onClickJSON()">JSON</button></td>
                     </table>
-                    <br><br>
+                    <br><br> -->
                     <table border="1" width="100%">
                       <td>Details</td><td></td><td>match patterns</td><td></td><td>Algorithm</td><tr>
                       <td>UPRN: </td><td>{{UPRN}}</td><td>Post code: </td><td>{{matchpcode}}</td><td>{{algorithm}}</td><tr>
                       <td>Building: </td><td>{{building}}</td><td>Number: </td><td>{{matchnumber}}</td><td></td><tr>
                       <td>Flat: </td><td>{{flat}}</td><td>Building: </td><td>{{matchbuilding}}</td><td></td><tr>
                       <td>Number: </td><td>{{number}}</td><td>Flat: </td><td>{{matchflat}}</td><td></td><tr>
-                      <td>Street: </td><td>{{street}}</td><tr>
-                      <td>Town: </td><td>{{town}}</td><tr>
-                      <td>Post code: </td><td>{{postcode}}</td><tr>
-                      <td>Classification code: </td><td>{{classcode}}</td><tr>
-                      <td>Classification term: </td><td>{{classterm}}</td><tr>
+                      <td>Street: </td><td>{{street}}</td><td></td><td></td><td></td><tr>
+                      <td>Town: </td><td>{{town}}</td><td>Latitude: </td><td>{{latitude}}</td><td></td><tr>
+                      <td>Post code: </td><td>{{postcode}}</td><td>Longitude: </td><td>{{longitude}}</td><td></td><tr>
+                      <td>Classification code: </td><td>{{classcode}}</td><td>X Coordinate: </td><td>{{xcoordinate}}</td><tr>
+                      <td>Classification term: </td><td>{{classterm}}</td><td>Y Coordinate: </td><td>{{ycoordinate}}</td><tr>
+                      <td>Qualifier: </td><td>{{qualifier}}</td><td>PointCode: </td><td>{{pointcode}}</td><tr>
                     </table>
                     <br>
-                    <textarea readonly rows="8" cols="100">{{jsondata}}</textarea>
+                    <p>JSON:</p>
+                    <table border="1" width="100%">
+                      <td>{{jsondata}}</td><tr>
+                      <td>{{jsonlatlong}}</td><tr>
+                    </table>
+                    <!-- <textarea readonly rows="8" cols="100">{{jsondata}}</textarea> -->
                   </mat-card-content>
                 </mat-card>
               </div>
@@ -59,9 +73,9 @@
         </div>
       </mat-tab>
 
-      <mat-tab>
+      <mat-tab [disabled]="!dogsEnabled">
         <ng-template mat-tab-label>
-          Upload
+          Upload address file
         </ng-template>
         <mat-card-content>
 
@@ -72,10 +86,27 @@
           <Label id="item1" (loaded)="onItemLabelLoaded($event)"></Label>
 
           <button type="button" mat-flat-button (click)="fileInput.click()">Choose File</button>
-          <input hidden (click)="onClicky($event)" (change)="postMethod($event.target.files)" #fileInput type="file" id="file">
+          <input hidden (click)="onClicky($event)" (change)="postMethod($event.target.files)" #fileInput type="file" id="file" accept="text/*">
           <!-- <input hidden (change)="postMethod($event.target.files)" #fileInput type="file" id="file"> -->
 
-          <p>csv file format (input):</p>
+          <br>
+          <p>The address file to be upload only contains two columns</p>
+          <p>The columns must be separated by a single tab character (Ascii 9)</p>
+          <p>The file must have a .txt extension</p>
+          <p>The first line must not contain any header information</p>
+          <p>The first column is a unique numeric row id</p>
+          <p>The second column is a full address string</p>
+          <p>The address string fields should be separated by commas</p>
+          <p>The last field in the address string must be a postcode</p>
+
+          <p style="font-family:courier;">Example records ({{lf}} = line feed)</p>
+
+          <p style="font-family:courier;">1{{tab}}10 Downing St,Westminster,London,SW1A2AA{{lf}}</p>
+          <p style="font-family:courier;">2{{tab}}Bridge Street,London,SW1A 2LW{{lf}}</p>
+          <p style="font-family:courier;">3{{tab}}221b Baker St,Marylebone,London,NW1 6XE{{lf}}</p>
+          <p style="font-family:courier;">4{{tab}}3 Abbey Rd,St John's Wood,London,NW8 9AY</p>
+
+          <!--
           <table class="table table-bordered table-hover table-condensed" border="1" width="100%">
             <thead><tr><th title="Field #1">ID</th>
               <th title="Field #2">address_candidate</th>
@@ -98,99 +129,7 @@
             </tr>
             </tbody></table>
           <br>
-          <!--
-          <p>output:</p>
-          <table class="table table-bordered table-hover table-condensed" border="1">
-            <thead><tr><th title="Field #1">ID</th>
-              <th title="Field #2">UPRN</th>
-              <th title="Field #3">add_format</th>
-              <th title="Field #4">alg</th>
-              <th title="Field #5">class</th>
-              <th title="Field #6">match_build</th>
-              <th title="Field #7">match_flat</th>
-              <th title="Field #8">match_number</th>
-              <th title="Field #9">match_postcode</th>
-              <th title="Field #10">match_street</th>
-              <th title="Field #11">abp_number</th>
-              <th title="Field #12">abp_postcode</th>
-              <th title="Field #13">abp_street</th>
-              <th title="Field #14">abp_town</th>
-              <th title="Field #15">qualifier</th>
-              <th title="Field #16">add_candidate</th>
-            </tr></thead>
-            <tbody><tr>
-              <td align="right">1</td>
-              <td align="right">100023336956</td>
-              <td>good</td>
-              <td>10-match1</td>
-              <td>RD04</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td>10</td>
-              <td>SW1A 2AA</td>
-              <td>Downing Street</td>
-              <td>London</td>
-              <td>Best  (residential) match</td>
-              <td>10 Downing St,Westminster,London,SW1A2AA</td>
-            </tr>
-            <tr>
-              <td align="right">2</td>
-              <td align="right">200002501505</td>
-              <td>good</td>
-              <td>130-bestfit</td>
-              <td>PP</td>
-              <td>ABP field ignored</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td> </td>
-              <td>SW1A 2LW</td>
-              <td>Bridge Street</td>
-              <td>London</td>
-              <td>Best  (residential) match</td>
-              <td>Bridge Street,London,SW1A 2LW</td>
-            </tr>
-            <tr>
-              <td align="right">3</td>
-              <td align="right">10033529326</td>
-              <td>good</td>
-              <td>2583-match44</td>
-              <td>U</td>
-              <td>ABP field ignored</td>
-              <td>ABP field ignored</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td>215-229</td>
-              <td>NW1 6XE</td>
-              <td>Baker Street</td>
-              <td>City Of Westminster</td>
-              <td>Best  (residential) match</td>
-              <td>221b Baker St,Marylebone,London,NW1 6XE</td>
-            </tr>
-            <tr>
-              <td align="right">4</td>
-              <td align="right">10033534899</td>
-              <td>good</td>
-              <td>130-bestfit</td>
-              <td>RD04</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td>equivalent</td>
-              <td>ABP field ignored</td>
-              <td>equivalent</td>
-              <td>3</td>
-              <td>NW8 9AZ</td>
-              <td>Abbey Road</td>
-              <td>London</td>
-              <td>Best  (residential) match</td>
-              <td>3 Abbey Rd,St John&#39;s Wood,London,NW8 9AY</td>
-            </tr>
-            </tbody></table> -->
+          -->
 
           <!-- <input id="myForm" type="file" name="file" (change)="postMethod($event.target.files)"> -->
           <!-- <button mat-button color="warn" (click)="onClickUpload()">
@@ -205,22 +144,23 @@
 
         </mat-card-content>
       </mat-tab>
-      <mat-tab>
+      <mat-tab [disabled]="!dogsEnabled">
         <ng-template mat-tab-label>
-          Downloads + Activity
+          Downloads + activity
         </ng-template>
         <!-- <div [innerHTML]="HTML"></div> -->
         <br>
 
+        <p *ngIf="downloads">Click on 'Download' button to get results</p>
         <button type="button" mat-flat-button (click)="onActivityRefresh()">Refresh</button>
         <br><br>
 
         <table *ngIf="arrActivity" border="1" style="width: 100%;">
-        <!-- <table mat-table border="1"> -->
+
           <tr>
             <th>Time</th>
+            <th>Status</th>
             <th>Action</th>
-            <th>Download</th>
           </tr>
 
           <tr *ngFor="let activity of arrActivity">
@@ -232,6 +172,50 @@
           </tr>
         </table>
       </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          Welcome
+        </ng-template>
+        <mat-card-content>
+          <br>
+          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">
+          <p>Welcome to the Discovery Programme Address Matching Service 'uprn-match'.</p>
+          </div>
+
+          <p *ngIf="wName">Registration date: {{wRegDate}}</p>
+
+          <div class="flex" fxLayout="row wrap" fxLayout.xs="column" fxLayoutGap="16px grid" fxLayoutAlign="start">
+          <mat-form-field appearance="outline" fxFlex="50" fxFill>
+            <mat-label>Name</mat-label>
+            <input type="string" value="1" matInput [(ngModel)]="wName" name="wName">
+          </mat-form-field>
+          </div>
+          <div class="flex" fxLayout="row wrap" fxLayout.xs="column" fxLayoutGap="16px grid" fxLayoutAlign="start">
+            <mat-form-field appearance="outline" fxFlex="50" fxFill>
+            <mat-label>Organisation</mat-label>
+            <input type="string" value="1" matInput [(ngModel)]="wOrganisation" name="wOrganisation">
+          </mat-form-field>
+          </div>
+          <br>
+            <!-- <table border="0"> -->
+          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">To proceed, please enter your details, and read and accept the following:</div>
+          <br>
+          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">I have read the attribution and disclaimer and understand that I will use this service within these conditions</div>
+          <br>
+          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start"><a href="https://github.com/endeavourhealth-discovery/uprn-match/blob/master/200714_Attribution_Disclaimer_V5_Final.docx">Attribution and Disclaimer</a></div>
+          <br>
+          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">I am licenced to use AddressBase Premium (we need to develop this more)</div>
+          <br>
+          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">This service has 2 options – return a UPRN for a single address or return UPRNs for a list of addresses in a tab separated text file</div>
+          <br>
+          <br>
+          <button type="button" mat-flat-button (click)="(onClickAgree(wName, wOrganisation))">Yes, I agree</button>
+            <!-- <td><button type="button" mat-flat-button (click)="(onClickDoNotAgree())">Nope, I don't agree</button></td> -->
+          <!-- </table> -->
+        </mat-card-content>
+      </mat-tab>
+
       <!--
       <mat-tab>
         <ng-template mat-tab-label>
