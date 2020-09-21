@@ -181,7 +181,7 @@ PROCESS(file,user) ;
  .S ABPT=$GET(B("ABPAddress","Town"))
  .S QUAL=$GET(B("Qualifier"))
  .S J=$$JSON(UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,$$ESC^VPRJSON(adrec),ZID)
- .I '$D(^NGX(user,file,ZID)) set ^NGX(user,file,ZID)=J
+ .I '$D(^NGX(user,file,ZID)) set ^NGX(user,file,ZID)=J QUIT
  .I $D(^NGX(user,file,ZID)) DO
  ..S Z=$O(^NGX(user,file,ZID,""),-1)+1
  ..S ^NGX(user,file,ZID,Z)=J
