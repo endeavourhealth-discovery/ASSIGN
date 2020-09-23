@@ -66,6 +66,11 @@ GETMUPRN(result,arguments)
 	;if '$data(^TOKEN(token)) S HTTPERR=500 D SETERROR^VPRJRUT("500","undefined") quit
 
 	set adrec=$Get(arguments("adrec"))
+	
+	K ^TPARAM($J,"commercials")
+	set comm=$Get(arguments("commercial"))
+	if comm set ^TPARAMS($J,"commercials")=1
+	
 	set qpost=$Get(arguments("qpost"))
 	set country=$Get(arguments("country"))
 	set summary=$Get(arguments("summary"))

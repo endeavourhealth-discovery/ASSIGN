@@ -49,6 +49,7 @@ JSON(REC) ;
  S HD=$$HD^STDDATE(D),HT=$$HT^STDDATE(T)
  ;S HD="1",HT="2"
  S TXT=$P(REC,"~",2)
+ S TXT=$P(TXT,"/",4)
  S FILE=$P(REC,"~",3)
  S JS="{""DT"":"""_HD_":"_HT_""","
  S JS=JS_"""A"":"""_TXT_""","

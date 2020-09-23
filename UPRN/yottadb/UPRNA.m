@@ -42,6 +42,16 @@ f1 d spelchk(.address)
  set length=$length(address,d)
  set post=$$lc^UPRNL($p(address,d,length))
  set post=$tr(post," ") ;Remove spaces
+ 
+ i '$$validp^UPRN(post) do
+ .S p=""
+ .F i=$l(address)-10:1:$l(address) s p=p_$e(address,i)
+ .S x=$$TR^LIB($p(p," ",$l(p," ")-1,$l(p," "))," ","")
+ .I $$validp^UPRN(x) s post=x quit
+ .s x=$p(p," ",$l(p," "))
+ .I $$validp^UPRN(x) s post=x
+ .quit
+ 
  i $D(^UPRNS("TOWN",post)) s post=""
  
  ;Try to find how many address lines and which is which
