@@ -179,8 +179,10 @@ PROCESS(file,user) ;
  .S ABPP=$GET(B("ABPAddress","Postcode"))
  .S ABPS=$GET(B("ABPAddress","Street"))
  .S ABPT=$GET(B("ABPAddress","Town"))
+ .S ABPB=$GET(B("ABPAddress","Building"))
  .S QUAL=$GET(B("Qualifier"))
- .S J=$$JSON(UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,$$ESC^VPRJSON(adrec),ZID)
+ .S CTERM=$G(B("ClassTerm"))
+ .S J=$$JSON(UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,$$ESC^VPRJSON(adrec),ZID,ABPB,CTERM)
  .I '$D(^NGX(user,file,ZID)) set ^NGX(user,file,ZID)=J QUIT
  .I $D(^NGX(user,file,ZID)) DO
  ..S Z=$O(^NGX(user,file,ZID,""),-1)+1
@@ -202,7 +204,7 @@ PROCESS(file,user) ;
  S ^ACTIVITY(user,I)=$H_"~"_file_" processed ok~"_file
  QUIT
  
-JSON(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,ZID) 
+JSON(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,ZID,P,Q) 
  S JS="{""ID"":"""_ZID_""","
  S JS=JS_"""UPRN"":"""_A_""","
  S JS=JS_"""add_format"":"""_B_""","
@@ -218,5 +220,17 @@ JSON(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,ZID)
  S JS=JS_"""abp_street"":"""_L_""","
  S JS=JS_"""abp_town"":"""_M_""","
  S JS=JS_"""qualifier"":"""_N_""","
- S JS=JS_"""add_candidate"":"""_O_"""},"
+ S JS=JS_"""add_candidate"":"""_O_""","
+ S JS=JS_"""abp_building"":"""_P_""","
+ I A'="" D
+ .S COORD=$piece($get(^UPRN("U",UPRN)),"~",7)
+ .S LAT=$P(COORD,",",3),LONG=$P(COORD,",",4)
+ .S POINT=$P(COORD,",",3),X=$P(COORD,",",1),Y=$P(COORD,",",2)
+ .S JS=JS_"""latitude"":"""_LAT_""","
+ .S JS=JS_"""longitude"":"""_LONG_""","
+ .S JS=JS_"""point:"":"""_POINT_""","
+ .S JS=JS_"""X"":"""_X_""","
+ .S JS=JS_"""Y"":"""_Y_""","
+ .QUIT
+ S JS=JS_"""class_term"":"""_Q_"""},"
  QUIT JS
