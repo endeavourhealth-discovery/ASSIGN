@@ -2,13 +2,15 @@ import { Injectable } from '@angular/core';
 import {Observable} from "rxjs/Observable";
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {environment} from "../../environments/environment";
+import {MessageBoxDialogComponent} from "dds-angular8";
+import {MatDialog} from "@angular/material/dialog";
 
 @Injectable()
 export class UPRNService {
 
   SERVER_URL: string = `${environment.apiUrl}`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, public dialog: MatDialog) { }
 
   getSessionId(): Observable<any> {
     return this.http.get<any[]>(this.SERVER_URL + 'api/sessionid');
@@ -24,13 +26,13 @@ export class UPRNService {
     return this.http.get<any[]>(this.SERVER_URL + 'api/getuprn?',{params});
   }
 
-  getUPRNStuff(adrec: string): Observable<any> {
+  getUPRNStuff(adrec: string, comm: string): Observable<any> {
 
-    let params = new HttpParams({fromString: 'adrec='+adrec});
+    let params = new HttpParams({fromString: 'commercial='+comm+'&adrec='+adrec});
 
-    console.log("just about to call getinfo "+adrec);
+    console.log(">>just about to call getinfo "+adrec);
     console.log('adrec: '+params.get('adrec'));
-    console.log('test: '+params.get('test'));
+    console.log('comm: '+params.get('commercial'));
 
     return this.http.get<any[]>(this.SERVER_URL + 'api/getinfo?',{params});
   }
@@ -48,6 +50,11 @@ export class UPRNService {
 
     console.log('filename: '+params.get('filename'));
     return this.http.get<Blob>(this.SERVER_URL+"api/filedownload2?",{params});
+  }
+
+  downloadDoc(Id: string): Observable<any> {
+    let url = this.SERVER_URL + "api/download/" + Id;
+    return this.http.get(url, { responseType: "blob" });
   }
 
   async getRegistration(userid: string) {
@@ -87,11 +94,16 @@ export class UPRNService {
 
   processval(val)
   {
+
+    //MessageBoxDialogComponent.open(this.dialog, '', 'Click on \'Downloads + activity\' tab to download results', 'Continue');
+
     if (val.upload["status"] == 'OK') {
-      alert("To check progress, click on 'Downloads + activity' tab");
+      //alert("Click on 'Downloads + activity' tab to download results");
+      MessageBoxDialogComponent.open(this.dialog, 'Upload address file', 'Click on \'Downloads + activity\' tab to download results', 'Continue');
     }
     if (val.upload["status"] == 'NOK') {
-      alert('Incorrect file format - please make sure the file you are uploading is tab delimited, and each row contains a numeric identifier');
+      //alert('Incorrect file format - please make sure the file you are uploading is tab delimited, and each row contains a unique numeric identifier');
+      MessageBoxDialogComponent.open(this.dialog, 'Upload address file','Incorrect file format - please make sure the file you are uploading is tab delimited, and each row contains a unique numeric identifier', 'Continue');
     }
   }
 

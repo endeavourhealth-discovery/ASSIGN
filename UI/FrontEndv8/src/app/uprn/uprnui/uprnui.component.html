@@ -18,8 +18,8 @@
           <!-- <p> -->
 
           <div class="flex" fxLayoutGap="16px grid" fxLayout="row wrap">
-            <div fxFlex="100">Enter a single address string with commas between the address and postcode</div>
-            <div fxFlex="100"><b>The algorithm will not work without a postcode</b></div>
+            <div fxFlex="100">Enter a single address string including a postcode at the end with a comma separating the address from the postcode</div>
+            <!-- <div fxFlex="100"><b>The algorithm will not work without a postcode</b></div> -->
             <div fxFlex="100">e.g. 10 Downing St,Westminster,London,SW1A2AA</div>
 
             <mat-form-field appearance="outline" fxFlex="50" fxFill>
@@ -29,6 +29,7 @@
             <button mat-icon-button matTooltip="Filter the results" (click)="findUPRN()">
               <i class="far fa-fw fa-search"></i>
             </button>
+            <div fxFlex="100"><mat-checkbox [(ngModel)]="chkcomm" name="chkcomm">Include Commercial matches?</mat-checkbox></div>
           <!-- </p> -->
           </div>
         </mat-card-content>
@@ -90,20 +91,16 @@
           <!-- <input hidden (change)="postMethod($event.target.files)" #fileInput type="file" id="file"> -->
 
           <br>
-          <p>The address file to be upload only contains two columns</p>
-          <p>The columns must be separated by a single tab character (Ascii 9)</p>
-          <p>The file must have a .txt extension</p>
+          <p>The address file to be uploaded must contain two columns separated by a single tab character with a .txt extension</p>
           <p>The first line must not contain any header information</p>
           <p>The first column is a unique numeric row id</p>
-          <p>The second column is a full address string</p>
-          <p>The address string fields should be separated by commas</p>
-          <p>The last field in the address string must be a postcode</p>
+          <p>The second column is an address string including a postcode at the end with a comma separating the address from the postcode</p>
 
-          <p style="font-family:courier;">Example records ({{lf}} = line feed)</p>
+          <p style="font-family:courier;">Example records:</p>
 
-          <p style="font-family:courier;">1{{tab}}10 Downing St,Westminster,London,SW1A2AA{{lf}}</p>
-          <p style="font-family:courier;">2{{tab}}Bridge Street,London,SW1A 2LW{{lf}}</p>
-          <p style="font-family:courier;">3{{tab}}221b Baker St,Marylebone,London,NW1 6XE{{lf}}</p>
+          <p style="font-family:courier;">1{{tab}}10 Downing St,Westminster,London,SW1A2AA</p>
+          <p style="font-family:courier;">2{{tab}}Bridge Street,London,SW1A 2LW</p>
+          <p style="font-family:courier;">3{{tab}}221b Baker St,Marylebone,London,NW1 6XE</p>
           <p style="font-family:courier;">4{{tab}}3 Abbey Rd,St John's Wood,London,NW8 9AY</p>
 
           <!--
@@ -203,12 +200,13 @@
           <br>
           <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">I have read the attribution and disclaimer and understand that I will use this service within these conditions</div>
           <br>
-          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start"><a href="https://github.com/endeavourhealth-discovery/uprn-match/blob/master/200714_Attribution_Disclaimer_V5_Final.docx">Attribution and Disclaimer</a></div>
+          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start"><a href="https://github.com/endeavourhealth-discovery/uprn-match/blob/master/200714_Attribution_Disclaimer_V5_Final.docx?raw=true">Attribution and Disclaimer</a></div>
           <br>
           <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">I am licenced to use AddressBase Premium (we need to develop this more)</div>
           <br>
           <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">This service has 2 options – return a UPRN for a single address or return UPRNs for a list of addresses in a tab separated text file</div>
           <br>
+          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">Further information on address input formats and output fields can be found on the help page (click on the question mark - top right)</div>
           <br>
           <button type="button" mat-flat-button (click)="(onClickAgree(wName, wOrganisation))">Yes, I agree</button>
             <!-- <td><button type="button" mat-flat-button (click)="(onClickDoNotAgree())">Nope, I don't agree</button></td> -->

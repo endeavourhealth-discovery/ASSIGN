@@ -49,6 +49,7 @@ export class UPRNComponent implements OnInit {
   adrec: string;
   jsondata: string;
   jsonlatlong: string;
+  chkcomm: boolean;
 
   wName: string; wOrganisation: string; wRegDate: string;
 
@@ -80,7 +81,7 @@ export class UPRNComponent implements OnInit {
     quotestrings: '"',
     decimalseparator: '.',
     showLabels: true,
-    headers: ['ID,UPRN,add_format,alg,class,match_build,match_flat,match_number,match_postcode,match_street,abp_number,abp_postcode,abp_street,abp_town,qualifier,add_candidate'],
+    headers: ['ID,UPRN,add_format,alg,class,match_build,match_flat,match_number,match_postcode,match_street,abp_number,abp_postcode,abp_street,abp_town,qualifier,add_candidate,abp_building,latitude,longitude,point,X,Y,class_term'],
     showTitle: false,
     title: 'UPRN',
     useTextFile: false,
@@ -95,6 +96,7 @@ export class UPRNComponent implements OnInit {
               private itemLinkageService: ItemLinkageService,
               private datePipe: DatePipe,
               private router: Router,
+              public dialog: MatDialog,
   ) {
   }
 
@@ -202,9 +204,16 @@ export class UPRNComponent implements OnInit {
   }
 
   onClickDownloadTable(filetodownload: string) {
-    alert(filetodownload);
-    this.filetoupload = filetodownload;
-    this.onClickDownload();
+    //alert(filetodownload);
+    MessageBoxDialogComponent.open(this.dialog, 'Download', filetodownload,
+      "Cancel", "OK")
+      .subscribe(
+        (result) => {
+          if (!result) {
+            this.filetoupload = filetodownload;
+            this.onClickDownload();
+          }
+        });
   }
 
   onClickDownload() {
@@ -306,6 +315,8 @@ export class UPRNComponent implements OnInit {
     let j = await this.UPRNService.getRegistration(this.activeProject.userId);
     let jsonObj = JSON.parse(j);
 
+    this.wName = ""; this.wOrganisation=""; this.wRegDate="";
+
     console.log(jsonObj.name);
     if (jsonObj.name != "?") {
       this.wName = jsonObj.name;
@@ -324,8 +335,8 @@ export class UPRNComponent implements OnInit {
 
     //this.tabs.splice(0, 1);
 
-    if (wname == undefined || (worg == undefined)) {
-      alert("Please enter your Name and Organisation");
+    if (wname === '' || (worg === '')) {
+      MessageBoxDialogComponent.open(this.dialog, 'Welcome', 'Please enter your Name and Organisation', 'Continue');
       return;
     }
 
@@ -372,13 +383,26 @@ export class UPRNComponent implements OnInit {
 
   findUPRN() {
     console.log(this.adrec);
+    console.log("status = " + this.chkcomm);
 
-    this.getUPRN(this.adrec);
+    let comm  = "1";
+    if (this.chkcomm == false || (this.chkcomm == undefined)) {
+      console.log("chkcomm not checked");
+      comm = "0";
+    }
+
+    this.getUPRN(this.adrec, comm);
   }
 
-  getUPRN(adrec: string) {
+  Test(file: string) {
+    const blob = new Blob([file], {type: 'text/csv'}); // you can change the type
+    const url = window.URL.createObjectURL(blob);
+    window.open(url);
+  }
+
+  getUPRN(adrec: string, comm: string) {
     this.jsondata = "";
-    this.UPRNService.getUPRNStuff(adrec).
+    this.UPRNService.getUPRNStuff(adrec, comm).
       subscribe(
         result => {
           this.processUPRN(result);
