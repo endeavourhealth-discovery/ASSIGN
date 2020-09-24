@@ -157,7 +157,7 @@ PROCESS(file,user) ;
  close file
  o file:(readonly):0
  S cnt=1
- f  u file r str q:$zeof  do
+ f  u file r str q:$zeof  do  quit:cnt>100000
  .S str=$$STRIP(str)
  .S ZID=$$TR^LIB($P(str,$C(9),1),"""","")
  .I ZID=""!(ZID=$C(13)) QUIT
@@ -183,6 +183,7 @@ PROCESS(file,user) ;
  .S QUAL=$GET(B("Qualifier"))
  .S CTERM=$G(B("ClassTerm"))
  .S J=$$JSON(UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,$$ESC^VPRJSON(adrec),ZID,ABPB,CTERM)
+ .S cnt=cnt+1
  .I '$D(^NGX(user,file,ZID)) set ^NGX(user,file,ZID)=J QUIT
  .I $D(^NGX(user,file,ZID)) DO
  ..S Z=$O(^NGX(user,file,ZID,""),-1)+1
@@ -201,7 +202,7 @@ PROCESS(file,user) ;
  close file
  LOCK -^UPRNUI("process",file)
  S I=$O(^ACTIVITY(user,""),-1)+1
- S ^ACTIVITY(user,I)=$H_"~"_file_" processed ok~"_file
+ S ^ACTIVITY(user,I)=$H_"~"_file_" processed "_cnt_" records~"_file
  QUIT
  
 JSON(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,ZID,P,Q) 
