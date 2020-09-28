@@ -51,9 +51,10 @@ export class UPRNComponent implements OnInit {
   jsonlatlong: string;
   chkcomm: boolean;
 
-  wName: string; wOrganisation: string; wRegDate: string;
+  wName: string; wOrganisation: string; wRegDate: string; epoch: string;
 
   latitude: string; longitude: string; qualifier: string; xcoordinate: string; ycoordinate: string; pointcode: string;
+  organisation: string;
 
   userId: string;
   reportComplete = true;
@@ -318,10 +319,13 @@ export class UPRNComponent implements OnInit {
     this.wName = ""; this.wOrganisation=""; this.wRegDate="";
 
     console.log(jsonObj.name);
+    console.log(jsonObj.epoch);
+
     if (jsonObj.name != "?") {
       this.wName = jsonObj.name;
       this.wOrganisation = jsonObj.organization;
       this.wRegDate = jsonObj.regdate;
+      this.epoch = jsonObj.epoch;
     }
 
     if (jsonObj.name == "?") {
@@ -340,13 +344,31 @@ export class UPRNComponent implements OnInit {
       return;
     }
 
-    this.stuff = await this.UPRNService.postRegistration(wname, worg, this.userId);
+    //this.stuff = await this.UPRNService.postRegistration(wname, worg, this.userId);
+    //Post JSON rather than a form
+    //this.stuff = await this.UPRNService.RegPostJSON(wname, worg, this.userId);
 
+    await this.UPRNService.RegPostJSON(wname, worg, this.userId).then(
+      data => {
+        if (data == "OK") {
+          //alert("Registration filed OK");
+          console.log(">>>> "+data);
+          this.dogsEnabled = "1";
+          this.selectedIndex = 0;
+        }
+      },
+      error => {
+        this.log.error('Unable to post registration');
+      }
+    )
+
+    /*
     if (this.stuff == "OK") {
       //alert("Registration filed OK");
       this.dogsEnabled = "1";
       this.selectedIndex = 0;
     }
+     */
   }
 
   onClickDownGoogleMaps(uprn: string, launch: any) {
@@ -427,6 +449,7 @@ export class UPRNComponent implements OnInit {
 
     let building = "?"; let flat = "?"; let number = "?"; let street = "?"; let town = "?"; let postcode = "?";
     let matchpcode = "?"; let matchnumber = "?"; let matchbuilding = "?"; let matchflat = "?";
+    let organisation = "?";
 
     let algorithm = jsonObj.Algorithm;
 
@@ -437,6 +460,7 @@ export class UPRNComponent implements OnInit {
       building = jsonObj.ABPAddress["Building"];
       town = jsonObj.ABPAddress["Town"];
       postcode = jsonObj.ABPAddress["Postcode"];
+      organisation = jsonObj.ABPAddress["Organisaton"]; // spelt wrong in m code
     }
 
     if (jsonObj.hasOwnProperty('Match_pattern')) {
@@ -449,6 +473,7 @@ export class UPRNComponent implements OnInit {
     this.UPRNData = activityData;
     this.UPRN = u; this.number = number; this.flat = flat; this.building = building;
     this.town =town; this.street = street; this.postcode = postcode; this.classcode = classcode; this.classterm = classterm;
+    this.organisation = organisation;
 
     this.matchpcode=matchpcode; this.matchnumber = matchnumber; this.matchflat= matchflat; this.matchbuilding = matchbuilding;
 

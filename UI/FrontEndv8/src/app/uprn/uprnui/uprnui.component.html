@@ -3,7 +3,7 @@
     <div mat-card-avatar>
       <i class="fad fa-analytics"></i></div>
     <mat-card-title>UPRN</mat-card-title>
-    <mat-card-subtitle>YottaDB r1.26 Linux x86_64</mat-card-subtitle>
+    <mat-card-subtitle>YottaDB r1.26 Linux x86_64 (Epoch: {{epoch}})</mat-card-subtitle>
     <div fxFlex></div>
   </mat-card-header>
   <mat-card-content>
@@ -24,7 +24,7 @@
 
             <mat-form-field appearance="outline" fxFlex="50" fxFill>
               <mat-label>Address</mat-label>
-              <input type="string" value="1" matInput [(ngModel)]="adrec" name="adrec">
+              <input type="string" value="1" matInput [(ngModel)]="adrec" name="adrec" (keyup.enter)="findUPRN()">
             </mat-form-field>
             <button mat-icon-button matTooltip="Filter the results" (click)="findUPRN()">
               <i class="far fa-fw fa-search"></i>
@@ -52,7 +52,7 @@
                       <td>Building: </td><td>{{building}}</td><td>Number: </td><td>{{matchnumber}}</td><td></td><tr>
                       <td>Flat: </td><td>{{flat}}</td><td>Building: </td><td>{{matchbuilding}}</td><td></td><tr>
                       <td>Number: </td><td>{{number}}</td><td>Flat: </td><td>{{matchflat}}</td><td></td><tr>
-                      <td>Street: </td><td>{{street}}</td><td></td><td></td><td></td><tr>
+                      <td>Street: </td><td>{{street}}</td><td>Organisation: </td><td>{{organisation}}</td><td></td><tr>
                       <td>Town: </td><td>{{town}}</td><td>Latitude: </td><td>{{latitude}}</td><td></td><tr>
                       <td>Post code: </td><td>{{postcode}}</td><td>Longitude: </td><td>{{longitude}}</td><td></td><tr>
                       <td>Classification code: </td><td>{{classcode}}</td><td>X Coordinate: </td><td>{{xcoordinate}}</td><tr>

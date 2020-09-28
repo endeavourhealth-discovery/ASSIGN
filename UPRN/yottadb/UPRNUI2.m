@@ -31,10 +31,11 @@ GETREG(result,arguments)
  S ^TMP($J,1)="{""name"": ""?"", ""organization"": ""?""}"
  S rec=$GET(^ZREG(userid))
  S dt=$P(rec,"~"),org=$P(rec,"~",2),name=$P(rec,"~",3)
+ S epoch=$get(^ICONFIG("EPOCH"))
  i name'="" do
  .set d=$p(dt,","),t=$p(dt,",",2)
  .set d=$$HD^STDDATE(d),t=$$HT^STDDATE(t)
- .S ^TMP($J,1)="{""name"": """_name_""",""organization"": """_org_""",""regdate"": """_d_":"_t_"""}"
+ .S ^TMP($J,1)="{""name"": """_name_""",""organization"": """_org_""",""regdate"": """_d_":"_t_""",""epoch"": """_epoch_"""}"
  .quit
  S result("mime")="text/plain, */*"
  S result=$NA(^TMP($J))
@@ -51,6 +52,8 @@ DOWNLOAD(result,arguments)
  s ^TMP($J,c)="]"
  S result("mime")="text/plain, */*"
  S result=$NA(^TMP($J))
+ S I=$O(^ACTIVITY(user,""),-1)+1
+ S ^ACTIVITY(user,I)=$H_"~"_file_" downloaded~"
  QUIT
  
 REG(arguments,body,result) 
@@ -95,7 +98,7 @@ UPLOAD(arguments,body,result)
  
  set line=$order(body(""),-1)
  ;if line'="" set body(line)=$piece(body(line),"------WebKitFormBoundary",1)
- if line'="" set body(line)=$p(body(line),$C(13,10,13,10),1)
+ ;if line'="" set body(line)=$p(body(line),$C(13,10,13,10),1)
  
  ;open file:newversion
  O file:(newversion:stream:nowrap:chset="M")
@@ -108,8 +111,17 @@ UPLOAD(arguments,body,result)
  ; test that the file has tabs in it?
  ; validate the first 10 records
  open file:(readonly)
- s ok=1
- f i=1:1:10 use file r str q:$zeof  i $p(str,$c(9))'?1n.n s ok=0
+ s ok=1,qf=0,ZZ=""
+ ;f i=1:1:10 use file r str q:$zeof  i $p(str,$c(9))'?1n.n s ok=0
+ for i=1:1 use file r str q:$zeof  do  quit:'ok!(qf)
+ .I str=$C(13) use file r str
+ .if str["------WebKitFormBoundary" s qf=1
+ .if qf do  quit
+ ..S ZZ=str
+ ..f i=1:1 use file r str q:$zeof  S ZZ=ZZ_str
+ ..quit
+ .if $p(str,$c(9))'?1n.n s ok=0
+ .quit
  close file
  
  S ^ok=ok
@@ -120,7 +132,8 @@ UPLOAD(arguments,body,result)
  set result=$na(^TMP($J))
  I 'ok quit 1
  
- S USER=$P($P(ZZ,"name=""userid"""_$C(13,10,13,10),2),$C(13,10))
+ ;S USER=$P($P(ZZ,"name=""userid"""_$C(13,10,13,10),2),$C(13,10))
+ S USER=$P($P(ZZ,"name=""userid"""_$C(13,13),2),$C(13))
  
  S I=$O(^ACTIVITY(USER,""),-1)+1
  S ^ACTIVITY(USER,I)=$H_"~"_file_" uploaded ok~"_file
@@ -156,9 +169,11 @@ PROCESS(file,user) ;
  K ^FILE(file),^NGX(user,file)
  close file
  o file:(readonly):0
- S cnt=1
- f  u file r str q:$zeof  do  quit:cnt>100000
+ S cnt=1,qf=0
+ f  u file r str q:$zeof  do  quit:cnt>100000!(qf)
  .S str=$$STRIP(str)
+ .I str=$c(13) quit
+ .if str["------WebKitFormBoundary" set qf=1 quit
  .S ZID=$$TR^LIB($P(str,$C(9),1),"""","")
  .I ZID=""!(ZID=$C(13)) QUIT
  .s adrec=$$TR^LIB($p(str,$C(9),2,99),$C(13),"")

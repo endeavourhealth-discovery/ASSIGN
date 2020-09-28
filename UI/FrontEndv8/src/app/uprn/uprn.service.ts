@@ -10,6 +10,8 @@ export class UPRNService {
 
   SERVER_URL: string = `${environment.apiUrl}`;
 
+  private headers = new Headers({'Content-Type': 'application/json'});
+
   constructor(private http: HttpClient, public dialog: MatDialog) { }
 
   getSessionId(): Observable<any> {
@@ -61,6 +63,12 @@ export class UPRNService {
     let params = new HttpParams({fromString: 'userid='+userid});
     let x = await this.http.get(this.SERVER_URL + 'api/getreg?',{params}).toPromise();
     return JSON.stringify(x);
+  }
+
+  async RegPostJSON(name: string, org:string, userid: string) {
+    let x = await this.http.post(this.SERVER_URL+"api/reg2", JSON.stringify({name: name, org: org, userid: userid})).toPromise();
+    let jsonObj = JSON.parse(JSON.stringify(x));
+    return jsonObj.status;
   }
 
   async postRegistration (name: string, org: string, userid: string) {
