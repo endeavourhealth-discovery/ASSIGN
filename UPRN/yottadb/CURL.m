@@ -27,7 +27,8 @@ VALTOKEN(token)
  
  if endpoint="" quit 0
  
- if $piece(token," ")'="Bearer" set token="Bearer "_token
+ ;if $piece(token," ")'="Bearer" set token="Bearer "_token
+ if $$LC^LIB($piece(token," "))'="bearer" set token="Bearer "_token
  
  set cmd="curl -s -X POST -i -H ""Authorization: "_token_""" "_endpoint_" > /tmp/a"_$job_".txt"
  ;w !,cmd
