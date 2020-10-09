@@ -32,10 +32,11 @@ GETREG(result,arguments)
  S rec=$GET(^ZREG(userid))
  S dt=$P(rec,"~"),org=$P(rec,"~",2),name=$P(rec,"~",3)
  S epoch=$get(^ICONFIG("EPOCH"))
+ S areas=$$ESC^VPRJSON($g(^ICONFIG("AREAS")))
  i name'="" do
  .set d=$p(dt,","),t=$p(dt,",",2)
  .set d=$$HD^STDDATE(d),t=$$HT^STDDATE(t)
- .S ^TMP($J,1)="{""name"": """_name_""",""organization"": """_org_""",""regdate"": """_d_":"_t_""",""epoch"": """_epoch_"""}"
+ .S ^TMP($J,1)="{""name"": """_name_""",""organization"": """_org_""",""regdate"": """_d_":"_t_""",""epoch"": """_epoch_""",""areas"": """_areas_"""}"
  .quit
  S result("mime")="text/plain, */*"
  S result=$NA(^TMP($J))
@@ -116,6 +117,7 @@ UPLOAD(arguments,body,result)
  for i=1:1 use file r str q:$zeof  do  quit:'ok!(qf)
  .I str=$C(13) use file r str
  .if str["------WebKitFormBoundary" s qf=1
+ .if $E(str,1,28)="----------------------------" s qf=1
  .if qf do  quit
  ..S ZZ=str
  ..f i=1:1 use file r str q:$zeof  S ZZ=ZZ_str
@@ -174,6 +176,7 @@ PROCESS(file,user) ;
  .S str=$$STRIP(str)
  .I str=$c(13) quit
  .if str["------WebKitFormBoundary" set qf=1 quit
+ .if $E(str,1,28)="----------------------------" s qf=1 quit
  .S ZID=$$TR^LIB($P(str,$C(9),1),"""","")
  .I ZID=""!(ZID=$C(13)) QUIT
  .s adrec=$$TR^LIB($p(str,$C(9),2,99),$C(13),"")

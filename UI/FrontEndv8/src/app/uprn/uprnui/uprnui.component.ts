@@ -51,7 +51,7 @@ export class UPRNComponent implements OnInit {
   jsonlatlong: string;
   chkcomm: boolean;
 
-  wName: string; wOrganisation: string; wRegDate: string; epoch: string;
+  wName: string; wOrganisation: string; wRegDate: string; epoch: string; areas: string;
 
   latitude: string; longitude: string; qualifier: string; xcoordinate: string; ycoordinate: string; pointcode: string;
   organisation: string;
@@ -206,7 +206,10 @@ export class UPRNComponent implements OnInit {
 
   onClickDownloadTable(filetodownload: string) {
     //alert(filetodownload);
-    MessageBoxDialogComponent.open(this.dialog, 'Download', filetodownload,
+    let z = filetodownload.split("/", 4);
+    let f = z[3];
+
+    MessageBoxDialogComponent.open(this.dialog, 'Download', f,
       "Cancel", "OK")
       .subscribe(
         (result) => {
@@ -314,18 +317,23 @@ export class UPRNComponent implements OnInit {
 
   async getRegistration(userid: string) {
     let j = await this.UPRNService.getRegistration(this.activeProject.userId);
+
+    console.log("reg json"+ j);
+
     let jsonObj = JSON.parse(j);
 
     this.wName = ""; this.wOrganisation=""; this.wRegDate="";
 
     console.log(jsonObj.name);
     console.log(jsonObj.epoch);
+    console.log(jsonObj.areas);
 
     if (jsonObj.name != "?") {
       this.wName = jsonObj.name;
       this.wOrganisation = jsonObj.organization;
       this.wRegDate = jsonObj.regdate;
       this.epoch = jsonObj.epoch;
+      this.areas = jsonObj.areas;
     }
 
     if (jsonObj.name == "?") {
@@ -407,6 +415,11 @@ export class UPRNComponent implements OnInit {
     console.log(this.adrec);
     console.log("status = " + this.chkcomm);
 
+    if (this.adrec==='') {
+      console.log("adrec is null");
+      return;
+    }
+
     let comm  = "1";
     if (this.chkcomm == false || (this.chkcomm == undefined)) {
       console.log("chkcomm not checked");
@@ -474,6 +487,8 @@ export class UPRNComponent implements OnInit {
     this.UPRN = u; this.number = number; this.flat = flat; this.building = building;
     this.town =town; this.street = street; this.postcode = postcode; this.classcode = classcode; this.classterm = classterm;
     this.organisation = organisation;
+
+    console.log("org: "+ this.organisation);
 
     this.matchpcode=matchpcode; this.matchnumber = matchnumber; this.matchflat= matchflat; this.matchbuilding = matchbuilding;
 

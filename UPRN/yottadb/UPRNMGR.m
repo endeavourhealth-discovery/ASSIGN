@@ -93,7 +93,7 @@ SUMMARY ;Summary result
  .s json=json_"true,"
 MATCHK(json,summary)       ;populates match details
  s json=json_"""Matched"":"
- I $D(^TUPRN($J,"NOMATCH")) D
+ I $D(^TUPRN($J,"NOMATCH"))!($D(^TUPRN($J,"OUTOFAREA"))) D
  .s json=json_"false"
  e  d
  .s json=json_"true,"

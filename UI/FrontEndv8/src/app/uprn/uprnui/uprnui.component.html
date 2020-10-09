@@ -3,7 +3,7 @@
     <div mat-card-avatar>
       <i class="fad fa-analytics"></i></div>
     <mat-card-title>UPRN</mat-card-title>
-    <mat-card-subtitle>YottaDB r1.26 Linux x86_64 (Epoch: {{epoch}})</mat-card-subtitle>
+    <mat-card-subtitle>Epoch: {{epoch}}  ABP: {{areas}}</mat-card-subtitle>
     <div fxFlex></div>
   </mat-card-header>
   <mat-card-content>
@@ -46,25 +46,35 @@
                       <td><button type="button" mat-stroked-button (click)="onClickJSON()">JSON</button></td>
                     </table>
                     <br><br> -->
-                    <table border="1" width="100%">
-                      <td>Details</td><td></td><td>match patterns</td><td></td><td>Algorithm</td><tr>
-                      <td>UPRN: </td><td>{{UPRN}}</td><td>Post code: </td><td>{{matchpcode}}</td><td>{{algorithm}}</td><tr>
-                      <td>Building: </td><td>{{building}}</td><td>Number: </td><td>{{matchnumber}}</td><td></td><tr>
-                      <td>Flat: </td><td>{{flat}}</td><td>Building: </td><td>{{matchbuilding}}</td><td></td><tr>
-                      <td>Number: </td><td>{{number}}</td><td>Flat: </td><td>{{matchflat}}</td><td></td><tr>
-                      <td>Street: </td><td>{{street}}</td><td>Organisation: </td><td>{{organisation}}</td><td></td><tr>
-                      <td>Town: </td><td>{{town}}</td><td>Latitude: </td><td>{{latitude}}</td><td></td><tr>
-                      <td>Post code: </td><td>{{postcode}}</td><td>Longitude: </td><td>{{longitude}}</td><td></td><tr>
-                      <td>Classification code: </td><td>{{classcode}}</td><td>X Coordinate: </td><td>{{xcoordinate}}</td><tr>
-                      <td>Classification term: </td><td>{{classterm}}</td><td>Y Coordinate: </td><td>{{ycoordinate}}</td><tr>
-                      <td>Qualifier: </td><td>{{qualifier}}</td><td>PointCode: </td><td>{{pointcode}}</td><tr>
-                    </table>
-                    <br>
-                    <p>JSON:</p>
-                    <table border="1" width="100%">
-                      <td>{{jsondata}}</td><tr>
-                      <td>{{jsonlatlong}}</td><tr>
-                    </table>
+                    <div *ngIf="!UPRN" fxFlex="100">
+                      <!-- <div *ngIf="!adrec" fxFlex="100">
+                        <p>Please enter an address candidate</p>
+                      </div> -->
+                      <p>Sorry, the algorithm was unable to find a match</p>
+                      <!-- <p>The algorithm only supports London candidate addresses (please get in touch if you want to support other regions of the UK)</p> -->
+                    </div>
+                    <div *ngIf="UPRN" fxFlex="100">
+                      <table border="1" width="100%">
+                        <td>Details</td><td></td><td>match patterns</td><td></td><td>Algorithm</td><tr>
+                        <td>UPRN: </td><td>{{UPRN}}</td><td>Post code: </td><td>{{matchpcode}}</td><td>{{algorithm}}</td><tr>
+                        <td>Building: </td><td>{{building}}</td><td>Number: </td><td>{{matchnumber}}</td><td></td><tr>
+                        <td>Flat: </td><td>{{flat}}</td><td>Building: </td><td>{{matchbuilding}}</td><td></td><tr>
+                        <td>Number: </td><td>{{number}}</td><td>Flat: </td><td>{{matchflat}}</td><td></td><tr>
+                        <td>Street: </td><td>{{street}}</td><td>Organisation: </td><td>{{organisation}}</td><td></td><tr>
+                        <td>Town: </td><td>{{town}}</td><td>Latitude: </td><td>{{latitude}}</td><td></td><tr>
+                        <td>Post code: </td><td>{{postcode}}</td><td>Longitude: </td><td>{{longitude}}</td><td></td><tr>
+                        <td>Classification code: </td><td>{{classcode}}</td><td>X Coordinate: </td><td>{{xcoordinate}}</td><tr>
+                        <td>Classification term: </td><td>{{classterm}}</td><td>Y Coordinate: </td><td>{{ycoordinate}}</td><tr>
+                        <td>Qualifier: </td><td>{{qualifier}}</td><td>PointCode: </td><td>{{pointcode}}</td><tr>
+                        <!-- <td [matTooltip="test blah blah"]>test</td> -->
+                      </table>
+                      <br>
+                      <p>JSON:</p>
+                      <table border="1" width="100%">
+                        <td>{{jsondata}}</td><tr>
+                        <td>{{jsonlatlong}}</td><tr>
+                      </table>
+                    </div>
                     <!-- <textarea readonly rows="8" cols="100">{{jsondata}}</textarea> -->
                   </mat-card-content>
                 </mat-card>
@@ -200,7 +210,7 @@
           <br>
           <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">I have read the attribution and disclaimer and understand that I will use this service within these conditions</div>
           <br>
-          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start"><a href="https://github.com/endeavourhealth-discovery/uprn-match/blob/master/200714_Attribution_Disclaimer_V5_Final.docx?raw=true">Attribution and Disclaimer</a></div>
+          <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start"><a href="https://github.com/endeavourhealth-discovery/uprn-match/blob/master/201002_Attribution_Disclaimer_V5.docx?raw=true">Attribution and Disclaimer</a></div>
           <br>
           <div class="flex" fxLayoutGap="16px grid" fxLayoutAlign="start">I am licenced to use AddressBase Premium (we need to develop this more)</div>
           <br>

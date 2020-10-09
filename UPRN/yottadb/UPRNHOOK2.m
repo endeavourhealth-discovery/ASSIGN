@@ -67,7 +67,7 @@ GETMUPRN(result,arguments)
 
 	set adrec=$Get(arguments("adrec"))
 	
-	K ^TPARAM($J,"commercials")
+	K ^TPARAMS($J,"commercials")
 	set comm=$Get(arguments("commercial"))
 	if comm set ^TPARAMS($J,"commercials")=1
 	
