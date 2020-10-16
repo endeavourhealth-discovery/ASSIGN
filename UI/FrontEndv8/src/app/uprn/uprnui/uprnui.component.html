@@ -29,6 +29,15 @@
             <button mat-icon-button matTooltip="Filter the results" (click)="findUPRN()">
               <i class="far fa-fw fa-search"></i>
             </button>
+            <div fxFlex="100">
+              <mat-form-field appearance="fill" class="regular">
+                <mat-label>postal area</mat-label>
+                <!-- <mat-select multiple [(value)]="everyHourHourlyTab" (selectionChange)="setHourlyTabCron($event)"> -->
+                <mat-select [(value)]="Region" (selectionChange)="RegionSelection($event)">
+                  <mat-option *ngFor="let item of zeroTo20" value="{{item.value}}">{{item.display}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            </div>
             <div fxFlex="100"><mat-checkbox [(ngModel)]="chkcomm" name="chkcomm">Include Commercial matches?</mat-checkbox></div>
           <!-- </p> -->
           </div>
@@ -51,6 +60,7 @@
                         <p>Please enter an address candidate</p>
                       </div> -->
                       <p>Sorry, the algorithm was unable to find a match</p>
+                      <p>{{jsondata}}</p>
                       <!-- <p>The algorithm only supports London candidate addresses (please get in touch if you want to support other regions of the UK)</p> -->
                     </div>
                     <div *ngIf="UPRN" fxFlex="100">

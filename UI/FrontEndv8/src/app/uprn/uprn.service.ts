@@ -28,13 +28,14 @@ export class UPRNService {
     return this.http.get<any[]>(this.SERVER_URL + 'api/getuprn?',{params});
   }
 
-  getUPRNStuff(adrec: string, comm: string): Observable<any> {
+  getUPRNStuff(adrec: string, comm: string, qpost: string): Observable<any> {
 
-    let params = new HttpParams({fromString: 'commercial='+comm+'&adrec='+adrec});
+    let params = new HttpParams({fromString: 'qpost='+qpost+'&commercial='+comm+'&adrec='+adrec});
 
     console.log(">>just about to call getinfo "+adrec);
     console.log('adrec: '+params.get('adrec'));
     console.log('comm: '+params.get('commercial'));
+    console.log('qpost: '+params.get('qpost'));
 
     return this.http.get<any[]>(this.SERVER_URL + 'api/getinfo?',{params});
   }

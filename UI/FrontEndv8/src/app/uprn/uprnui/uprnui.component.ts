@@ -41,6 +41,9 @@ export class UPRNComponent implements OnInit {
   @ViewChild("fileUpload", {static: false}) fileUpload: ElementRef;
   files = [];
 
+  Region: string;
+  qpost: string;
+
   lf: string = "[lf]";
   tab: string = "[tab]";
 
@@ -89,6 +92,13 @@ export class UPRNComponent implements OnInit {
     useBom: false,
   };
 
+  zeroTo20 = [
+    {value: '0', display: ''}, {value: '1', display: 'EC district'}, {value: '2', display: 'WC district'}, {value: '3', display: 'E district'}, {value: '4', display: 'N district'}, {value: '5', display: 'NW district'},
+    {value: '6', display: 'SE district'}, {value: '7', display: 'SW district'}, {value: '8', display: 'W district'}, {value: '9', display: 'BR: Bromley'}, {value: '10', display: 'CR: Croydon'},
+    {value: '11', display: 'DA: Dartford'}, {value: '12', display: 'EN: Enfield'}, {value: '13', display: 'HA: Harrow'}, {value: '14', display: 'IG: Ilford'}, {value: '15', display: 'KT: Kingston'},
+    {value: '16', display: 'RM: Romford'}, {value: '17', display: 'SM: Sutton'}, {value: '18', display: 'TW: Twickenham'}, {value: '19', display: 'UB: Uxbridge'}, {value: '20', display: 'WD: Watford'}
+  ];
+
   public activeProject: UserProject;
 
   constructor(private UPRNService: UPRNService,
@@ -116,6 +126,45 @@ export class UPRNComponent implements OnInit {
     this.userId = this.activeProject.userId;
 
     this.getRegistration(this.userId);
+
+    this.qpost="";
+  }
+
+  RegionSelection(event) {
+
+    // for multi-select (if we need to implement)
+    //for (let pet of this.everyHourHourlyTab) {
+      //console.log("test: "+pet);
+      //console.log(this.everyHourHourlyTab[pet].display)
+
+      if (this.Region=="0") {this.qpost=""};
+      if (this.Region=="1") {this.qpost="EC"};
+      if (this.Region=="2") {this.qpost="WC"};
+      if (this.Region=="3") {this.qpost="E"};
+      if (this.Region=="4") {this.qpost="N"};
+      if (this.Region=="5") {this.qpost="NW"};
+      if (this.Region=="6") {this.qpost="SE"};
+      if (this.Region=="7") {this.qpost="SW"};
+      if (this.Region=="8") {this.qpost="W"};
+      if (this.Region=="9") {this.qpost="BR"};
+      if (this.Region=="10") {this.qpost="CR"};
+      if (this.Region=="11") {this.qpost="DA"};
+      if (this.Region=="12") {this.qpost="EN"};
+      if (this.Region=="13") {this.qpost="HA"};
+      if (this.Region=="14") {this.qpost="IG"};
+      if (this.Region=="15") {this.qpost="KT"};
+      if (this.Region=="16") {this.qpost="RM"};
+      if (this.Region=="17") {this.qpost="SM"};
+      if (this.Region=="18") {this.qpost="TW"};
+      if (this.Region=="19") {this.qpost="UB"};
+      if (this.Region=="20") {this.qpost="WD"};
+    //}
+
+    //for (var key in event) {
+    //  console.log(event[key]);
+    //}
+
+    console.log(this.qpost);
   }
 
   getSess() {
@@ -415,6 +464,8 @@ export class UPRNComponent implements OnInit {
     console.log(this.adrec);
     console.log("status = " + this.chkcomm);
 
+    console.log("qpost = " + this.qpost);
+
     if (this.adrec==='') {
       console.log("adrec is null");
       return;
@@ -426,7 +477,7 @@ export class UPRNComponent implements OnInit {
       comm = "0";
     }
 
-    this.getUPRN(this.adrec, comm);
+    this.getUPRN(this.adrec, comm, this.qpost);
   }
 
   Test(file: string) {
@@ -435,9 +486,9 @@ export class UPRNComponent implements OnInit {
     window.open(url);
   }
 
-  getUPRN(adrec: string, comm: string) {
+  getUPRN(adrec: string, comm: string, qpost: string) {
     this.jsondata = "";
-    this.UPRNService.getUPRNStuff(adrec, comm).
+    this.UPRNService.getUPRNStuff(adrec, comm, qpost).
       subscribe(
         result => {
           this.processUPRN(result);

@@ -143,7 +143,7 @@ ADRQUAL(rec,country)         ;
  .S ^TUPRN($J,"POSTCODE")="Missing post code"
  E  d
  .i country="e"!(country="w") d
- ..i '$$validp(post) D  Q
+ ..i '$$validp(post),$get(qpost)="" D  Q
  ...S ^TUPRN($J,"POSTCODE")="Invalid post code"
  i post'="",$l(rec,"~")=2,$p(rec,"~")'[" " d
  .i $l($p(rec,"~"))<10 d
@@ -830,6 +830,11 @@ p1 ;Completely wrong post code ignore, building, null flat, needs number and str
 3200 ;Post code, street and number but has mismatch in 
  S ALG="3200-"
  s matches=$$match61(adpost,adstreet,adbno,adbuild,adflat,adloc,adeploc)
+ I $D(^TUPRN($J,"MATCHED")) Q
+ 
+3300 ;
+ S ALG="3300-"
+ s matches=$$match62(adpost,adstreet,adbno,adbuild,adflat,adloc,adeploc)
  Q
  q
  
@@ -2980,6 +2985,23 @@ match60(tpost,tstreet,tbno,tbuild,tflat,tloc)
  ..S ALG=ALG_"match60"
  ..s matched=$$setuprns("X5",tpost,tbuild,tflat,"","")
  Q $G(^TUPRN($J,"MATCHED"))
+ 
+match62(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc) 
+ s post=""
+ for  s post=$O(^UPRNX("X3",tstreet,tbno,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
+ .q:post=tpost
+ .s near=$$justarea(post,qpost)
+ .q:near=""
+ .s $p(matchrec,",",1)=near
+ .i $D(^UPRNX("X5",post,tstreet,tbno,tbuild,tflat)) d
+ ..s $p(matchrec,",",2,5)="Se,Ne,Be,Fe"
+ ..S ALG=ALG_"match62"
+ ..s matched=$$setuprns("X5",post,tstreet,tbno,tbuild,tflat)
+ Q $G(^TUPRN($J,"MATCHED"))
+justarea(post,adpost) 
+ i $$area(adpost)=adpost,$$area(post)=adpost q "Pp"
+ Q ""
+ 
 match61(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc) 
  ;post code, street and number, street has 'es'
  s matched=0
