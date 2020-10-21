@@ -79,6 +79,7 @@ export class UPRNComponent implements OnInit {
   postcodetp="ABP postcode element of address string";
   orgtp="ABP organisation element of address string";
   classcodetp="ABP property classification code";
+  classtermtp = "ABP property classification code description";
   lattp="ABP latitude";
   longtp="ABP longitude";
   Xtp="ABP X coordinate";
