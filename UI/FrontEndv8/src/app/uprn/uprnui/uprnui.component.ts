@@ -22,6 +22,7 @@ import {saveAs as importedSaveAs} from "file-saver";
 import { MatTabChangeEvent, MatDialog } from '@angular/material';
 import {matDialogAnimations} from "@angular/material/dialog";
 import {MatYearView} from "@angular/material/datepicker";
+import {MatTableDataSource} from "@angular/material/table";
 
 //import {DataProcessingAgreementService} from "../../data-processing-agreement/data-processing-agreement.service";
 //import {Dpa} from "../../data-processing-agreement/models/Dpa";
@@ -37,6 +38,7 @@ import {MatYearView} from "@angular/material/datepicker";
   templateUrl: './uprnui.component.html',
   styleUrls: ['./uprnui.component.css']
 })
+
 export class UPRNComponent implements OnInit {
   @ViewChild("fileUpload", {static: false}) fileUpload: ElementRef;
   files = [];
@@ -67,6 +69,32 @@ export class UPRNComponent implements OnInit {
 
   UPRN: string; number: string; flat: string; street: string; town: string; postcode: string; classcode: string; classterm: string;
   dogsEnabled: string;
+
+  uprntp="ABP Unique Property Reference Number";
+  buildingtp = "ABP building element of address string ";
+  flattp="ABP flat element of address string";
+  numbertp="ABP street number element of address string";
+  streettp="ABP street element of address string";
+  towntp="ABP town element of address string";
+  postcodetp="ABP postcode element of address string";
+  orgtp="ABP organisation element of address string";
+  classcodetp="ABP property classification code";
+  lattp="ABP latitude";
+  longtp="ABP longitude";
+  Xtp="ABP X coordinate";
+  Ytp="ABP Y coordinate";
+  pointtp="ABP accuracy of the coordinates";
+  qualtp="Nature of UPRN match: best match, parent, child or sibling";
+  algtp="The rule from the address matching algorithm that made the match";
+  matchposttp="Match pattern for the postcode between input and ABP address";
+  matchbuildtp="Match pattern for the building between input and ABP address";
+  matchnumbertp="Match pattern for the number between input and ABP address";
+  matchflattp="Match pattern for the flat between input and ABP address";
+  matchstreettp="Match pattern for the street between input and ABP address";
+  matchtowntp="Match pattern for the town between input and ABP address";
+  matchorgtp="Match pattern for the organisation between input and ABP address";
+  getinfotp = "api/getinfo response";
+  getuprntp = "api/getuprn response";
 
   matchpcode: string; matchnumber: string; matchbuilding: string; matchflat: string;
 

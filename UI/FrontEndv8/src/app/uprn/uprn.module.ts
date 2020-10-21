@@ -29,6 +29,7 @@ import {RouterModule} from "@angular/router";
 import {FlexModule} from "@angular/flex-layout";
 import {BrowserModule} from "@angular/platform-browser";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 @NgModule({
   imports: [
@@ -48,7 +49,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
     MatPaginatorModule, MatProgressBarModule, MatProgressSpinnerModule,
     MatSelectModule, MatSnackBarModule, MatSortModule,
     MatTableModule, MatTabsModule, MatTreeModule,
-    RouterModule,
+    RouterModule, MatTooltipModule,
   ],
   declarations: [UPRNComponent],
   providers: [

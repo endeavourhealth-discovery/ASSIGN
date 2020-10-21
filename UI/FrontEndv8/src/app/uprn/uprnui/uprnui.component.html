@@ -63,29 +63,27 @@
                       <p>{{jsondata}}</p>
                       <!-- <p>The algorithm only supports London candidate addresses (please get in touch if you want to support other regions of the UK)</p> -->
                     </div>
+
                     <div *ngIf="UPRN" fxFlex="100">
-                      <table border="1" width="100%">
-                        <td>Details</td><td></td><td>match patterns</td><td></td><td>Algorithm</td><tr>
-                        <td>UPRN: </td><td>{{UPRN}}</td><td>Post code: </td><td>{{matchpcode}}</td><td>{{algorithm}}</td><tr>
-                        <td>Building: </td><td>{{building}}</td><td>Number: </td><td>{{matchnumber}}</td><td></td><tr>
-                        <td>Flat: </td><td>{{flat}}</td><td>Building: </td><td>{{matchbuilding}}</td><td></td><tr>
-                        <td>Number: </td><td>{{number}}</td><td>Flat: </td><td>{{matchflat}}</td><td></td><tr>
-                        <td>Street: </td><td>{{street}}</td><td>Organisation: </td><td>{{organisation}}</td><td></td><tr>
-                        <td>Town: </td><td>{{town}}</td><td>Latitude: </td><td>{{latitude}}</td><td></td><tr>
-                        <td>Post code: </td><td>{{postcode}}</td><td>Longitude: </td><td>{{longitude}}</td><td></td><tr>
-                        <td>Classification code: </td><td>{{classcode}}</td><td>X Coordinate: </td><td>{{xcoordinate}}</td><tr>
-                        <td>Classification term: </td><td>{{classterm}}</td><td>Y Coordinate: </td><td>{{ycoordinate}}</td><tr>
-                        <td>Qualifier: </td><td>{{qualifier}}</td><td>PointCode: </td><td>{{pointcode}}</td><tr>
-                        <!-- <td [matTooltip="test blah blah"]>test</td> -->
+                      <table class="mat-table" border="0" width="100%">
+                        <tr class="mat-row"><td class="mat-cell">Details</td><td class="mat-cell"></td><td class="mat-cell">match patterns</td><td class="mat-cell"></td><td class="mat-cell">Algorithm</td></tr>
+                        <tr class="mat-row"><td class="mat-cell">UPRN: </td><td class="mat-cell" matTooltip={{uprntp}}>{{UPRN}}</td><td class="mat-cell">Post code: </td><td class="mat-cell" matTooltip={{matchposttp}}>{{matchpcode}}</td><td class="mat-cell" matTooltip={{algtp}}>{{algorithm}}</td><tr>
+                        <tr class="mat-row"><td class="mat-cell">Building: </td><td class="mat-cell" matTooltip={{buildingtp}}>{{building}}</td><td class="mat-cell">Number: </td><td class="mat-cell" matTooltip={{matchnumbertp}}>{{matchnumber}}</td><td></td><tr>
+                        <tr class="mat-row"><td class="mat-cell">Flat: </td><td class="mat-cell" matTooltip={{flattp}}>{{flat}}</td><td class="mat-cell">Building: </td><td class="mat-cell" matTooltip={{matchbuildtp}}>{{matchbuilding}}</td><td class="mat-cell"></td><tr>
+                        <tr class="mat-row"><td class="mat-cell">Number: </td><td class="mat-cell" matTooltip={{numbertp}}>{{number}}</td><td class="mat-cell">Flat: </td><td class="mat-cell" matTooltip={{matchflattp}}>{{matchflat}}</td><td class="mat-cell"></td><tr>
+                        <tr class="mat-row"><td class="mat-cell">Street: </td><td class="mat-cell" matTooltip={{streettp}}>{{street}}</td><td class="mat-cell">Organisation: </td><td class="mat-cell" matTooltip={{orgtp}}>{{organisation}}</td><td class="mat-cell"></td><tr>
+                        <tr class="mat-row"><td class="mat-cell">Town: </td><td class="mat-cell" matTooltip={{towntp}}>{{town}}</td><td class="mat-cell">Latitude: </td><td class="mat-cell" matTooltip={{lattp}}>{{latitude}}</td><td class="mat-cell"></td><tr>
+                        <tr class="mat-row"><td class="mat-cell">Post code: </td><td class="mat-cell" matTooltip={{postcodetp}}>{{postcode}}</td><td class="mat-cell">Longitude: </td><td class="mat-cell" matTooltip={{longtp}}>{{longitude}}</td><td class="mat-cell"></td><tr>
+                        <tr class="mat-row"><td class="mat-cell">Classification code: </td><td class="mat-cell" matTooltip={{classcodetp}}>{{classcode}}</td><td class="mat-cell">X Coordinate: </td><td class="mat-cell" matTooltip={{Xtp}}>{{xcoordinate}}</td><tr>
+                        <tr class="mat-row"><td class="mat-cell">Classification term: </td><td class="mat-cell" matTooltip={{classtermtp}}>{{classterm}}</td><td class="mat-cell">Y Coordinate: </td><td class="mat-cell" matTooltip={{Ytp}}>{{ycoordinate}}</td><tr>
+                        <tr class="mat-row"><td class="mat-cell">Qualifier: </td><td class="mat-cell" matTooltip={{qualtp}}>{{qualifier}}</td><td class="mat-cell">PointCode: </td><td class="mat-cell" matTooltip={{pointtp}}>{{pointcode}}</td><tr>
                       </table>
                       <br>
-                      <p>JSON:</p>
-                      <table border="1" width="100%">
-                        <td>{{jsondata}}</td><tr>
-                        <td>{{jsonlatlong}}</td><tr>
+                      <table class="mat-table" border="0" width="100%">
+                        <tr class="mat-row"><td class="mat-cell"  matTooltip={{getinfotp}}>{{jsondata}}</td></tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{getuprntp}}>{{jsonlatlong}}</td></tr>
                       </table>
-                    </div>
-                    <!-- <textarea readonly rows="8" cols="100">{{jsondata}}</textarea> -->
+                      </div>
                   </mat-card-content>
                 </mat-card>
               </div>
