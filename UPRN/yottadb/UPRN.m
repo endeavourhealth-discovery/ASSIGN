@@ -146,7 +146,7 @@ ADRQUAL(rec,country)         ;
  ..i '$$validp(post),$get(qpost)="" D  Q
  ...S ^TUPRN($J,"POSTCODE")="Invalid post code"
  i post'="",$l(rec,"~")=2,$p(rec,"~")'[" " d
- .i $l($p(rec,"~"))<10 d
+ .i $l($p(rec,"~"))<10,$g(qpost)="" d
  ..S ^TUPRN($J,"INVALID")="Insufficient characters"
  i post'="",$l(rec,"~")=2,$D(^UPRNX("X.STR",$p(rec,"~"))) d
  .S ^TUPRN($J,"INVALID")="Insufficient characters"
@@ -754,9 +754,10 @@ p1 ;Completely wrong post code ignore, building, null flat, needs number and str
  .s matches=$$match43(adpost,adstreet,adbno,adbuild,adflat)
  
 2583 ;Matches on number range, ignore building and flat
- I '$D(^TUPRN($J,"MATCHED")) D
- .S ALG="2583-"
- .s matches=$$match44(adpost,adstreet,adbno,adbuild,adflat)
+ ; match44a is faulty and creating false positives
+ ;I '$D(^TUPRN($J,"MATCHED")) D
+ ;.S ALG="2583-"
+ ;.s matches=$$match44(adpost,adstreet,adbno,adbuild,adflat)
  
  ;Long shot for post code drop number, very fuzzy on building
 2584 I '$D(^TUPRN($J,"MATCHED")) D
@@ -1738,7 +1739,9 @@ match18z ;
  .i tflat'="",flat="" s $p(matchrec,",",5)="Fd"
  .i flat'="",tflat="" s $p(matchrec,",",5)="Fi"
  .i flat=tflat s $p(matchrec,",",5)="Fe"
- .s ALG=ALG_"match18a"
+ .;s ALG=ALG_"match18a"
+ .;31/11/2020
+ .s ALG=$P(ALG,"-")_"-match18a"
  .s matched=$$set(uprn,table,key)
  i $D(^TUPRN($J,"MATCHED")) Q
  

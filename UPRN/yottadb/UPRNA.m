@@ -1,4 +1,4 @@
-UPRNA ;Formats discovery address [ 06/19/2020  12:43 PM ] ; 6/22/20 11:35am
+UPRNA ;Formats discovery address [ 06/19/2020  12:43 PM ] ; 1/21/21 10:44am
  
  ;
 format(adrec,address)    ;
@@ -25,6 +25,9 @@ format(adrec,address)    ;
  set address=$tr(address,","," ")
  set address=$tr(address,"',")
  set address=$tr(address,"/","-")
+ s ISFLAT=0
+ I address?1"flat"1" "1n.n.l1" ".e d
+ .S ISFLAT=1
  i address["." d
  .f i=1:1:$l(address," ") d
  ..s word=$p(address," ",i)
@@ -116,6 +119,9 @@ f7 ;Initialise address line variabs
 f8 ...i $D(^UPRNX("X.STR",$p(adstreet," ",i,lenstr))) d
  ....s strfound=1
  ....i $p(adstreet," ",i-1)?1n.n.l d
+ .....i ISFLAT D  q
+ ......s adflat=$p(adstreet," ",1,2)
+ ......s adstreet=$p(adstreet," ",3,$l(adstreet," "))
  .....s adbuild=$p(adstreet," ",0,i-2)
  .....s adstreet=$p(adstreet," ",i-1,lenstr)
  .....s last=$p(adbuild," ",$l(adbuild," "))
@@ -393,7 +399,9 @@ f107 ...if adbuild?1l.l1" "1l1" "1l.e d  q ; room f unite stratford
 f108 ...i adbuild?1l.l1" "1l d  q ; room h
  ....set adflat=adflat_" "_$p(adbuild," ",1,2)
  ....set adbuild=$p(adbuild," ",3,20)
- 
+f108a    ...else  d
+ ....if adbuild?1l.l1" "1n.n d
+ .....s xflat=adbuild,adbuild=adflat,adflat=xflat
  
 f109 ;Street has flat name and flat has street
  if $$isflat^UPRNU(adstreet) d
@@ -964,6 +972,14 @@ f83 ;westdown road 99
  i $p(adstreet," ",$l(adstreet," "))?1n.n d
  .s adbno=$p(adstreet," ",$l(adstreet," "))
  .s adstreet=$p(adstreet," ",0,$l(adstreet," ")-1)
+ 
+f841 ;
+ i adbno="",adstreet?1n.n1"-"1n.n d
+ .s adbno=adstreet
+ .s adstreet=""
+ .i adloc'="" d
+ .s adstreet=adloc,adloc=""
+ q
  
  
  q

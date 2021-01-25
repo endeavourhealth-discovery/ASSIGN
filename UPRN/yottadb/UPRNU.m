@@ -525,6 +525,7 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Bi,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Bi,Fa" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Bi,Fp" s fix=fix+1
+01012020 S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fs" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fc" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Sp,Ne,Be,Fev" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Sp,Ne,Be,Fe" s fix=fix+1
@@ -603,7 +604,6 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
  S ^UPRNS("VERTICALS","1st-2nd-3rd")="high"
  S ^UPRNS("VERTICALS","lower flat")="low"
  S ^UPRNS("VERTICALS","upper flat")="high"
- S ^UPRNS("VERTICALS","top flat")="high"
  S ^UPRNS("VERTICALS","top flat")="high"
  S ^UPRNS("VERTICALS","lower")="low"
  S ^UPRNS("VERTICALS","upper")="high"
