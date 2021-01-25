@@ -57,8 +57,10 @@ MATCH(ROUTINE,ARGS) ; evaluate paths in sequence until match found (else 404)
  . ;I '$D(^VA(200)) QUIT
  . ;
  . ; First, user must authenticate
- . S:$data(^ICONFIG("BASIC-AUTH")) HTTPRSP("auth")="Basic realm="""_HTTPREQ("header","host")_"""" ; Send Authentication Header
- . N AUTHEN S AUTHEN=$$AUTHEN($G(HTTPREQ("header","authorization"))) ; Try to authenticate
+ . ;S:$data(^ICONFIG("BASIC-AUTH")) HTTPRSP("auth")="Basic realm="""_HTTPREQ("header","host")_"""" ; Send Authentication Header
+ . S:AUTHNODE=2 HTTPRSP("auth")="Basic realm="""_HTTPREQ("header","host")_"""" ; Send Authentication Header
+ . ;N AUTHEN S AUTHEN=$$AUTHEN($G(HTTPREQ("header","authorization"))) ; Try to authenticate
+ . N AUTHEN S AUTHEN=$$AUTHEN($G(HTTPREQ("header","authorization")),AUTHNODE)
  . I 'AUTHEN D SETERROR^VPRJRUT(401) QUIT  ; Unauthoirzed
  . QUIT
  QUIT
@@ -392,10 +394,11 @@ URLMAP ; map URLs to entry points (HTTP methods handled within entry point)
  ;;zzzzz
  Q
  ;
-AUTHEN(HTTPAUTH) 
+AUTHEN(HTTPAUTH,AUTHNODE) 
  ;
  ; key-cloak
- if '$data(^ICONFIG("BASIC-AUTH")) quit $$VALTOKEN^CURL(HTTPAUTH)
+ ;if '$data(^ICONFIG("BASIC-AUTH")) quit $$VALTOKEN^CURL(HTTPAUTH)
+ if AUTHNODE=1 quit $$VALTOKEN^CURL(HTTPAUTH)
  
  ; We only support Basic authentication right now
  N P1,P2 S P1=$P(HTTPAUTH," "),P2=$P(HTTPAUTH," ",2)
