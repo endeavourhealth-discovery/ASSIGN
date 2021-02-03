@@ -1,4 +1,4 @@
-UPRNB ;Best fit algorithms for UPRN match [ 06/19/2020  12:33 PM ] ; 1/21/21 10:46am
+UPRNB ;Best fit algorithms for UPRN match [ 06/19/2020  12:33 PM ] ; 2/3/21 9:06am
  ;
 bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
  ;Best fit algorithms on matched post code and street
@@ -479,6 +479,12 @@ whichno(matchrec,tpost,tstreet,tbno,tbuild,tflat)  ;
  .s bno=""
  .for  s bno=$O(^TORDER($J,matchrec,"N",count,bno)) q:bno=""  d  q:matched
  ..s matched=$$whichb(matchrec,tpost,tstreet,bno,tbuild,tflat)
+ ..I matchrec="Pe,Se,Ni,Be,Fe",tbuild="" d
+ ...s dupl=$O(^TORDER($J,matchrec,"N",count,bno))
+ ...q:dupl=""
+ ...I $D(^TBEST($j,matchrec,dupl,"",tflat)) d
+ ....s ^TPOSS($J)=2
+ ....s matched=$$whichb(matchrec,tpost,tstreet,dupl,tbuild,tflat)
  .I $D(^TORDER($J,matchrec,"N",count,"")) d
  ..s matched=$$whichb(matchrec,tpost,tstreet,"",tbuild,tflat)
  q matched
@@ -554,8 +560,9 @@ bestfitn          ;Fits with no building
  ;
 bestfitc ;Sibling flat with candidate flat suffix
  i tflat?1n.n1l d
+ .;break
  .I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,tflat*1)) d
- ..s matchrec="Pe,Se,Ne,Be,Fs"
+ ..s matchrec="Pe,Se,Ne,Be,Fc"
  ..S ^TBEST($J,matchrec,tbno,tbuild,tflat*1)=""
  q
  

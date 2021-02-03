@@ -1,4 +1,4 @@
-UPRNA ;Formats discovery address [ 06/19/2020  12:43 PM ] ; 1/21/21 10:44am
+UPRNA ;Formats discovery address [ 06/19/2020  12:43 PM ] ; 2/1/21 3:56pm
  
  ;
 format(adrec,address)    ;
@@ -192,7 +192,8 @@ f15 i addlines=7 d
 f16 f var="adbuild","adstreet","adepth","adeploc","adloc" d
  .s @var=$$lt^UPRNL(@var)
  
- set address("original")=$$tr^UPRNL($$lt^UPRNL(post_" "_adbuild_" "_adepth_" "_adstreet_" "_adeploc),"  "," ")
+010221 ;
+ set address("original")=$$tr^UPRNL($$lt^UPRNL(post_" "_adflat_" "_adbuild_" "_adepth_" "_adstreet_" "_adeploc),"  "," ")
  
  ;
 f17 ;Dependent locality is street

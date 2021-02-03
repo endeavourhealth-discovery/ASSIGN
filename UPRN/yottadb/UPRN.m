@@ -1,4 +1,4 @@
-UPRN ;Command line Main routine for processing a batch of addresseset [ 06/19/2020  2:16 PM ] ; 6/22/20 2:44pm
+UPRN ;Command line Main routine for processing a batch of addresseset [ 06/19/2020  2:16 PM ] ; 2/3/21 9:16am
  
  
  K ^UPRN("MX")
@@ -236,7 +236,8 @@ MATCHONE(adrec,qpost,orgpost,ui)    ;matches one address
  .D match(adflat,"former "_adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2)
  i $D(^TUPRN($J,"MATCHED")) d  q 
  .d matched
- e  d  q
+010221 I '$d(^TUPRN($J,"MATCHED")) D  Q
+ .;
  .d nomatch
  q
  
@@ -3311,6 +3312,7 @@ nomatch ;Records no match
  q
  
 matched ;
+ I $G(^TPOSS($J))=2 K ^TUPRN($J,"MATCHED") Q
  n table,key
  I ^TUPRN($J,"MATCHED")>1 D sort
  S uprn=""
