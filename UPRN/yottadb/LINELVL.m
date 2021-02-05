@@ -1,0 +1,10 @@
+LINELVL ; ; 2/3/21 8:06pm
+ ;
+ K
+ S key=^ICONFIG("CHOMES","KEY")
+ D STT^REG("2AA7F19EAD0B04A3FD5E",key,"internal_nel_gp_pid")
+ D COLLECTSNO^RECON("1407334")
+ D GO^CHOMES("internal_nel_gp_pid",key)
+ D REP^CHOMES($J)
+ D LINELVL^RECON("1407334")
+ QUIT
