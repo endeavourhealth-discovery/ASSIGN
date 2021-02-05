@@ -192,8 +192,8 @@ f15 i addlines=7 d
 f16 f var="adbuild","adstreet","adepth","adeploc","adloc" d
  .s @var=$$lt^UPRNL(@var)
  
-010221 ;
- set address("original")=$$tr^UPRNL($$lt^UPRNL(post_" "_adflat_" "_adbuild_" "_adepth_" "_adstreet_" "_adeploc),"  "," ")
+04021 ;
+ set address("original")=$$tr^UPRNL($$lt^UPRNL(post_" "_$$flat^UPRNU(adflat)_" "_$$flat^UPRNU(adbuild)_" "_adepth_" "_adstreet_" "_adeploc),"  "," ")
  
  ;
 f17 ;Dependent locality is street
