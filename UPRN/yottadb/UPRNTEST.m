@@ -14,14 +14,19 @@ GETID() ;
  Q ID
  
 GETCSV(result,arguments) ;
- K ^TMP($J)
+ K ^TMP($J),^TPARAMS($J)
  S CR=$C(13,10)
+ set ^change($J)=3
  ;
  set adrec=$Get(arguments("adrec"))
  set del=$Get(arguments("delim"))
  set ids=$Get(arguments("ids"))
  i $g(del)="" s del=","
  S ^TEST=adrec
+ 
+ I ids["org`" S ^TPARAMS($J,"commercials")=1
+ I ids["odsload`" S ^TPARAMS($J,"commercials")=1
+ I ids["cqc`" S ^TPARAMS($J,"commercials")=1
  
  S zID=$$GETID()
  ;S ^AUDIT(ID)=adrec_"|"_$HOROLOG
@@ -34,6 +39,9 @@ GETCSV(result,arguments) ;
  K b
  D DECODE^VPRJSON($name(^temp($j,1)),$name(b),$name(err))
  set UPRN=$get(b("UPRN"))
+ 
+ D STT^SOURCE(ids,UPRN)
+ 
  ;S ^PS($O(^PS(""),-1)+1)=UPRN_"~"_ids_"~"_adrec
  S ^AUDIT(zID)=UPRN_"|"_ids_"|"_adrec_"|"_$HOROLOG
  ;do META(.b)
@@ -64,6 +72,9 @@ GETCSV(result,arguments) ;
  set csv=csv_del_ALG_del_QUAL_del_MATPATBUILD_del_MATPATFLAT_del
  s csv=csv_MATPATNUMBER_del_MATPATPSTCDE_del_MATPATSTRT_del
  s csv=csv_QUALITY_del_$g(LAT)_del_$g(LONG)_del_$g(POINT)_del_$g(X)_del_$g(Y)_del_$g(CLASS)_del_UPRN
+ S ALGVERSION=$GET(^ICONFIG("ALG-VERSION"))
+ S EPOCH=$GET(^ICONFIG("EPOCH-PIPELINE"))
+ S csv=csv_del_ALGVERSION_del_EPOCH
  s ^TMP($J,1)=csv
  set result("mime")="text/plain, */*"
  set result=$na(^TMP($j))
