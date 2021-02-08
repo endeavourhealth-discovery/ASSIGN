@@ -27,8 +27,9 @@ START(TCPPORT,DEBUG,TLSCONFIG,NOGBL) ; set up listening for connections
  ;
  ; $ZINTERRUPT for GT.M/YottaDB
  I %WOS="GT.M" D
- . I $T(JOBEXAM^ZSY)]"" S $ZINT="I $$JOBEXAM^ZSY($ZPOS),$$JOBEXAM^VPRJREQ($ZPOS)"
- . E  S $ZINT="I $$JOBEXAM^VPRJREQ($ZPOS)"
+ . ;I $T(JOBEXAM^ZSY)]"" S $ZINT="I $$JOBEXAM^ZSY($ZPOS),$$JOBEXAM^VPRJREQ($ZPOS)"
+ . ;E  S $ZINT="I $$JOBEXAM^VPRJREQ($ZPOS)"
+ . S $ZINT="I $$JOBEXAM^VPRJREQ($ZPOS)"
  ;
  S TCPPORT=$G(TCPPORT,9080)
  ;
@@ -106,7 +107,10 @@ DEBUG(TLSCONFIG) ; Debug continuation. We don't job off the request, rather run 
  QUIT
  ;
 JOBEXAM(%ZPOS) ; Interrupt framework for GT.M.
- ZSHOW "*":^VPRHTTP("processlog",+$H,$P($H,",",2),$J)
+ ;ZSHOW "*":^VPRHTTP("processlog",+$H,$P($H,",",2),$J)
+ S ^interupt=$GET(%ZPOS)
+ S HTTPLOG("DT")=$H,HTTPLOG("ID")="exam"
+ D LOGERR^VPRJREQ
  QUIT 1
  ;
 GTMLNX  ;From Linux xinetd script; $P is the main stream
