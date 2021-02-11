@@ -1,8 +1,9 @@
-RUNCQC ; ; 2/4/21 11:23am
+RUNCQC ; ; 2/10/21 2:57pm
  ;
 STRING(config) ;
  DO RUN1
- DO RUN2
+ ;DO RUN2
+ S file=$$RUN2()
  ; config, source_data, builder_file
  DO RUN3("internal_nel_gp_pid","/tmp/cqc_api-1a.csv","/tmp/cqc-builder.txt")
  ; config, serviceuuid, builder_file, systemuuid
@@ -13,25 +14,41 @@ STRING(config) ;
  
 REFRESH ; 
  K ^TSTEP($J)
- D RUN1
- D RUN2
+ D RUN1 ; CQCGETALLLOCATIONS
+ S csv=$$RUN2() ; CQCAPI
+ ; do the comparison here
+ S db=""
+ ;S csv="/tmp/cqc_api-"_^CQCAPI_".csv"
+ S builder="/tmp/cqc-builder.txt"
+ S serviceuuid="3579048b-4cdb-4118-ab41-d85d275d6cb6"
+ S serviceid="93a50faa-f64d-4d0b-a6aa-4b2367b14fac"
+ F  S db=$o(^ICONFIG("DB",db)) q:db=""  do
+ .D RUN3(db,csv,builder) ; CQCCREATEBUILDER
+ .D RUN4(db,serviceuuid,builder,serviceid) ; CQCTHREADED
+ .quit
  QUIT
  
 RUN1 ; CQCGETALLLOCATIONS (all locations in London)
- S ^TSTEP($J,1)="cd /home/ubuntu;sudo ./queueReader/YCQCGETALLLOCATIONS.sh /tmp/cqc-location-ids.csv"
+ S ^TSTEP($J,1)="cd /home/ubuntu;sudo ./queueReader/YCQCGETALLLOCATIONS.sh /tmp/cqc-location-ids-1.csv"
  
  D RUN(1)
  
  QUIT
  
-RUN2 ; CQCAPI
+RUN2() ; CQCAPI
  S ^CQCAPI=$GET(^CQCAPI)+1
  S id=^CQCAPI
- S ^TSTEP($J,2)="cd /home/ubuntu;sudo ./queueReader/YCQCAPI.sh /tmp/cqc-location-ids.csv /tmp/cqc_api-"_id_".csv"
+ S ^TSTEP($J,2)="cd /home/ubuntu;sudo ./queueReader/YCQCAPI.sh /tmp/cqc-location-ids-1.csv /tmp/cqc_api-"_id_".csv"
  
  D RUN(2)
  
- QUIT
+ S file="/tmp/cqc_api-"_id_".csv"
+ I id>1 do
+ .do ^CQCCOMP
+ .S file="/tmp/deltas-"_^DELTAS_".csv"
+ .quit
+ 
+ QUIT file
  
  ; CQCCREATEBUILDER
 RUN3(config,filename,builderfile) ;

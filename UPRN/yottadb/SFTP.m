@@ -1,8 +1,29 @@
-SFTP ; ; 2/9/21 9:48am
+SFTP ; ; 2/11/21 10:09am
  QUIT
  
 RUN ;
+ ; take a snap shot of /opt/os before running bash script
+ D SNAP
  zsystem "cd /tmp;sudo ./expect2.sh"
+ QUIT
+ 
+SNAP ;
+ n cmd,f,str,dir,line,d,t
+ s cmd="ls -d /opt/os/* > /tmp/snap.txt"
+ zsystem cmd
+ s f="/tmp/snap.txt"
+ c f
+ o f:(readonly)
+ set line=1
+ set d=+$h,t=$p($h,",",2)
+ f  u f r str q:$zeof  do
+ .;u 0 w !,str
+ .s dir=$p(str,"/",$l(str,"/"))
+ .;u 0 w !,dir
+ .S ^SNAP(d,t,line)=dir
+ .S line=line+1
+ .quit
+ c f
  QUIT
  
 CREATE ;
