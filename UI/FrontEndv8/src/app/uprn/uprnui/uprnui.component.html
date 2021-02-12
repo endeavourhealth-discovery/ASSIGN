@@ -35,6 +35,7 @@
                 <!-- <mat-select multiple [(value)]="everyHourHourlyTab" (selectionChange)="setHourlyTabCron($event)"> -->
                 <mat-select [(value)]="Region" (selectionChange)="RegionSelection($event)">
                   <mat-option *ngFor="let item of zeroTo20" value="{{item.value}}">{{item.display}}</mat-option>
+                  <!-- <mat-option *ngFor="let item of zeroTo20" value="{{item.display}}">{{item.display}}</mat-option> -->
                 </mat-select>
             </mat-form-field>
             </div>
@@ -66,22 +67,24 @@
 
                     <div *ngIf="UPRN" fxFlex="100">
                       <table class="mat-table" border="0" width="100%">
-                        <tr class="mat-row"><td class="mat-cell">Details</td><td class="mat-cell"></td><td class="mat-cell">match patterns</td><td class="mat-cell"></td><td class="mat-cell">Algorithm</td></tr>
-                        <tr class="mat-row"><td class="mat-cell">UPRN: </td><td class="mat-cell" matTooltip={{uprntp}}>{{UPRN}}</td><td class="mat-cell">Post code: </td><td class="mat-cell" matTooltip={{matchposttp}}>{{matchpcode}}</td><td class="mat-cell" matTooltip={{algtp}}>{{algorithm}}</td><tr>
-                        <tr class="mat-row"><td class="mat-cell">Building: </td><td class="mat-cell" matTooltip={{buildingtp}}>{{building}}</td><td class="mat-cell">Number: </td><td class="mat-cell" matTooltip={{matchnumbertp}}>{{matchnumber}}</td><td></td><tr>
-                        <tr class="mat-row"><td class="mat-cell">Flat: </td><td class="mat-cell" matTooltip={{flattp}}>{{flat}}</td><td class="mat-cell">Building: </td><td class="mat-cell" matTooltip={{matchbuildtp}}>{{matchbuilding}}</td><td class="mat-cell"></td><tr>
-                        <tr class="mat-row"><td class="mat-cell">Number: </td><td class="mat-cell" matTooltip={{numbertp}}>{{number}}</td><td class="mat-cell">Flat: </td><td class="mat-cell" matTooltip={{matchflattp}}>{{matchflat}}</td><td class="mat-cell"></td><tr>
-                        <tr class="mat-row"><td class="mat-cell">Street: </td><td class="mat-cell" matTooltip={{streettp}}>{{street}}</td><td class="mat-cell">Organisation: </td><td class="mat-cell" matTooltip={{orgtp}}>{{organisation}}</td><td class="mat-cell"></td><tr>
-                        <tr class="mat-row"><td class="mat-cell">Town: </td><td class="mat-cell" matTooltip={{towntp}}>{{town}}</td><td class="mat-cell">Latitude: </td><td class="mat-cell" matTooltip={{lattp}}>{{latitude}}</td><td class="mat-cell"></td><tr>
-                        <tr class="mat-row"><td class="mat-cell">Post code: </td><td class="mat-cell" matTooltip={{postcodetp}}>{{postcode}}</td><td class="mat-cell">Longitude: </td><td class="mat-cell" matTooltip={{longtp}}>{{longitude}}</td><td class="mat-cell"></td><tr>
-                        <tr class="mat-row"><td class="mat-cell">Classification code: </td><td class="mat-cell" matTooltip={{classcodetp}}>{{classcode}}</td><td class="mat-cell">X Coordinate: </td><td class="mat-cell" matTooltip={{Xtp}}>{{xcoordinate}}</td><tr>
-                        <tr class="mat-row"><td class="mat-cell">Classification term: </td><td class="mat-cell" matTooltip={{classtermtp}}>{{classterm}}</td><td class="mat-cell">Y Coordinate: </td><td class="mat-cell" matTooltip={{Ytp}}>{{ycoordinate}}</td><tr>
-                        <tr class="mat-row"><td class="mat-cell">Qualifier: </td><td class="mat-cell" matTooltip={{qualtp}}>{{qualifier}}</td><td class="mat-cell">PointCode: </td><td class="mat-cell" matTooltip={{pointtp}}>{{pointcode}}</td><tr>
+                        <tr class="mat-row"><td class="mat-cell">Details</td><td class="mat-cell"></td><td class="mat-cell">match patterns</td><td class="mat-cell"></td><td class="mat-cell" matTooltip={{algtp}}>Algorithm</td></tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{uprntp}}>UPRN: </td><td class="mat-cell">{{UPRN}}</td><td class="mat-cell" matTooltip={{matchposttp}}>Post code: </td><td class="mat-cell">{{matchpcode}}</td><td class="mat-cell">{{algorithm}}</td><tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{buildingtp}}>Building: </td><td class="mat-cell">{{building}}</td><td class="mat-cell" matTooltip={{matchnumbertp}}>Number: </td><td class="mat-cell">{{matchnumber}}</td><td></td><tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{flattp}}>Flat: </td><td class="mat-cell">{{flat}}</td><td class="mat-cell" matTooltip={{matchbuildtp}}>Building: </td><td class="mat-cell">{{matchbuilding}}</td><td class="mat-cell"></td><tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{numbertp}}>Number: </td><td class="mat-cell">{{number}}</td><td class="mat-cell" matTooltip={{matchflattp}}>Flat: </td><td class="mat-cell">{{matchflat}}</td><td class="mat-cell"></td><tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{streettp}}>Street: </td><td class="mat-cell">{{street}}</td><td class="mat-cell"  matTooltip={{orgtp}}>Organisation: </td><td class="mat-cell">{{organisation}}</td><td class="mat-cell"></td><tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{towntp}}>Town: </td><td class="mat-cell">{{town}}</td><td class="mat-cell" matTooltip={{lattp}}>Latitude: </td><td class="mat-cell">{{latitude}}</td><td class="mat-cell"></td><tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{postcodetp}}>Post code: </td><td class="mat-cell">{{postcode}}</td><td class="mat-cell" matTooltip={{longtp}}>Longitude: </td><td class="mat-cell">{{longitude}}</td><td class="mat-cell"></td><tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{classcodetp}}>Classification code: </td><td class="mat-cell">{{classcode}}</td><td class="mat-cell" matTooltip={{Xtp}}>X Coordinate: </td><td class="mat-cell">{{xcoordinate}}</td><tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{classtermtp}}>Classification term: </td><td class="mat-cell">{{classterm}}</td><td class="mat-cell" matTooltip={{Ytp}}>Y Coordinate: </td><td class="mat-cell">{{ycoordinate}}</td><tr>
+                        <tr class="mat-row"><td class="mat-cell" matTooltip={{qualtp}}>Qualifier: </td><td class="mat-cell">{{qualifier}}</td><td class="mat-cell" matTooltip={{pointtp}}>PointCode: </td><td class="mat-cell">{{pointcode}}</td><tr>
                       </table>
                       <br>
                       <table class="mat-table" border="0" width="100%">
-                        <tr class="mat-row"><td class="mat-cell"  matTooltip={{getinfotp}}>{{jsondata}}</td></tr>
-                        <tr class="mat-row"><td class="mat-cell" matTooltip={{getuprntp}}>{{jsonlatlong}}</td></tr>
+                        <!-- matTooltip={{getinfotp}} -->
+                        <!-- matTooltip={{getuprntp}} -->
+                        <tr class="mat-row"><td class="mat-cell">{{jsondata}}</td></tr>
+                        <tr class="mat-row"><td class="mat-cell">{{jsonlatlong}}</td></tr>
                       </table>
                       </div>
                   </mat-card-content>
@@ -186,6 +189,87 @@
             <td *ngIf = "!activity.F"></td>
           </tr>
         </table>
+      </mat-tab>
+
+      <mat-tab [disabled]="!admin">
+        <ng-template mat-tab-label>
+          Organisation Audit
+        </ng-template>
+        <mat-card-content>
+          <div class="flex" fxLayoutGap="16px grid" fxLayout="row wrap">
+            <div fxFlex="100"><mat-checkbox [(ngModel)]="chkcarehomes" name="chkcarehomes">Only download Care Homes?</mat-checkbox></div>
+            <!-- <div fxFlex="100"><mat-checkbox [(ngModel)]="chkdiscouprn" name="chkdiscouprn">Include Discovery UPRN?</mat-checkbox></div> -->
+            <div fxFlex="100"><button type="button" mat-stroked-button (click)="onClickDownloadAll()">Download All</button></div>
+            <div fxFlex="100">Enter an organisation address, name, postcode or anything else associated with an organisation</div>
+            <div fxFlex="100">e.g. perrymans</div>
+          <mat-form-field appearance="outline" fxFlex="50" fxFill>
+            <mat-label>Text</mat-label>
+            <input type="string" value="1" matInput [(ngModel)]="orgsearch" name="orgsearch" (keyup.enter)="findOrganizations()">
+          </mat-form-field>
+          <button mat-icon-button matTooltip="Filter the results" (click)="findOrganizations()">
+            <i class="far fa-fw fa-search"></i>
+          </button>
+            <div fxFlex="100">
+              <mat-form-field appearance="fill" class="regular">
+                <mat-label>config</mat-label>
+                <mat-select [(value)]="Config" (selectionChange)="ConfigSelection($event)">
+                  <mat-option *ngFor="let item of disco_config" value="{{item.display}}">{{item.display}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <div class="flex" fxLayout="row wrap" fxLayout.xs="column" fxLayoutGap="16px grid" fxLayoutAlign="start">
+          <div *ngIf="arrOrgs" fxFlex="100">
+            <div class="flex" fxLayout="row wrap" fxLayout.xs="column" fxLayoutGap="16px grid" fxLayoutAlign="start">
+              <div fxFlex="100">
+                <mat-card class="example-card">
+                  <mat-card-content>
+                    <table *ngIf="arrOrgs" border="1" style="width: 100%;">
+
+                      <colgroup>
+                        <col span="1" style="width: 10%;">
+                        <col span="1" style="width: 10%;">
+                        <col span="1" style="width: 10%;">
+                        <col span="1" style="width: 60%;">
+                      </colgroup>
+
+                      <tr>
+                        <th>organisation id</th>
+                        <th>name</th>
+                        <th>date</th>
+                        <th>value</th>
+                      </tr>
+
+                      <tr *ngFor="let activity of arrOrgs">
+                        <td>{{activity.id}}</td>
+                        <td>{{activity.name}}</td>
+                        <td>{{activity.date}}</td>
+                        <td>{{activity.value}}</td>
+                      </tr>
+                    </table>
+
+                    <!--
+                    <table *ngIf="arrOrgs" class="mat-table" border="0" style="width: 100%;">
+                      <tr class="mat-row">
+                        <td class="mat-cell">subscriber-id</td>
+                        <td class="mat-cell">name</td>
+                        <td class="mat-cell">value</td>
+                      </tr>
+                      <tr *ngFor="let activity of arrOrgs">
+                        <tr class="mat-row"><td class="mat-cell">{{activity.id}}</td>
+                        <tr class="mat-row"><td class="mat-cell">{{activity.name}}></td>
+                        <tr class="mat-row"><td class="mat-cell">{{activity.value}}</td>
+                      </tr>
+                    </table>
+                    -->
+                  </mat-card-content>
+                </mat-card>
+               </div>
+            </div>
+          </div>
+        </div>
       </mat-tab>
 
       <mat-tab>

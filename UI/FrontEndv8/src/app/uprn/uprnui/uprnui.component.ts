@@ -44,6 +44,8 @@ export class UPRNComponent implements OnInit {
   files = [];
 
   Region: string;
+  Config: string;
+
   qpost: string;
 
   lf: string = "[lf]";
@@ -52,9 +54,13 @@ export class UPRNComponent implements OnInit {
   stuff: any;
 
   adrec: string;
+  orgsearch: string;
+
   jsondata: string;
   jsonlatlong: string;
   chkcomm: boolean;
+  chkcarehomes: boolean;
+  chkdiscouprn: boolean;
 
   wName: string; wOrganisation: string; wRegDate: string; epoch: string; areas: string;
 
@@ -66,9 +72,11 @@ export class UPRNComponent implements OnInit {
   UPRNData: any[];
 
   downloads: string;
+  organizations: string;
 
   UPRN: string; number: string; flat: string; street: string; town: string; postcode: string; classcode: string; classterm: string;
   dogsEnabled: string;
+  admin: string;
 
   uprntp="ABP Unique Property Reference Number";
   buildingtp = "ABP building element of address string ";
@@ -105,6 +113,7 @@ export class UPRNComponent implements OnInit {
   filetoupload: string;
   HTML: any;
   arrActivity: string [];
+  arrOrgs: string[];
   building: string;
 
   selectedIndex: any;
@@ -121,12 +130,26 @@ export class UPRNComponent implements OnInit {
     useBom: false,
   };
 
+  orgcsv = {
+    fieldSeparator: ',',
+    quotestrings: '"',
+    decimalseparator: '.',
+    showLabels: true,
+    headers: ['id,name,date,value'],
+    showTitle: false,
+    title: 'orgcsv',
+    useTextFile: false,
+    useBom: false,
+  }
+
   zeroTo20 = [
     {value: '0', display: ''}, {value: '1', display: 'EC district'}, {value: '2', display: 'WC district'}, {value: '3', display: 'E district'}, {value: '4', display: 'N district'}, {value: '5', display: 'NW district'},
     {value: '6', display: 'SE district'}, {value: '7', display: 'SW district'}, {value: '8', display: 'W district'}, {value: '9', display: 'BR: Bromley'}, {value: '10', display: 'CR: Croydon'},
     {value: '11', display: 'DA: Dartford'}, {value: '12', display: 'EN: Enfield'}, {value: '13', display: 'HA: Harrow'}, {value: '14', display: 'IG: Ilford'}, {value: '15', display: 'KT: Kingston'},
     {value: '16', display: 'RM: Romford'}, {value: '17', display: 'SM: Sutton'}, {value: '18', display: 'TW: Twickenham'}, {value: '19', display: 'UB: Uxbridge'}, {value: '20', display: 'WD: Watford'}
   ];
+
+  disco_config = [];
 
   public activeProject: UserProject;
 
@@ -143,6 +166,7 @@ export class UPRNComponent implements OnInit {
   ngOnInit() {
     this.dogsEnabled = "1";
     this.selectedIndex = 0;
+    this.admin = "0";
 
     this.downloads = "1";
 
@@ -157,6 +181,15 @@ export class UPRNComponent implements OnInit {
     this.getRegistration(this.userId);
 
     this.qpost="";
+
+    //this.stuff = "[{\"value\": \"0\", \"display\": \"\"}, {\"value\": \"1\", \"display\": \"HU district\"}]";
+    //this.zeroTo20 = JSON.parse(this.stuff);
+
+    this.getConfigs(this.userId);
+  }
+
+  ConfigSelection(event) {
+    console.log(this.Config);
   }
 
   RegionSelection(event) {
@@ -165,6 +198,8 @@ export class UPRNComponent implements OnInit {
     //for (let pet of this.everyHourHourlyTab) {
       //console.log("test: "+pet);
       //console.log(this.everyHourHourlyTab[pet].display)
+
+      console.log(this.Region);
 
       if (this.Region=="0") {this.qpost=""};
       if (this.Region=="1") {this.qpost="EC"};
@@ -298,6 +333,47 @@ export class UPRNComponent implements OnInit {
         });
   }
 
+  onClickDownloadAll()
+  {
+
+    let disco = "1";
+    if (this.chkdiscouprn == false || (this.chkdiscouprn == undefined)) {
+      console.log("disco not checked");
+      disco = "0";
+    }
+
+    let ch = "1";
+    if (this.chkcarehomes == false || (this.chkcarehomes == undefined)) {
+      console.log("care homes not checked");
+      ch = "0";
+    }
+
+    MessageBoxDialogComponent.open(this.dialog, 'Download All', "This will take a minute or so to run (this will not stop you using the uprn-match)",
+      "Cancel", "Continue")
+      .subscribe(
+        (result) => {
+          if (!result) {
+            this.onClickDownloadOrganisations(disco, ch);
+          }
+        });
+  }
+
+  onClickDownloadOrganisations(disco: string, ch: string) {
+    this.UPRNService.downloadOrgCsv(this.userId, disco, this.Config, ch).subscribe(
+      result => {
+        this.createOrgCsv(result);
+      },
+      error => {
+        this.log.error('Unable to perform download');
+      }
+    );
+  }
+
+  createOrgCsv(csvdata: Blob) {
+    let out = "organizations-output";
+    new ngxCsv(csvdata, out, this.orgcsv);
+  }
+
   onClickDownload() {
     this.UPRNService.downloadFile2(this.filetoupload, this.userId).subscribe(
       result => {
@@ -326,6 +402,20 @@ export class UPRNComponent implements OnInit {
   postMethod(files: FileList) {
     this.filetoupload = files.item(0).name;
     let ret = this.UPRNService.postFile(files, this.userId);
+  }
+
+  findOrganizations() {
+    this.UPRNService.getOrganizations(this.orgsearch, this.Config).subscribe(
+      data => {
+        this.arrOrgs = data as string[];
+        let jsonObj = JSON.parse(JSON.stringify(this.arrOrgs[0]));
+        console.log(JSON.stringify(this.arrOrgs[0]));
+        this.organizations = "1";
+      },
+      error => {
+        this.log.error('Unable to get organizational data');
+      }
+    )
   }
 
   onActivityRefresh() {
@@ -393,6 +483,17 @@ export class UPRNComponent implements OnInit {
     window.alert('{"Address_format":"good","Postcode_quality":"good","Matched":true,"UPRN":"46079547","Qualifier":"Best  (residential) match","Classification":"RD04","ClassTerm":"Terraced","Algorithm":"1-match","ABPAddress":{"Number":"32","Street":"West Road","Town":"London","Postcode":"E15 3PY"},"Match_pattern":{"Postcode":"equivalent","Number":"equivalent","Building":"equivalent","Flat":"equivalent"}}');
   }
 
+  async getConfigs(userid: string) {
+
+    let j = await this.UPRNService.getSubConfigs(this.activeProject.userId);
+    console.log(">>>>> "+j);
+    this.disco_config = JSON.parse(j);
+
+    // default to the first item in the json array
+    console.log(JSON.parse(j)[0].display);
+    this.Config = JSON.parse(j)[0].display;
+  }
+
   async getRegistration(userid: string) {
     let j = await this.UPRNService.getRegistration(this.activeProject.userId);
 
@@ -405,6 +506,7 @@ export class UPRNComponent implements OnInit {
     console.log(jsonObj.name);
     console.log(jsonObj.epoch);
     console.log(jsonObj.areas);
+    console.log(">> "+ jsonObj.admin);
 
     if (jsonObj.name != "?") {
       this.wName = jsonObj.name;
@@ -412,11 +514,13 @@ export class UPRNComponent implements OnInit {
       this.wRegDate = jsonObj.regdate;
       this.epoch = jsonObj.epoch;
       this.areas = jsonObj.areas;
+      this.admin = jsonObj.admin;
     }
 
     if (jsonObj.name == "?") {
       // switch to Welcome tab
       this.dogsEnabled = "";
+      this.admin = "";
       this.selectedIndex = 4;
     }
   }

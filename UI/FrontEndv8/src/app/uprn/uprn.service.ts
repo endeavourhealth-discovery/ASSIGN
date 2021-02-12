@@ -23,6 +23,11 @@ export class UPRNService {
     return this.http.get<any[]>(this.SERVER_URL + 'api/activity?',{params});
   }
 
+  getOrganizations(orgsearch: string, config: string): Observable<any> {
+    let params = new HttpParams({fromString: 'str='+orgsearch+'&config='+config});
+    return this.http.get<any[]>(this.SERVER_URL + 'api2/cqcaudit?',{params});
+  }
+
   getUPRNI(uprn: string): Observable<any> {
     let params = new HttpParams({fromString: 'uprn='+uprn});
     return this.http.get<any[]>(this.SERVER_URL + 'api/getuprn?',{params});
@@ -55,6 +60,13 @@ export class UPRNService {
     return this.http.get<Blob>(this.SERVER_URL+"api/filedownload2?",{params});
   }
 
+  downloadOrgCsv(userid: string, disco: string, config: string, ch: string): Observable<Blob> {
+    let params = new HttpParams({fromString: "&userid="+userid+"&disco="+disco+"&config="+config+"&ch="+ch});
+
+    console.log("!! downloadorgcsv !!");
+    return this.http.get<Blob>(this.SERVER_URL+"api2/orgcsv?",{params});
+  }
+
   downloadDoc(Id: string): Observable<any> {
     let url = this.SERVER_URL + "api/download/" + Id;
     return this.http.get(url, { responseType: "blob" });
@@ -63,6 +75,12 @@ export class UPRNService {
   async getRegistration(userid: string) {
     let params = new HttpParams({fromString: 'userid='+userid});
     let x = await this.http.get(this.SERVER_URL + 'api/getreg?',{params}).toPromise();
+    return JSON.stringify(x);
+  }
+
+  async getSubConfigs(userid: String) {
+    let params = new HttpParams({fromString: 'userid='+userid});
+    let x = await this.http.get(this.SERVER_URL + 'api2/getconfigs?',{params}).toPromise();
     return JSON.stringify(x);
   }
 
