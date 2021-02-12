@@ -107,7 +107,9 @@
             <url-pattern>/api/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>eds_user</role-name>
+		    <!-- BREAKS LOCALHOST -->
+            <!-- <role-name>eds_user</role-name> -->
+            <role-name>um_secured</role-name>
         </auth-constraint>
     </security-constraint>
 
@@ -119,7 +121,9 @@
 
     <!-- all roles in the system MUST be specified here -->
     <security-role>
-        <role-name>eds_user</role-name>
+		<!-- BREAKS LOCALHOST -->
+        <!-- <role-name>eds_user</role-name> -->
+        <role-name>um_secured</role-name>
     </security-role>
 
     <session-config>
