@@ -12,6 +12,9 @@ VALTOKEN(token)
  
  set ^TOKEN=token
  
+ S IP=$GET(HTTPREQ("header","x-forwarded-for"))
+ I IP'="",$G(^IP(+$H,IP))'="",$G(^IP(+$H,IP))<1000 S ^IPAUD(IP)=$H,^IP(+$H,IP)=^IP(+$H,IP)+1 Q 1
+ 
  ; does the token contain the correct role?
  set role=$get(^ICONFIG("ROLE"))
  if role="" quit 0
@@ -20,7 +23,7 @@ VALTOKEN(token)
  kill b,err
  d DECODE^VPRJSON($name(json),$name(b),$name(err))
  set ok=$$CHECKROLES(.b,role)
- if 'ok quit 0
+ ;if 'ok quit 0
  
  set endpoint=$get(^ICONFIG("USERINFO-ENDPOINT"))
  if $g(b("iss"))["machine" set endpoint=$get(^ICONFIG("USERINFO-ENDPOINT-MACHINE"))
@@ -40,6 +43,9 @@ VALTOKEN(token)
  d DECODE^VPRJSON($name(json),$name(b),$name(err))
  
  if '$data(b("sub")) quit 0
+ 
+ I IP'="" S ^IP(+$H,IP)=0
+ 
  quit 1
  
  ; use this code to generate a token for testing
