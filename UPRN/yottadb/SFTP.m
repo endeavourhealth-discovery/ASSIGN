@@ -5,6 +5,8 @@ RUN ;
  ; take a snap shot of /opt/os before running bash script
  D SNAP
  zsystem "cd /tmp;sudo ./expect2.sh"
+ H 1
+ D SNAP
  QUIT
  
 SNAP ;

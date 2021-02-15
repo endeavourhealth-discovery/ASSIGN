@@ -32,15 +32,24 @@ REP(job) ;
  
  ;
  
- S FILE="/tmp/closed_orgs-"_job_".txt"
+ ;S FILE="/tmp/closed_orgs-"_job_".txt"
+ ;k ^closed($j)
+ ;C FILE
+ ;O FILE:(readonly)
+ ;U FILE R STR
+ ;F  U FILE R STR Q:$ZEOF  DO
+ ;.S ^closed($j,$p(STR,$C(9)))=""
+ ;.QUIT
+ ;C FILE
+ 
+ S FILE="/tmp/de-reg_orgs-"_job_".txt"
  k ^closed($j)
  C FILE
  O FILE:(readonly)
  U FILE R STR
  F  U FILE R STR Q:$ZEOF  DO
- .S ^closed($j,$p(STR,$C(9)))=""
+ .S ^closed($j,$p(STR,$C(9)))=$P(STR,$C(9),2)
  .QUIT
- C FILE
  
  S FILE="/tmp/orgs-"_job_".txt"
  K ^ELORGS($J)
@@ -96,10 +105,11 @@ REP(job) ;
  O FILE:(readonly)
  U FILE R STR
  k ^TOT($J),^csv($j),^SUMM($J)
+ k ^csv2($j)
  F  U FILE R str Q:$ZEOF  DO
  .s orgid=$p(str,$c(9))
  .s nor=$p(str,$c(9),2)
- .i $data(^closed($J,orgid)) quit
+ .;;;;;i $data(^closed($J,orgid)) quit
  .;i '$data(^ELREG($J,nor)) quit
  .I '$data(^ASUM(nor)) quit
  .s carehome="n"
@@ -118,7 +128,11 @@ REP(job) ;
  .s add1=$p(str,$c(9),5),add2=$p(str,$c(9),6),add3=$p(str,$c(9),7),add4=$p(str,$c(9),8),city=$p(str,$c(9),9)
  .s uprn=$p(str,$c(9),10),postcode=$p(str,$c(9),11)
  .s address=$s(add1="NULL":"",1:add1)_","_$s(add2="NULL":"",1:add2)_","_$s(add3="NULL":"",1:add3)_","_$s(add4="NULL":"",1:add4)_","_$s(city="NULL":"",1:city)_","_postcode
+ .S matchdate=$p(str,$c(9),12)
+ .S D=$$DH($P(matchdate," ")),T=$$TH($P(matchdate," ",2))
  .s ^csv($j,patorg,nor,uprn,type)=carehome_"~"_$$st(orgid)_"~"_$$ospec(orgid)_"~"_address
+ .s:$d(^closed($j,orgid)) ^csv($j,patorg,nor,uprn,type,"closed")=$g(^closed($j,orgid))
+ .s ^csv2($j,patorg,nor,uprn,D,T,type)=carehome_"~"_$$st(orgid)_"~"_$$ospec(orgid)_"~"_address
  .s json=$get(^link($j,type,uprn))
  .s:json'="" ^csv($j,patorg,nor,uprn,type,"ABP")=json
  .s rec=^ELORGS($j,patorg),parent=$p(rec,"~",3)
@@ -133,7 +147,7 @@ REP(job) ;
  F  U FILE R str q:$zeof  do
  .s orgid=$p(str,$c(9))
  .s nor=$p(str,$c(9),2)
- .i $data(^closed($J,orgid)) quit
+ .;;;;;i $data(^closed($J,orgid)) quit
  .;i '$data(^ELREG($J,nor)) quit
  .i '$data(^ASUM(nor)) quit
  .s carehome="n"
@@ -145,8 +159,12 @@ REP(job) ;
  .S ^TOT($J,type)=$get(^TOT($J,type))+1
  .s add1=$p(str,$c(9),4),add2=$p(str,$c(9),5),add3=$p(str,$c(9),6),add4=$p(str,$c(9),7),city=$p(str,$c(9),8)
  .s uprn=$p(str,$c(9),9),postcode=$p(str,$c(9),10)
+ .s matchdate=$p(str,$c(9),11)
+ .s D=$$DH($P(matchdate," ")),T=$$TH($P(matchdate," ",2))
  .s address=$s(add1="NULL":"",1:add1)_","_$s(add2="NULL":"",1:add2)_","_$s(add3="NULL":"",1:add3)_","_$s(add4="NULL":"",1:add4)_","_$s(city="NULL":"",1:city)_","_postcode
  .s ^csv($j,patorg,nor,uprn,type)=carehome_"~"_$$st(orgid)_"~"_$$ospec(orgid)_"~"_address
+ .s:$d(^closed($j,orgid)) ^csv($j,patorg,nor,uprn,type,"closed")=$GET(^closed($j,orgid))
+ .s ^csv2($j,patorg,nor,uprn,D,T,type)=carehome_"~"_$$st(orgid)_"~"_$$ospec(orgid)_"~"_address
  .s json=$get(^link($j,type,uprn))
  .s:json'="" ^csv($j,patorg,nor,uprn,type,"ABP")=json
  .s rec=^ELORGS($j,patorg),parent=$p(rec,"~",3)
@@ -177,6 +195,19 @@ REP(job) ;
  c f
  
  K ^RECON("ORG_V2")
+ 
+ ; build ^RECON("ORG_V2") matchdate fix
+ ;s (patorg,nor,uprn,d,t,type)=""
+ ;f  s patorg=$o(^csv2($j,patorg)) q:patorg=""  do
+ ;.f  s nor=$o(^csv2($j,patorg,nor)) q:nor=""  do
+ ;..f  s uprn=$o(^csv2($j,patorg,nor,uprn)) q:uprn=""  do
+ ;...f  s d=$o(^csv2($j,patorg,nor,uprn,d)) q:d=""  do
+ ;....i $o(^csv2($j,patorg,nor,uprn,d))'="" q
+ ;....f  s t=$o(^csv2($j,patorg,nor,uprn,d,t)) q:t=""  do
+ ;.....i $o(^csv2($j,patorg,nor,uprn,d,t))'="" q
+ ;.....f  s type=$o(^csv2($j,patorg,nor,uprn,d,t,type)) q:type=""  do
+ ;......
+ 
  s f="/tmp/carehomes_by_orgs_v1.csv"
  c f
  o f:(newversion)
@@ -193,7 +224,8 @@ REP(job) ;
  ....s address=$p(rec,"~",4),carehome=$p(rec,"~",1),st=$p(rec,"~",2),ospec=$P(rec,"~",3)
  ....;S ^RECON("ORG_V2",patorg,nor,type)=carehome_"~"_st_"~"_ospec
  ....s abpjson=$get(^csv($job,patorg,nor,uprn,type,"ABP"))
- ....S ^RECON("ORG_V2",patorg,nor,type)=carehome_"~"_st_"~"_ospec_"~"_abpjson_"~"_uprn
+ ....s closed=$get(^csv($j,patorg,nor,uprn,type,"closed"))
+ ....S ^RECON("ORG_V2",patorg,nor,type)=carehome_"~"_st_"~"_ospec_"~"_abpjson_"~"_uprn_"~"_closed
  ....; decode the json
  ....K B
  ....D DECODE^VPRJSON($NAME(abpjson),$NAME(B),$NAME(E))
@@ -249,14 +281,14 @@ GO(db,KEY) ; D GO^CHOMES("internal_nel_gp_pid")
  ;
  w !,"running TRUD-AD-MATCH+CQC-API sql"
  ; TRUD-AD-MATCH+CQC-API.txt
- S Q2="select oa.id as orgv2_id, p.id as patient_id, pa.id as patient_address_id, name, pa.address_line_1, pa.address_line_2, pa.address_line_3, pa.address_line_4, pa.city, pm.uprn, pa.postcode from "_db_".organization_additional oa join "_db_".patient_address_match pm on pm.uprn = oa.value join "_db_".patient_address pa on pa.id=pm.id join "_db_".patient p on pa.patient_id = p.id where (name = 'ods_disco_uprn' or name = 'cqc_uprn') and p.current_address_id=pm.id"
+ S Q2="select oa.id as orgv2_id, p.id as patient_id, pa.id as patient_address_id, name, pa.address_line_1, pa.address_line_2, pa.address_line_3, pa.address_line_4, pa.city, pm.uprn, pa.postcode, pm.match_date from "_db_".organization_additional oa join "_db_".patient_address_match pm on pm.uprn = oa.value join "_db_".patient_address pa on pa.id=pm.id join "_db_".patient p on pa.patient_id = p.id where (name = 'ods_disco_uprn' or name = 'cqc_uprn') and p.current_address_id=pm.id"
  S FILE="/tmp/TRUD-AD-MATCH+CQC-API-"_$j_".txt"
  D STT("2AA7F19EAD0B04A3FD5E",KEY,Q2,FILE)
  ;
  ; CQC-AD-MATCH.txt
  ;
  w !,"running CQC-AD-MATCH sql"
- S Q3="select l.managing_organization_id as orgv2_id, p.id as patient_id, pa.id as patient_address_id, pa.address_line_1, pa.address_line_2, pa.address_line_3, pa.address_line_4, pa.city, pm.uprn, pa.postcode from "_db_".patient_address_match pm join "_db_".location_v2 l on l.uprn=pm.uprn join "_db_".patient_address pa on pa.id=pm.id join "_db_".patient p on pa.patient_id = p.id where p.current_address_id=pm.id"
+ S Q3="select l.managing_organization_id as orgv2_id, p.id as patient_id, pa.id as patient_address_id, pa.address_line_1, pa.address_line_2, pa.address_line_3, pa.address_line_4, pa.city, pm.uprn, pa.postcode, pm.match_date from "_db_".patient_address_match pm join "_db_".location_v2 l on l.uprn=pm.uprn join "_db_".patient_address pa on pa.id=pm.id join "_db_".patient p on pa.patient_id = p.id where p.current_address_id=pm.id"
  S FILE="/tmp/CQC-AD-MATCH-"_$J_".txt"
  D STT("2AA7F19EAD0B04A3FD5E",KEY,Q3,FILE)
  ;
@@ -266,6 +298,11 @@ GO(db,KEY) ; D GO^CHOMES("internal_nel_gp_pid")
  S FILE="/tmp/closed_orgs-"_$j_".txt"
  D STT("2AA7F19EAD0B04A3FD5E",KEY,Q4,FILE)
  ;
+DZ w !,"running deregistered sql"
+ S QZ="select id as orgv2_id, value from "_db_".organization_additional oa where name='cqc_deregdate'"
+ S FILE="/tmp/de-reg_orgs-"_$j_".txt"
+ D STT("2AA7F19EAD0B04A3FD5E",KEY,QZ,FILE)
+ 
  ; ORGS
  w !,"running get orgs sql"
  S Q5="select * from "_db_".organization"
@@ -312,3 +349,11 @@ QUERIES(HOST,USER,PASS,QUERY,FILE) ;
  W !,CMD
  ZSYSTEM CMD
  QUIT
+ 
+TH(%TM) ;
+ D %CTN^%H
+ Q %TIM
+ 
+DH(DAT) ; 2021-02-08
+ S D=$P(DAT,"-",3)_"."_$P(DAT,"-",2)_"."_$P(DAT,"-",1)
+ Q $$DH^STDDATE(D)

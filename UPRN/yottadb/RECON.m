@@ -1,4 +1,4 @@
-RECON ; ; 2/3/21 8:21pm
+RECON ; ; 2/9/21 7:46pm
  ;
  ; D STT^RECON("394923006","1407334","KEY","/tmp/394923006.txt","internal_nel_gp_pid")
  ; D STT^RECON("160734000","1407334","KEY","/tmp/160734000.txt","internal_nel_gp_pid")
@@ -142,7 +142,7 @@ CROSS ; cross-tab
  
 LINELVL(ORG) ;
  ; collect all the patient ids
- S F="/tmp/line_level_new.csv"
+ S F="/tmp/line_level_new_dereg.csv"
  C F
  O F:(newversion)
  USE F
@@ -154,12 +154,13 @@ LINELVL(ORG) ;
  ..S ^TPATS($J,NOR)=""
  ..QUIT
  .QUIT
- W "patient_id,uprn,snomed,match_type,care home,service_type,specialism,age,sex,add1,add2,add3,add4,city,postcode,abp_flat,abp_building,abp_number,abp_dep_throughfare,abp_street,abp_dep_locality,abp_locality,abp_town,abp_postcode,abp_organization",!
+ W "patient_id,uprn,snomed,match_type,care home,service_type,specialism,age,sex,add1,add2,add3,add4,city,postcode,abp_flat,abp_building,abp_number,abp_dep_throughfare,abp_street,abp_dep_locality,abp_locality,abp_town,abp_postcode,abp_organization,de-registered",!
  S NOR=""
  F  S NOR=$O(^TPATS($J,NOR)) Q:NOR=""   DO
  .S SNO=""
  .F  S SNO=$O(^RECON("SNO",ORG,NOR,SNO)) Q:SNO=""  DO
  ..I '$D(^ASUM(NOR)) QUIT
+ ..;I $D(^closed($j,ORG)) Quit
  ..S AGE=^ASUM(NOR,"age")
  ..S A=^ASUM(NOR,"address")
  ..S ADD1=$P(A,"~",1),ADD2=$P(A,"~",2),ADD3=$P(A,",",3)
@@ -175,7 +176,7 @@ LINELVL(ORG) ;
  .F  S TYPE=$O(^RECON("ORG_V2",ORG,NOR,TYPE)) Q:TYPE=""  DO 
  ..S REC=^(TYPE)
  ..S CH=$P(REC,"~"),ST=$P(REC,"~",2),SPEC=$P(REC,"~",3)
- ..S J=$P(REC,"~",4),UPRN=$P(REC,"~",5)
+ ..S J=$P(REC,"~",4),UPRN=$P(REC,"~",5),CLOSED=$P(REC,"~",6)
  ..K B
  ..D DECODE^VPRJSON($NAME(J),$NAME(B),$NAME(E))
  ..S AGE=^ASUM(NOR,"age")
@@ -199,7 +200,7 @@ LINELVL(ORG) ;
  ..W NOR,",",UPRN,",,",TYPE,",",CH,",",ST,",",SPEC,",",AGE,",",GENDER,","
  ..W ADD1,",",ADD2,",",ADD3,",",ADD4,",",CITY,",",POSTCODE,","
  ..W ABPFLAT,",",ABPBUILD,",",ABPNUM,",",ABPTFARE,",",ABPSTREET,","
- ..W ABPDEPLOCAL,",",ABPLOCALITY,",",ABPTOWN,",",ABPPOSTCODE,",",ABPORG
+ ..W ABPDEPLOCAL,",",ABPLOCALITY,",",ABPTOWN,",",ABPPOSTCODE,",",ABPORG,",",$s(CLOSED'="":"y",1:"")
  ..W !
  ..QUIT
  .W !
