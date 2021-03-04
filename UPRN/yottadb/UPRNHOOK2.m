@@ -58,6 +58,7 @@ GETMSTATUS(result,arguments)
 	; http://192.168.59.134:9080/api/getinfo?adrec=Crystal Palace football club, SE25 6PU
 	; TEST
 GETMUPRN(result,arguments)
+	N HOOK2
 	K ^TMP($J)
 	
 	;set token=$get(HTTPREQ("header","authorization"))
@@ -66,6 +67,8 @@ GETMUPRN(result,arguments)
 	;if '$data(^TOKEN(token)) S HTTPERR=500 D SETERROR^VPRJRUT("500","undefined") quit
 
 	set adrec=$Get(arguments("adrec"))
+	set noassert=$Get(arguments("noassert"))
+	set HOOK2=1
 	
 	K ^TPARAMS($J,"commercials")
 	set comm=$Get(arguments("commercial"))
@@ -75,7 +78,7 @@ GETMUPRN(result,arguments)
 	set country=$Get(arguments("country"))
 	set summary=$Get(arguments("summary"))
 	set orgpost=$Get(arguments("orgpost"))
-	D GETUPRN^UPRNMGR(adrec,qpost,orgpost,country,summary)
+	D GETUPRN^UPRNMGR(adrec,qpost,orgpost,country,summary,0,noassert)
 	set result("mime")="application/json, text/plain, */*"
 	S ^TMP($J,1)=^temp($J,1)
 	set result=$na(^TMP($j))

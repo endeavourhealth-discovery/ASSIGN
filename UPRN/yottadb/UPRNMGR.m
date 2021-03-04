@@ -46,12 +46,31 @@ STATUS() ;Returns the current status of the ABP load and indexing
  ..s ^temp($j,1)=^temp($j,1)_"""Loading"":"""_^IMPORT("LOAD")_""",""File"":"""_^IMPORT("FILE")_"""}}"
  Q 1
  
-GETUPRN(adrec,qpost,orgpost,country,summary,writejson) ;Returns the result of a matching request
+GETUPRN(adrec,qpost,orgpost,country,summary,writejson,noassert) ;Returns the result of a matching request
  ;adrec is an address string with post code at the end
  ;qpost is list of post code areas (optional)
  ;orgpost is the post code of a local organisatoin to narrow down search
  k ^TUPRN($J)
  s writejson=+$g(writejson)
+ 
+ s noassert=+$g(noassert)
+ set asserted=$$SPELL^UPRNASRT(adrec)
+ S zuprn=""
+ S:asserted'="" zuprn=$get(^ZASSERT(asserted))
+ ; HOOK2 is set in UPRNHOOK2.m
+ I 'noassert,zuprn'="" do  quit:$g(HOOK2)
+ .S oadrec=$get(^ZASSERT(asserted,"O"))
+ .D API^UPRNASRT(zuprn,oadrec,asserted)
+ .set ^temp($j,1)=^TMP($J,1)
+ .; are we running the code from the uprn-match UI?
+ .; if not, then put the new address candidate thro the alg
+ .I $g(HOOK2)="" do
+ ..K b
+ ..D DECODE^VPRJSON($name(^temp($j,1)),$name(b),$name(err))
+ ..S adrec=b(1,"address_string")
+ ..quit
+ .quit
+ 
  s adrec=$tr(adrec,",","~")
 trailing  ;Strips off trailing nulls
  f i=$l(adrec,"~"):-1:1 q:$p(adrec,"~",i)'=""
@@ -65,6 +84,9 @@ etrail s adrec=$p(adrec,"~",1,i)
  s country=$s($e(country)="e":"e",$e(country)="w":"w",1:"o")
  ;Checks for library update
  I '$D(^UPRNS("DROPSUFFIX")) D SETSWAPS^UPRNU
+ 
+ ;I $get(qpost)'="" s adrec=adrec_"~"_qpost
+ 
  ;Checks quality of address
  D ADRQUAL^UPRN(adrec,country)
  I '$D(^TUPRN($J,"INVALID")) D
@@ -98,9 +120,10 @@ MATCHK(json,summary)       ;populates match details
  e  d
  .s json=json_"true,"
  I $D(^TUPRN($J,"MATCHED")) D
- .s uprn=$o(^TUPRN($J,"MATCHED",""))
- .s table=$O(^TUPRN($j,"MATCHED",uprn,""))
- .s key=$O(^TUPRN($J,"MATCHED",uprn,table,""))
+ .; return LPI address instead of DPA addresses
+ .s uprn=$o(^TUPRN($J,"MATCHED",""),-1)
+ .s table=$O(^TUPRN($j,"MATCHED",uprn,""),-1)
+ .s key=$O(^TUPRN($J,"MATCHED",uprn,table,""),-1)
  .S matchrec=^TUPRN($j,"MATCHED",uprn,table,key)
  .s json=json_"""UPRN"":"""_uprn_""","
  .s json=json_"""Qualifier"":"""_$$qual^UPRN2(matchrec)_""""

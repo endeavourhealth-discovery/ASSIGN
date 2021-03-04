@@ -61,6 +61,7 @@ export class UPRNComponent implements OnInit {
   chkcomm: boolean;
   chkcarehomes: boolean;
   chkdiscouprn: boolean;
+  chkassert: boolean;
 
   wName: string; wOrganisation: string; wRegDate: string; epoch: string; areas: string;
 
@@ -77,6 +78,15 @@ export class UPRNComponent implements OnInit {
   UPRN: string; number: string; flat: string; street: string; town: string; postcode: string; classcode: string; classterm: string;
   dogsEnabled: string;
   admin: string;
+
+  assert: string;
+  asserted: string [];
+  lastadrec: string;
+  uprnAssert: string;
+  alguprn: string;
+  noassert: string;
+
+  //asserted : string[] = ['add1', 'add2', 'add3'];
 
   uprntp="ABP Unique Property Reference Number";
   buildingtp = "ABP building element of address string ";
@@ -371,6 +381,7 @@ export class UPRNComponent implements OnInit {
 
   createOrgCsv(csvdata: Blob) {
     let out = "organizations-output";
+    //console.log(csvdata);
     new ngxCsv(csvdata, out, this.orgcsv);
   }
 
@@ -610,7 +621,10 @@ export class UPRNComponent implements OnInit {
       comm = "0";
     }
 
-    this.getUPRN(this.adrec, comm, this.qpost);
+    this.noassert="0";
+    if (this.chkassert == true) {this.noassert = "1";}
+
+    this.getUPRN(this.adrec, comm, this.qpost, this.noassert);
   }
 
   Test(file: string) {
@@ -619,9 +633,21 @@ export class UPRNComponent implements OnInit {
     window.open(url);
   }
 
-  getUPRN(adrec: string, comm: string, qpost: string) {
+  getUPRN(adrec: string, comm: string, qpost: string, noassert: string) {
     this.jsondata = "";
-    this.UPRNService.getUPRNStuff(adrec, comm, qpost).
+
+    //this.adrec = adrec;
+
+    //let noassert = "0";
+    //if (this.adrec == this.lastadrec) {
+    //  console.log(">>>>> set param");
+    //  noassert = "1";
+    //}
+
+    console.log("adrec: " + adrec);
+    console.log("noassert: "+ noassert);
+
+    this.UPRNService.getUPRNStuff(adrec, comm, qpost, noassert).
       subscribe(
         result => {
           this.processUPRN(result);
@@ -635,7 +661,39 @@ export class UPRNComponent implements OnInit {
 
   processUPRN(activityData: any[]) {
 
-    console.log(JSON.stringify(activityData));
+    this.UPRNData = activityData;
+    //console.log("ARRAY? "+JSON.stringify(activityData));
+
+    // assertions
+    this.assert = "";
+    this.lastadrec = this.adrec;
+
+    let jAssert = JSON.parse(JSON.stringify(activityData));
+
+    console.log("override assertions? "+this.chkassert);
+    let assoverride = "0";
+    if (this.chkassert == true) {assoverride = "1";}
+
+    if (assoverride == "0" && jAssert instanceof Array)
+    {
+      //this.assert = "1";
+      //this.UPRN = "";
+      //this.uprnAssert = JSON.stringify(jAssert[0].uprn);
+      //this.alguprn = JSON.stringify(jAssert[0].alguprn);
+
+      //this.asserted = JSON.parse(JSON.stringify(activityData));
+      //console.log("assert array!");
+      //return;
+
+      let idx = jAssert.length-1;
+      console.log("count >>>>>>>>>>>>>>>>>>>>> "+idx);
+
+      let asrtadr = JSON.stringify(jAssert[idx].address_string);
+      MessageBoxDialogComponent.open(this.dialog, 'Assertion', "uprn-match has found an assertion for "+this.adrec, 'Continue');
+      this.getUPRN(asrtadr, "1", "", "1"); // INCLUDE COMMERCIAL
+    }
+
+    console.log("abc: "+JSON.stringify(activityData));
     this.jsondata = JSON.stringify(activityData);
 
     let jsonObj = JSON.parse(JSON.stringify(activityData));
@@ -667,7 +725,7 @@ export class UPRNComponent implements OnInit {
       matchbuilding = jsonObj.Match_pattern["Building"];
     }
 
-    this.UPRNData = activityData;
+    //this.UPRNData = activityData;
     this.UPRN = u; this.number = number; this.flat = flat; this.building = building;
     this.town =town; this.street = street; this.postcode = postcode; this.classcode = classcode; this.classterm = classterm;
     this.organisation = organisation;
@@ -677,6 +735,8 @@ export class UPRNComponent implements OnInit {
     this.matchpcode=matchpcode; this.matchnumber = matchnumber; this.matchflat= matchflat; this.matchbuilding = matchbuilding;
 
     this.algorithm = algorithm; this.qualifier = qualifier;
+
+    console.log(">>>> here:"+this.UPRN);
 
     this.onClickDownGoogleMaps(this.UPRN,"");
   }

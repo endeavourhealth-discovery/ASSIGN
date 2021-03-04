@@ -34,9 +34,16 @@ DOWNLOAD(result,arguments)
  S result("mime")="text/plain, */*"
  S result=$NA(^TMP($J))
  QUIT
+
+IP() ;
+ S IP=$GET(HTTPREQ("header","x-forwarded-for"))
+ S OK=1
+ I '$D(^IPCHK(IP)) S OK=0
+ QUIT OK
  
 LOGIN(result,arguments) ;
  kill ^TMP($J)
+ I '$$IP() D H("<B>sorry</B>") G XBYE
  d H("<html>")
  d H("<form action=""https://apiuprn.discoverydataservice.net:8443/check/login"" method=""post"">")
  ;http://10.0.101.22:9080
@@ -49,7 +56,7 @@ LOGIN(result,arguments) ;
  d H("</form>")
  d H("</html>")
  
- set result("mime")="text/html"
+XBYE set result("mime")="text/html"
  set result=$na(^TMP($J))
  quit
  
@@ -216,6 +223,8 @@ JSON(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,ZID)
 CALC(arguments,body,result) ;
  new data,a
  K ^TMP($J),^BODY
+ I '$$IP() D H("<B>sorry</B>") G XBYE 
+ 
  M ^BODY=body
  
  S data=""
@@ -247,6 +256,7 @@ CALC(arguments,body,result) ;
  
 CHECK(arguments,body,result) ;
  k ^TMP($J)
+ I '$$IP() D H("<B>sorry</B>") G XBYE
  M ^BODY=body
  f i=1:1:$o(body(""),-1) set ^TMP($J,i)=body(i)_"<br>"
  s i=i+1
@@ -299,9 +309,16 @@ REL(data)
          F  S A=$O(^TOPT($J_"HEX",A)) Q:A=""  D
          .S HEX=$P(A,"%",2)
   .;W $$FUNC^%HD("2C")
-         .S data=$$TR(data,A,$C($$FUNC^%HD(HEX)))
+         .;S data=$$TR(data,A,$C($$FUNC^%HD(HEX)))
+		 .S data=$$TR(data,A,$C($$FUNCFM(HEX)))
          .Q
          Q data
+
+FUNCFM(h) ;
+ n c,d,dg
+ s d=0,h=$tr(h,"abcdef","ABCDEF")
+ f c=1:1:$l(h) s dg=$f("0123456789ABCDEF",$e(h,c)) q:'dg  s d=(d*16)+(dg-2)
+ quit d
  
 HEX      K ^TOPT($J_"HEX")
   ; %0D%0A%0D%0A
@@ -320,4 +337,5 @@ HEX      K ^TOPT($J_"HEX")
          S ^TOPT($J_"HEX","%23")="",^TOPT($J_"HEX","%3A")=""
          S ^TOPT($J_"HEX","%3B")="",^TOPT($J_"HEX","%27")=""
          S ^TOPT($J_"HEX","%3C")="",^TOPT($J_"HEX","%3E")=""
+		 S ^TOPT($J_"HEX","%09")=""
          Q

@@ -13,11 +13,18 @@
           Input single address
         </ng-template>
         <mat-card-content>
+
           <!-- <p>This is where you'll enter the address</p> -->
           <!-- 10 Downing St,Westminster,London,SW1A2AA -->
           <!-- <p> -->
 
           <div class="flex" fxLayoutGap="16px grid" fxLayout="row wrap">
+            <!--
+            <div *ngIf="admin" fxFlex="100">
+              <b>You are an admin (so you can upload assertions)</b>
+            </div>
+            -->
+
             <div fxFlex="100">Enter a single address string including a postcode at the end with a comma separating the address from the postcode</div>
             <!-- <div fxFlex="100"><b>The algorithm will not work without a postcode</b></div> -->
             <div fxFlex="100">e.g. 10 Downing St,Westminster,London,SW1A2AA</div>
@@ -29,6 +36,7 @@
             <button mat-icon-button matTooltip="Filter the results" (click)="findUPRN()">
               <i class="far fa-fw fa-search"></i>
             </button>
+
             <div fxFlex="100">
               <mat-form-field appearance="fill" class="regular">
                 <mat-label>postal area</mat-label>
@@ -40,6 +48,7 @@
             </mat-form-field>
             </div>
             <div fxFlex="100"><mat-checkbox [(ngModel)]="chkcomm" name="chkcomm">Include Commercial matches?</mat-checkbox></div>
+            <div fxFlex="100"><mat-checkbox [(ngModel)]="chkassert" name="chkassert">Override assertions?</mat-checkbox></div>
           <!-- </p> -->
           </div>
         </mat-card-content>
@@ -56,10 +65,44 @@
                       <td><button type="button" mat-stroked-button (click)="onClickJSON()">JSON</button></td>
                     </table>
                     <br><br> -->
-                    <div *ngIf="!UPRN" fxFlex="100">
+
+                    <!--
+                    <div *ngIf="assert" fxFlex="100">
+                      <div div class="flex" fxLayoutGap="16px grid" fxLayout="row wrap">{{lastadrec}} has been made into an ASSERTION and will return details for UPRN {{uprnAssert}} rather than {{alguprn}}</div>
+                      <br>
+                      <div>Clicking on the search button again will display the assertion, unless the display algorithm box is ticked</div>
+                      <br>
+                      <div>Below are a list of addresses that share the same asserted UPRN</div>
+                      <div>Clicking on an address will update the Address input box and will allow you to perform another search</div>
+                      <br>
+                      <div>
+                        <table class="mat-table" border="0" width="100%">
+                          <ng-container *ngFor="let row of asserted">
+                            <tr class="mat-row">
+                              <div style="cursor:pointer" (click)="adrec = row.address_string">{{row.address_string}}</div>
+                            </tr>
+                          </ng-container>
+                        </table>
+                      </div>
+                    </div>
+                    -->
+
+                    <div *ngIf="!UPRN && !assert" fxFlex="100">
                       <!-- <div *ngIf="!adrec" fxFlex="100">
                         <p>Please enter an address candidate</p>
                       </div> -->
+
+                      <!--
+                      <div>
+                        <table class="mat-table" border="0" width="100%">
+                        <ng-container *ngFor="let row of asserted">
+                          <tr class="mat-row">
+                          <div style="cursor:pointer" (click)="adrec = row">{{row}}</div>
+                          </tr>
+                        </ng-container>
+                        </table>
+                      </div> -->
+
                       <p>Sorry, the algorithm was unable to find a match</p>
                       <p>{{jsondata}}</p>
                       <!-- <p>The algorithm only supports London candidate addresses (please get in touch if you want to support other regions of the UK)</p> -->
@@ -116,13 +159,15 @@
           <p>The first line must not contain any header information</p>
           <p>The first column is a unique numeric row id</p>
           <p>The second column is an address string including a postcode at the end with a comma separating the address from the postcode</p>
+          <p>The third column is the postal region (not mandatory, but useful when you don't know the address candidates postcode)</p>
 
           <p style="font-family:courier;">Example records:</p>
 
           <p style="font-family:courier;">1{{tab}}10 Downing St,Westminster,London,SW1A2AA</p>
-          <p style="font-family:courier;">2{{tab}}Bridge Street,London,SW1A 2LW</p>
-          <p style="font-family:courier;">3{{tab}}221b Baker St,Marylebone,London,NW1 6XE</p>
-          <p style="font-family:courier;">4{{tab}}3 Abbey Rd,St John's Wood,London,NW8 9AY</p>
+          <p style="font-family:courier;">2{{tab}}10 Downing St,Westminster,London{{tab}}SW</p>
+          <p style="font-family:courier;">3{{tab}}Bridge Street,London,SW1A 2LW</p>
+          <p style="font-family:courier;">4{{tab}}221b Baker St,Marylebone,London,NW1 6XE</p>
+          <p style="font-family:courier;">5{{tab}}3 Abbey Rd,St John's Wood,London,NW8 9AY</p>
 
           <!--
           <table class="table table-bordered table-hover table-condensed" border="1" width="100%">

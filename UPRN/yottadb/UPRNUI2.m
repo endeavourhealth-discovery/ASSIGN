@@ -33,10 +33,12 @@ GETREG(result,arguments)
  S dt=$P(rec,"~"),org=$P(rec,"~",2),name=$P(rec,"~",3)
  S epoch=$get(^ICONFIG("EPOCH"))
  S areas=$$ESC^VPRJSON($g(^ICONFIG("AREAS")))
+ S admin=""
+ I userid'="",$D(^ADMINS(userid)) S admin=1
  i name'="" do
  .set d=$p(dt,","),t=$p(dt,",",2)
  .set d=$$HD^STDDATE(d),t=$$HT^STDDATE(t)
- .S ^TMP($J,1)="{""name"": """_name_""",""organization"": """_org_""",""regdate"": """_d_":"_t_""",""epoch"": """_epoch_""",""areas"": """_areas_"""}"
+ .S ^TMP($J,1)="{""name"": """_name_""",""organization"": """_org_""",""regdate"": """_d_":"_t_""",""epoch"": """_epoch_""",""areas"": """_areas_""",""admin"": """_admin_"""}"
  .quit
  S result("mime")="text/plain, */*"
  S result=$NA(^TMP($J))
@@ -179,8 +181,9 @@ PROCESS(file,user) ;
  .if $E(str,1,28)="----------------------------" s qf=1 quit
  .S ZID=$$TR^LIB($P(str,$C(9),1),"""","")
  .I ZID=""!(ZID=$C(13)) QUIT
- .s adrec=$$TR^LIB($p(str,$C(9),2,99),$C(13),"")
- .D GETUPRN^UPRNMGR(adrec)
+ .s adrec=$$TR^LIB($p(str,$C(9),2),$C(13),"")
+ .s qpost=$$TR^LIB($p(str,$c(9),3),$C(13),"")
+ .D GETUPRN^UPRNMGR(adrec,qpost)
  .s json=^temp($j,1)
  .K B,C
  .D DECODE^VPRJSON($name(json),$name(B),$name(C))
@@ -218,6 +221,12 @@ PROCESS(file,user) ;
  .quit
  
  close file
+ 
+ ; delete the file that has been uploaded to the server
+ zsystem "rm "_file
+ i $zsystem>0 s ^ZDEL($I(^ZDEL))="problem deleting file "_file
+ e  s ^ZDEL($I(^ZDEL))="del ok "_file
+ 
  LOCK -^UPRNUI("process",file)
  S I=$O(^ACTIVITY(user,""),-1)+1
  S ^ACTIVITY(user,I)=$H_"~"_file_" processed "_cnt_" records~"_file
