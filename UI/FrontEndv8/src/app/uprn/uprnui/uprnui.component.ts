@@ -78,6 +78,7 @@ export class UPRNComponent implements OnInit {
   UPRN: string; number: string; flat: string; street: string; town: string; postcode: string; classcode: string; classterm: string;
   dogsEnabled: string;
   admin: string;
+  salt: string;
 
   assert: string;
   asserted: string [];
@@ -133,7 +134,7 @@ export class UPRNComponent implements OnInit {
     quotestrings: '"',
     decimalseparator: '.',
     showLabels: true,
-    headers: ['ID,UPRN,add_format,alg,class,match_build,match_flat,match_number,match_postcode,match_street,abp_number,abp_postcode,abp_street,abp_town,qualifier,add_candidate,abp_building,latitude,longitude,point,X,Y,class_term'],
+    headers: ['ID,UPRN,add_format,alg,class,match_build,match_flat,match_number,match_postcode,match_street,abp_number,abp_postcode,abp_street,abp_town,qualifier,add_candidate,abp_building,latitude,longitude,point,X,Y,ralf,class_term'],
     showTitle: false,
     title: 'UPRN',
     useTextFile: false,
@@ -190,7 +191,7 @@ export class UPRNComponent implements OnInit {
 
     this.getRegistration(this.userId);
 
-    this.qpost="";
+    this.qpost=""; this.salt = "";
 
     //this.stuff = "[{\"value\": \"0\", \"display\": \"\"}, {\"value\": \"1\", \"display\": \"HU district\"}]";
     //this.zeroTo20 = JSON.parse(this.stuff);
@@ -327,6 +328,10 @@ export class UPRNComponent implements OnInit {
     window.open("https://www.google.com/maps/search/?api=1&query=" + this.latitude + "," + this.longitude, "_blank");
   }
 
+  onClickopenP() {
+    window.open("https://www.openpseudonymiser.org/", "_blank");
+  }
+
   onClickDownloadTable(filetodownload: string) {
     //alert(filetodownload);
     let z = filetodownload.split("/", 4);
@@ -410,7 +415,25 @@ export class UPRNComponent implements OnInit {
     event.target.value = ''
   }
 
+  onClickySalt(event) {
+    event.target.value = ''
+  }
+
   postMethod(files: FileList) {
+    this.filetoupload = files.item(0).name;
+    let ret = this.UPRNService.postFile(files, this.userId);
+  }
+
+  postMethodSalt(files: FileList) {
+
+    let saltfilename = files.item(0).name;
+    saltfilename = saltfilename.toLowerCase();
+
+    if (saltfilename.indexOf('encryptedsalt') == -1) {
+      MessageBoxDialogComponent.open(this.dialog, 'Salt', "Please make sure EncryptedSalt is in the filename you are posting", 'Continue');
+      return;
+    }
+
     this.filetoupload = files.item(0).name;
     let ret = this.UPRNService.postFile(files, this.userId);
   }
@@ -454,8 +477,11 @@ export class UPRNComponent implements OnInit {
   }
 
   tabChanged(tabChangeEvent: MatTabChangeEvent): void {
+
+    console.log("tab " + tabChangeEvent.index);
+
     // update Welcome registration date
-    if (tabChangeEvent.index == 3) {this.getRegistration(this.userId);}
+    if (tabChangeEvent.index == 4 || tabChangeEvent.index == 1) {this.getRegistration(this.userId);}
 
     if (tabChangeEvent.index == 2) {
       let data = "[{\"DT\":\"?\",\"A\":\"?\"}]";
@@ -518,6 +544,7 @@ export class UPRNComponent implements OnInit {
     console.log(jsonObj.epoch);
     console.log(jsonObj.areas);
     console.log(">> "+ jsonObj.admin);
+    console.log(jsonObj.salt)
 
     if (jsonObj.name != "?") {
       this.wName = jsonObj.name;
@@ -526,6 +553,7 @@ export class UPRNComponent implements OnInit {
       this.epoch = jsonObj.epoch;
       this.areas = jsonObj.areas;
       this.admin = jsonObj.admin;
+      this.salt = jsonObj.salt;
     }
 
     if (jsonObj.name == "?") {

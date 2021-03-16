@@ -150,11 +150,28 @@
           <!-- <p>Select a candidate file to upload by clicking on the Choose File button</p> -->
           <Label id="item1" (loaded)="onItemLabelLoaded($event)"></Label>
 
-          <button type="button" mat-flat-button (click)="fileInput.click()">Choose File</button>
+
+          <table>
+            <td><button type="button" mat-flat-button (click)="fileInput.click()">Choose File</button></td>
+            <td></td>
+            <td><button type="button" mat-flat-button (click)="fileInputSalt.click()">Choose SALT File</button></td>
+          </table>
+
           <input hidden (click)="onClicky($event)" (change)="postMethod($event.target.files)" #fileInput type="file" id="file" accept="text/*">
           <!-- <input hidden (change)="postMethod($event.target.files)" #fileInput type="file" id="file"> -->
 
+          <input hidden (click)="onClickySalt($event)" (change)="postMethodSalt($event.target.files)" #fileInputSalt type="file" id="filesalt" accept="/*">
+
           <br>
+
+          <p>
+          <a href="https://www.openpseudonymiser.org/" target="_blank">Click on this link to navigate to the OpenPseudonymiser web site were you will be able to download a SALT file</a>
+          </p>
+
+          <p>{{salt}}</p>
+
+          <br>
+
           <p>The address file to be uploaded must contain two columns separated by a single tab character with a .txt extension</p>
           <p>The first line must not contain any header information</p>
           <p>The first column is a unique numeric row id</p>

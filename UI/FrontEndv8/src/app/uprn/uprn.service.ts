@@ -133,6 +133,9 @@ export class UPRNService {
       //alert('Incorrect file format - please make sure the file you are uploading is tab delimited, and each row contains a unique numeric identifier');
       MessageBoxDialogComponent.open(this.dialog, 'Upload address file','Incorrect file format - please make sure the file you are uploading is tab delimited, and each row contains a unique numeric identifier', 'Continue');
     }
+    if (val.upload["status"] == 'SALTOK') {
+      MessageBoxDialogComponent.open(this.dialog, 'Salt', 'Salt file uploaded OK', 'Continue');
+    }
   }
 
 }

@@ -35,10 +35,17 @@ GETREG(result,arguments)
  S areas=$$ESC^VPRJSON($g(^ICONFIG("AREAS")))
  S admin=""
  I userid'="",$D(^ADMINS(userid)) S admin=1
+ s saltdets=""
+ i userid'="",$data(^SALTS("audit",userid)) do
+ .S d=$o(^SALTS("audit",userid,""),-1)
+ .S t=$o(^SALTS("audit",userid,d,""),-1)
+ .S saltfile=^(t)
+ .S saltdets="You uploaded "_saltfile_" on "_$$HD^STDDATE(d)_" at "_$$HT^STDDATE(t)
+ .quit 
  i name'="" do
  .set d=$p(dt,","),t=$p(dt,",",2)
  .set d=$$HD^STDDATE(d),t=$$HT^STDDATE(t)
- .S ^TMP($J,1)="{""name"": """_name_""",""organization"": """_org_""",""regdate"": """_d_":"_t_""",""epoch"": """_epoch_""",""areas"": """_areas_""",""admin"": """_admin_"""}"
+ .S ^TMP($J,1)="{""name"": """_name_""",""organization"": """_org_""",""regdate"": """_d_":"_t_""",""epoch"": """_epoch_""",""areas"": """_areas_""",""admin"": """_admin_""",""salt"": """_saltdets_"""}"
  .quit
  S result("mime")="text/plain, */*"
  S result=$NA(^TMP($J))
@@ -86,7 +93,7 @@ UPLOAD(arguments,body,result)
  S type=body(1)
  S type=$P($P(type,"Content-Type:",2),$C(13,10,13,10))
  ;S ^TYPE=type
- i type'["text/plain" do  quit 1
+ i type'["text/plain",$$LC^LIB(file)'["encryptedsalt" do  quit 1
  .S ^TMP($J,1)="{""upload"": { ""status"": ""NOK""}}"
  .set result=$na(^TMP($J))
  .quit
@@ -110,6 +117,19 @@ UPLOAD(arguments,body,result)
  .use file write body(line)
  .quit
  close file
+ 
+ if $$LC^LIB(file)["encryptedsalt" DO  Q 1
+ .S USER=$P($P(ZZ,"name=""userid"""_$C(13,10,13,10),2),$C(13,10))
+ .S I=$O(^ACTIVITY(USER,""),-1)+1
+ .S saltfile=$P(file,"/",$L(file,"/"))
+ .S h=+$h,t=$p($h,",",2)
+ .S ^SALTS("audit",USER,h,t)=saltfile
+ .S ^ACTIVITY(USER,I)=$H_"~salt uploaded ("_saltfile_")"_"~"_file
+ .D FIX^RALF(file,USER)
+ .s ^TMP($J,1)="{""upload"": { ""status"": ""SALTOK""}}"
+ .set result=$na(^TMP($J))
+ .quit
+  
  ;
  ; test that the file has tabs in it?
  ; validate the first 10 records
@@ -170,6 +190,10 @@ PROCESS(file,user) ;
  S $ETRAP="G ETCODE^UPRNUI"
  LOCK ^UPRNUI("process",file):1
  I '$T S ^UPRNUI("process",file)="Already being processed "_$h quit
+ 
+ K ^TLIST($J)
+ I $D(^SALTS("base64",user)) Do GETRALFS^RALF(file,user)
+ 
  K ^FILE(file),^NGX(user,file)
  close file
  o file:(readonly):0
@@ -183,8 +207,8 @@ PROCESS(file,user) ;
  .I ZID=""!(ZID=$C(13)) QUIT
  .s adrec=$$TR^LIB($p(str,$C(9),2),$C(13),"")
  .s qpost=$$TR^LIB($p(str,$c(9),3),$C(13),"")
- .D GETUPRN^UPRNMGR(adrec,qpost)
- .s json=^temp($j,1)
+ .I '$D(^TLIST($J,ZID)) D GETUPRN^UPRNMGR(adrec,qpost) s json=^temp($j,1)
+ .I $D(^TLIST($J,ZID)) S json=^TLIST($J,ZID,"J")
  .K B,C
  .D DECODE^VPRJSON($name(json),$name(B),$name(C))
  .S UPRN=$GET(B("UPRN"))
@@ -251,7 +275,7 @@ JSON(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,ZID,P,Q)
  S JS=JS_"""add_candidate"":"""_O_""","
  S JS=JS_"""abp_building"":"""_P_""","
  I A'="" D
- .S COORD=$piece($get(^UPRN("U",UPRN)),"~",7)
+ .S COORD=$piece($get(^UPRN("U",A)),"~",7)
  .S LAT=$P(COORD,",",3),LONG=$P(COORD,",",4)
  .S POINT=$P(COORD,",",3),X=$P(COORD,",",1),Y=$P(COORD,",",2)
  .S JS=JS_"""latitude"":"""_LAT_""","
@@ -259,6 +283,7 @@ JSON(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,ZID,P,Q)
  .S JS=JS_"""point:"":"""_POINT_""","
  .S JS=JS_"""X"":"""_X_""","
  .S JS=JS_"""Y"":"""_Y_""","
+ .S JS=JS_"""ralf"":"""_$GET(^TRALFS($J,A))_""","
  .QUIT
  S JS=JS_"""class_term"":"""_Q_"""},"
  QUIT JS
