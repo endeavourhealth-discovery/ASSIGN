@@ -1,4 +1,4 @@
-CHOMES ; ; 2/3/21 8:26pm
+CHOMES ; ; 3/30/21 3:30pm
  D REP($J)
  QUIT
  ;
@@ -269,7 +269,8 @@ st(orgid) ;
  
 GO(db,KEY) ; D GO^CHOMES("internal_nel_gp_pid")
  W !,"getting sources"
- S CURL="curl -s -X GET -i https://uprnapi.discoverydataservice.net:8443/api2/jsourceall > /tmp/jsource-"_$j_".txt"
+ S CURL="curl -s -X GET -i "_^ICONFIG("BASEURL")_"/api2/jsourceall > /tmp/jsource-"_$j_".txt"
+ 
  ZSYSTEM CURL
  ;QUIT
  
@@ -281,14 +282,14 @@ GO(db,KEY) ; D GO^CHOMES("internal_nel_gp_pid")
  ;
  w !,"running TRUD-AD-MATCH+CQC-API sql"
  ; TRUD-AD-MATCH+CQC-API.txt
- S Q2="select oa.id as orgv2_id, p.id as patient_id, pa.id as patient_address_id, name, pa.address_line_1, pa.address_line_2, pa.address_line_3, pa.address_line_4, pa.city, pm.uprn, pa.postcode, pm.match_date from "_db_".organization_additional oa join "_db_".patient_address_match pm on pm.uprn = oa.value join "_db_".patient_address pa on pa.id=pm.id join "_db_".patient p on pa.patient_id = p.id where (name = 'ods_disco_uprn' or name = 'cqc_uprn') and p.current_address_id=pm.id"
+ S Q2="select oa.id as orgv2_id, p.id as patient_id, pa.id as patient_address_id, name, pa.address_line_1, pa.address_line_2, pa.address_line_3, pa.address_line_4, pa.city, pm.uprn, pa.postcode, pm.match_date from "_db_".organization_additional oa join "_db_".patient_address_match pm on pm.uprn = oa.value join "_db_".patient_address pa on pa.id=pm.patient_address_id join "_db_".patient p on pa.patient_id = p.id where (name = 'ods_disco_uprn' or name = 'cqc_uprn') and p.current_address_id=pm.patient_address_id"
  S FILE="/tmp/TRUD-AD-MATCH+CQC-API-"_$j_".txt"
  D STT("2AA7F19EAD0B04A3FD5E",KEY,Q2,FILE)
  ;
  ; CQC-AD-MATCH.txt
  ;
  w !,"running CQC-AD-MATCH sql"
- S Q3="select l.managing_organization_id as orgv2_id, p.id as patient_id, pa.id as patient_address_id, pa.address_line_1, pa.address_line_2, pa.address_line_3, pa.address_line_4, pa.city, pm.uprn, pa.postcode, pm.match_date from "_db_".patient_address_match pm join "_db_".location_v2 l on l.uprn=pm.uprn join "_db_".patient_address pa on pa.id=pm.id join "_db_".patient p on pa.patient_id = p.id where p.current_address_id=pm.id"
+ S Q3="select l.managing_organization_id as orgv2_id, p.id as patient_id, pa.id as patient_address_id, pa.address_line_1, pa.address_line_2, pa.address_line_3, pa.address_line_4, pa.city, pm.uprn, pa.postcode, pm.match_date from "_db_".patient_address_match pm join "_db_".location_v2 l on l.uprn=pm.uprn join "_db_".patient_address pa on pa.id=pm.patient_address_id join "_db_".patient p on pa.patient_id = p.id where p.current_address_id=pm.patient_address_id"
  S FILE="/tmp/CQC-AD-MATCH-"_$J_".txt"
  D STT("2AA7F19EAD0B04A3FD5E",KEY,Q3,FILE)
  ;
@@ -309,6 +310,8 @@ DZ w !,"running deregistered sql"
  S FILE="/tmp/orgs-"_$j_".txt"
  D STT("2AA7F19EAD0B04A3FD5E",KEY,Q5,FILE)
  
+ ;
+ ;
  w !,"running care home flag sql"
  S Q6="SELECT * FROM "_db_".organization_additional where name = 'cqc_carehome' and value = 'Y'"
  S FILE="/tmp/carehomes-"_$j_".txt"

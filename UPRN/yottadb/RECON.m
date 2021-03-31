@@ -1,4 +1,4 @@
-RECON ; ; 2/9/21 7:46pm
+RECON ; ; 3/30/21 3:43pm
  ;
  ; D STT^RECON("394923006","1407334","KEY","/tmp/394923006.txt","internal_nel_gp_pid")
  ; D STT^RECON("160734000","1407334","KEY","/tmp/160734000.txt","internal_nel_gp_pid")
@@ -142,7 +142,7 @@ CROSS ; cross-tab
  
 LINELVL(ORG) ;
  ; collect all the patient ids
- S F="/tmp/line_level_new_dereg.csv"
+ S F="/tmp/line_level_"_ORG_".csv"
  C F
  O F:(newversion)
  USE F
