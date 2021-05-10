@@ -1,0 +1,1385 @@
+1	BESTFIT	1		Pe,Se,Ne,Be,Fev
+2	BESTFIT	2		Pe,Se,Ne,Be,Fe
+3	BESTFIT	3		Pe,Se,Ne,Bf,Ff
+4	BESTFIT	4		Pe,Se,Np,Be,F=N
+5	BESTFIT	5		Pe,Se,N>Ff,Be,Ff
+6	BESTFIT	6		Pe,Se,Ni,Be,Fev
+7	BESTFIT	7		Pe,Se,Ni,Be,Fe
+8	BESTFIT	8		Pe,Se,Nd,Be,Fev
+9	BESTFIT	9		Pe,Se,Nd,Be,Fe
+10	BESTFIT	10		Pe,Se,Ne,B>F,Fev
+11	BESTFIT	11		Pe,Se,Ne,B>F,Fe
+12	BESTFIT	12		Pe,Se,Ne,Be,Fvv
+13	BESTFIT	13		Pe,Se,Nf,Be,F>N
+14	BESTFIT	14		Pe,Se,Nf,Be,Fp>N
+15	BESTFIT	15		Pe,Se,Nf,Bd,F>N
+16	BESTFIT	16		Pe,Se,Nf,Bd,Fp>N
+17	BESTFIT	17		Pe,Se,Ne,Be,Fo
+18	BESTFIT	18		Pe,Se,Ne,Be,Fv
+19	BESTFIT	19		Pe,Se,Ne,Be,Fpv
+20	BESTFIT	20		Pe,Se,Ne,Be,Fp
+21	BESTFIT	21		Pe,Se,Ne,Be,Fp1
+22	BESTFIT	22		Pe,Se,Ne,Be,Fp2
+23	BESTFIT	23		Pe,Se,Ne,Bp,Fev
+24	BESTFIT	24		Pe,Se,Ne,Bp,Fe
+25	BESTFIT	25		Pe,Se,Ne,Bp,Fp
+26	BESTFIT	26		Pl,Se,Ne,Be,Fev
+27	BESTFIT	27		Pl,Se,Ne,Be,Fe
+28	BESTFIT	28		Pe,Se,Ne,Bd,Fev
+29	BESTFIT	29		Pe,Se,Ne,Bd,Fe
+30	BESTFIT	30		Pe,Se,Nd,Be,F>N
+31	BESTFIT	31		Pe,Se,Ne,Bd,Fl
+32	BESTFIT	32		Pe,Se,N>B,Bf,F>Be
+33	BESTFIT	33		Pe,Se,Ne,Bi,Fev
+34	BESTFIT	34		Pe,Se,Ne,Bi,Fe
+35	BESTFIT	35		Pe,Se,Ne,Bi,Fa
+36	BESTFIT	36		Pe,Se,Ne,Bi,Fp
+37	BESTFIT	37		Pe,Se,Ne,Be,Fs
+38	BESTFIT	38		Pe,Se,Ne,Be,Fc
+39	BESTFIT	39		Pe,Sp,Ne,Be,Fev
+40	BESTFIT	40		Pe,Sp,Ne,Be,Fe
+41	BESTFIT	41		Pe,Se,Ns,Be,Fe
+42	BESTFIT	42		Pi,Se,Ne,Be,Fev
+43	BESTFIT	43		Pi,Se,Ne,Be,Fe
+44	BESTFIT	44		Pe,Si,Ne,Be,Fev
+45	BESTFIT	45		Pe,Si,Ne,Be,Fe
+46	BESTFIT	46		Pl,Se,Ni,Bl,Fev
+47	BESTFIT	47		Pl,Se,Ni,Bl,Fe
+48	BESTFIT	48		Pi,Se,Ne,Bd,Fev
+49	BESTFIT	49		Pi,Se,Ne,Bd,Fe
+50	BESTFIT	50		Pi,Se,Ne,Be,Fev
+51	BESTFIT	51		Pi,Se,Ne,Be,Fe
+52	BESTFIT	52		Pe,S<B,N<F,B>S,F>N
+53	BUILDING	cottage		
+54	BUILDING	house		
+55	BUILDING	lodge		
+56	BUILDING	place		
+57	CITY	london		
+58	CORRECT	1st		first
+59	CORRECT	1st-2nd-3rd		first second and third
+60	CORRECT	2nd		second
+61	CORRECT	3rd		third
+62	CORRECT	4th		fourth
+63	CORRECT	5th		fifth
+64	CORRECT	6th		sixth
+65	CORRECT	acenue		avenue
+66	CORRECT	almhouse		almshouse
+67	CORRECT	apart		apartment
+68	CORRECT	apt		apartment
+69	CORRECT	apts		apartments
+70	CORRECT	ave		avenue
+71	CORRECT	b-ment		basement
+72	CORRECT	b-mnt		basement
+73	CORRECT	base		basement
+74	CORRECT	bldg		building
+75	CORRECT	bldgs		buildings
+76	CORRECT	blk		block
+77	CORRECT	bsemnt		basement
+78	CORRECT	bsemt		basement
+79	CORRECT	bsmnt		basement
+80	CORRECT	bsmt		basement
+81	CORRECT	bst		basement
+82	CORRECT	ci		city
+83	CORRECT	cosmopolitian		cosmopolitan
+84	CORRECT	cres		crescent
+85	CORRECT	cresent		crescent
+86	CORRECT	crt		court
+87	CORRECT	dwlg		dwelling
+88	CORRECT	dwlgs		dwellings
+89	CORRECT	est		estate
+90	CORRECT	falt		flat
+91	CORRECT	fat		flat
+92	CORRECT	fl		floor
+93	CORRECT	fla		flat
+94	CORRECT	fla1		flat
+95	CORRECT	flalt		flat
+96	CORRECT	flar		flat
+97	CORRECT	flart		flat
+98	CORRECT	flast		flat
+99	CORRECT	flr		floor
+100	CORRECT	flrs		floor
+101	CORRECT	flst		flat
+102	CORRECT	gdns		gardens
+103	CORRECT	gff		ground floor
+104	CORRECT	gnd		ground
+105	CORRECT	grd		ground
+106	CORRECT	grnd		ground
+107	CORRECT	hosp		hospital
+108	CORRECT	hospit		hospital
+109	CORRECT	hs		house
+110	CORRECT	hse		house
+111	CORRECT	ist		first
+112	CORRECT	ldn		london
+113	CORRECT	mais		maisonette
+114	CORRECT	mans		mansion
+115	CORRECT	raod		road
+116	CORRECT	rd		road
+117	CORRECT	sq		square
+118	CORRECT	sttreet		street
+119	CORRECT	ter		terrace
+120	CORRECT	vic		victoria
+121	COUNTY	bath and north east somerset	population	1,75,500
+122	COUNTY	bath and north east somerset	region	south west
+123	COUNTY	bedford	population	1,57,800
+124	COUNTY	bedford	region	east
+125	COUNTY	blackburn with darwen	population	1,47,700
+126	COUNTY	blackburn with darwen	region	north west
+127	COUNTY	blackpool	population	1,42,100
+128	COUNTY	blackpool	region	north west
+129	COUNTY	blaenau gwent	region	wales
+130	COUNTY	bournemouth	population	1,83,500
+131	COUNTY	bournemouth	region	south west
+132	COUNTY	bracknell forest	population	1,13,700
+133	COUNTY	bracknell forest	region	south east
+134	COUNTY	bridgend	region	wales
+135	COUNTY	brighton & hove	population	2,73,000
+136	COUNTY	brighton & hove	region	south east
+137	COUNTY	bristol	population	4,28,100
+138	COUNTY	bristol	region	south west
+139	COUNTY	buckinghamshire	population	5,06,700
+140	COUNTY	buckinghamshire	region	south east
+141	COUNTY	caerphilly	region	wales
+142	COUNTY	cambridgeshire	population	6,22,200
+143	COUNTY	cambridgeshire	region	east
+144	COUNTY	cardiff	region	wales
+145	COUNTY	carmarthenshire	region	wales
+146	COUNTY	central bedfordshire	population	2,55,600
+147	COUNTY	central bedfordshire	region	east
+148	COUNTY	ceredigion	region	wales
+149	COUNTY	cheshire east	population	3,70,700
+150	COUNTY	cheshire east	region	north west
+151	COUNTY	cheshire west and chester	population	3,29,500
+152	COUNTY	cheshire west and chester	region	north west
+153	COUNTY	clwyd	population	491,100
+154	COUNTY	clwyd	region	wales
+155	COUNTY	conwy	region	wales
+156	COUNTY	cornwall	population	5,33,800
+157	COUNTY	cornwall	region	south west
+158	COUNTY	county durham	population	5,13,000
+159	COUNTY	county durham	region	north east
+160	COUNTY	cumbria	population	4,99,800
+161	COUNTY	cumbria	region	north west
+162	COUNTY	darlington	population	1,05,600
+163	COUNTY	darlington	region	north east
+164	COUNTY	denbighshire	region	wales
+165	COUNTY	derby	population	2,48,900
+166	COUNTY	derby	region	east midlands
+167	COUNTY	derbyshire	population	7,70,600
+168	COUNTY	derbyshire	region	east midlands
+169	COUNTY	devon	population	7,47,900
+170	COUNTY	devon	region	south west
+171	COUNTY	dorset	population	4,13,800
+172	COUNTY	dorset	region	south west
+173	COUNTY	dyfed	population	375,200
+174	COUNTY	dyfed	region	wales
+175	COUNTY	east riding of yorkshire	population	3,34,700
+176	COUNTY	east riding of yorkshire	region	yorkshire and the humber
+177	COUNTY	east sussex	population	5,27,200
+178	COUNTY	east sussex	region	south east
+179	COUNTY	essex	population	13,96,600
+180	COUNTY	essex	region	east
+181	COUNTY	flintshire	region	wales
+182	COUNTY	gloucestershire	population	5,98,300
+183	COUNTY	gloucestershire	region	south west
+184	COUNTY	greater manchester	population	26,85,400
+185	COUNTY	greater manchester	region	north west
+186	COUNTY	gwent	population	560,500
+187	COUNTY	gwent	region	wales
+188	COUNTY	gwynedd	population	187,400
+189	COUNTY	gwynedd	region	wales
+190	COUNTY	halton	population	1,25,700
+191	COUNTY	halton	region	north west
+192	COUNTY	hampshire	population	13,22,300
+193	COUNTY	hampshire	region	south east
+194	COUNTY	hartlepool	population	92,100
+195	COUNTY	hartlepool	region	north east
+196	COUNTY	herefordshire	population	1,83,600
+197	COUNTY	herefordshire	region	west midlands
+198	COUNTY	hertfordshire	population	11,19,800
+199	COUNTY	hertfordshire	region	east
+200	COUNTY	hull	population	2,56,100
+201	COUNTY	hull	region	yorkshire and the humber
+202	COUNTY	isle of anglesey	region	wales
+203	COUNTY	isle of wight	population	1,38,400
+204	COUNTY	isle of wight	region	south east
+205	COUNTY	isles of scilly	population	2,200
+206	COUNTY	isles of scilly	region	south west
+207	COUNTY	kent	population	14,66,500
+208	COUNTY	kent	region	south east
+209	COUNTY	lancashire	population	11,71,600
+210	COUNTY	lancashire	region	north west
+211	COUNTY	leicester	population	3,29,600
+212	COUNTY	leicester	region	east midlands
+213	COUNTY	leicestershire	population	6,51,200
+214	COUNTY	leicestershire	region	east midlands
+215	COUNTY	lincolnshire	population	7,14,800
+216	COUNTY	lincolnshire	region	east midlands
+217	COUNTY	luton	population	2,03,600
+218	COUNTY	luton	region	east
+219	COUNTY	medway	population	2,64,900
+220	COUNTY	medway	region	south east
+221	COUNTY	merseyside	population	13,80,800
+222	COUNTY	merseyside	region	north west
+223	COUNTY	merthyr tydfil	region	wales
+224	COUNTY	mid glamorgan	population	423,200
+225	COUNTY	mid glamorgan	region	wales
+226	COUNTY	middlesbrough	population	1,38,400
+227	COUNTY	middlesbrough	region	north east
+228	COUNTY	middlesex		
+229	COUNTY	milton keynes	population	2,49,900
+230	COUNTY	milton keynes	region	south east
+231	COUNTY	monmouthshire	region	wales
+232	COUNTY	neath port talbot	region	wales
+233	COUNTY	newport	region	wales
+234	COUNTY	norfolk	population	8,59,400
+235	COUNTY	norfolk	region	east
+236	COUNTY	north east lincolnshire	population	1,59,700
+237	COUNTY	north east lincolnshire	region	yorkshire and the humber
+238	COUNTY	north lincolnshire	population	1,67,500
+239	COUNTY	north lincolnshire	region	yorkshire and the humber
+240	COUNTY	north somerset	population	2,03,100
+241	COUNTY	north somerset	region	south west
+242	COUNTY	north yorkshire	population	6,01,200
+243	COUNTY	north yorkshire	region	yorkshire and the humber
+244	COUNTY	northamptonshire	population	6,93,900
+245	COUNTY	northamptonshire	region	east midlands
+246	COUNTY	northumberland	population	3,16,300
+247	COUNTY	northumberland	region	north east
+248	COUNTY	nottingham	population	3,03,900
+249	COUNTY	nottingham	region	east midlands
+250	COUNTY	nottinghamshire	population	7,86,700
+251	COUNTY	nottinghamshire	region	east midlands
+252	COUNTY	oxfordshire	population	6,54,800
+253	COUNTY	oxfordshire	region	south east
+254	COUNTY	pembrokeshire	region	wales
+255	COUNTY	peterborough	population	1,84,500
+256	COUNTY	peterborough	region	east
+257	COUNTY	plymouth	population	2,56,600
+258	COUNTY	plymouth	region	south west
+259	COUNTY	poole	population	1,48,100
+260	COUNTY	poole	region	south west
+261	COUNTY	portsmouth	population	2,05,400
+262	COUNTY	portsmouth	region	south east
+263	COUNTY	powys	population	132,000
+264	COUNTY	powys	region	wales
+265	COUNTY	reading	population	1,55,300
+266	COUNTY	reading	region	south east
+267	COUNTY	redcar and cleveland	population	1,35,200
+268	COUNTY	redcar and cleveland	region	north east
+269	COUNTY	rhondda cynon taf	region	wales
+270	COUNTY	rutland	population	37,600
+271	COUNTY	rutland	region	east midlands
+272	COUNTY	shropshire	population	3,07,100
+273	COUNTY	shropshire	region	west midlands
+274	COUNTY	slough	population	1,40,700
+275	COUNTY	slough	region	south east
+276	COUNTY	somerset	population	5,31,600
+277	COUNTY	somerset	region	south west
+278	COUNTY	south glamorgan	population	445,000
+279	COUNTY	south glamorgan	region	wales
+280	COUNTY	south gloucestershire	population	2,63,400
+281	COUNTY	south gloucestershire	region	south west
+282	COUNTY	south yorkshire	population	13,43,900
+283	COUNTY	south yorkshire	region	yorkshire and the humber
+284	COUNTY	southampton	population	2,35,900
+285	COUNTY	southampton	region	south east
+286	COUNTY	southend-on-sea	population	1,74,300
+287	COUNTY	southend-on-sea	region	east
+288	COUNTY	staffordshire	population	8,49,600
+289	COUNTY	staffordshire	region	west midlands
+290	COUNTY	stockton-on-tees	population	1,91,800
+291	COUNTY	stockton-on-tees	region	north east
+292	COUNTY	stoke-on-trent	population	2,48,700
+293	COUNTY	stoke-on-trent	region	west midlands
+294	COUNTY	suffolk	population	7,30,100
+295	COUNTY	suffolk	region	east
+296	COUNTY	surrey	population	11,35,500
+297	COUNTY	surrey	region	south east
+298	COUNTY	swansea	region	wales
+299	COUNTY	swindon	population	2,09,700
+300	COUNTY	swindon	region	south west
+301	COUNTY	telford and wrekin	population	1,66,800
+302	COUNTY	telford and wrekin	region	west midlands
+303	COUNTY	thurrock	population	1,58,300
+304	COUNTY	thurrock	region	east
+305	COUNTY	torbay	population	1,31,200
+306	COUNTY	torbay	region	south west
+307	COUNTY	torfaen	region	wales
+308	COUNTY	tyne and wear	population	11,04,100
+309	COUNTY	tyne and wear	region	north east
+310	COUNTY	vale of glamorgan	region	wales
+311	COUNTY	warrington	population	2,02,700
+312	COUNTY	warrington	region	north west
+313	COUNTY	warwickshire	population	5,46,500
+314	COUNTY	warwickshire	region	west midlands
+315	COUNTY	west berkshire	population	1,54,100
+316	COUNTY	west berkshire	region	south east
+317	COUNTY	west glamorgan	population	365,500
+318	COUNTY	west glamorgan	region	wales
+319	COUNTY	west midlands	population	27,39,800
+320	COUNTY	west midlands	region	west midlands
+321	COUNTY	west sussex	population	8,08,900
+322	COUNTY	west sussex	region	south east
+323	COUNTY	west yorkshire	population	22,27,400
+324	COUNTY	west yorkshire	region	yorkshire and the humber
+325	COUNTY	wiltshire	population	4,74,300
+326	COUNTY	wiltshire	region	south west
+327	COUNTY	windsor and maidenhead	population	1,45,100
+328	COUNTY	windsor and maidenhead	region	south east
+329	COUNTY	wokingham	population	1,54,900
+330	COUNTY	wokingham	region	south east
+331	COUNTY	worcestershire	population	5,66,500
+332	COUNTY	worcestershire	region	west midlands
+333	COUNTY	wrexham	region	wales
+334	COUNTY	york	population	1,97,800
+335	COUNTY	york	region	yorkshire and the humber
+336	COURT	close		
+337	COURT	court		
+338	COURT	mews		
+339	DROP	 house		
+340	DROP	basement 		
+341	DROP	lane 		
+342	DROP	moorings		
+343	DROP	the 		
+344	DROPSUFFIX	building		
+345	FLAT	apartment		
+346	FLAT	apt		
+347	FLAT	falt		
+348	FLAT	flat		
+349	FLAT	flat no		
+350	FLAT	flat number		
+351	FLAT	flats		
+352	FLAT	flt		
+353	FLAT	maisonette		
+354	FLAT	room		
+355	FLAT	rooms		
+356	FLAT	unit		
+357	FLAT	workshop		
+358	FLATEXTRA	house		
+359	FLATEXTRA	studio		
+360	FLATNUMSUF	1		a
+361	FLATNUMSUF	2		b
+362	FLATNUMSUF	3		c
+363	FLATNUMSUF	4		d
+364	FLATNUMSUF	5		e
+365	FLATNUMSUF	6		f
+366	FLATNUMSUF	7		g
+367	FLATNUMSUF	8		h
+368	FLATNUMSUF	9		i
+369	FLATSUFNUM	a		1
+370	FLATSUFNUM	b		2
+371	FLATSUFNUM	c		3
+372	FLATSUFNUM	d		4
+373	FLATSUFNUM	e		5
+374	FLATSUFNUM	f		6
+375	FLATSUFNUM	g		7
+376	FLATSUFNUM	h		8
+377	FLATSUFNUM	i		9
+378	FLOOR	1st	2	
+379	FLOOR	2nd	3	
+380	FLOOR	3rd	4	
+381	FLOOR	4th	5	
+382	FLOOR	5th	6	
+383	FLOOR	6th	7	
+384	FLOOR	basement	0	
+385	FLOOR	basement	a	
+386	FLOOR	first floor	2	
+387	FLOOR	first floor	b	
+388	FLOOR	ground floor	1	
+389	FLOOR	ground floor	a	
+390	FLOOR	second floor	3	
+391	FLOOR	second floor	c	
+392	FLOOR	third floor	4	
+393	FLOOR	third floor	d	
+394	FLOORCHAR	`		basement
+395	FLOORCHAR	a		ground
+396	FLOORCHAR	b		first
+397	FLOORCHAR	c		Second
+398	FLOORCHAR	d		third
+399	FLOORNUM	0		basement
+400	FLOORNUM	1		ground
+401	FLOORNUM	2		first
+402	FLOORNUM	3		Second
+403	NUMBERS	one		1
+404	NUMBERS	three		3
+405	NUMBERS	two		2
+406	ROAD	avenue		
+407	ROAD	causeway		
+408	ROAD	close		
+409	ROAD	court		
+410	ROAD	drive		
+411	ROAD	green		
+412	ROAD	grove		
+413	ROAD	hill		
+414	ROAD	lane		
+415	ROAD	lanes		
+416	ROAD	park		
+417	ROAD	place		
+418	ROAD	plaza		
+419	ROAD	rd		
+420	ROAD	rise		
+421	ROAD	road		
+422	ROAD	row		
+423	ROAD	square		
+424	ROAD	street		
+425	ROAD	walk		
+426	ROAD	way		
+427	SWAP	apartment		building
+428	SWAP	apartments		building
+429	SWAP	boat		ferry
+430	SWAP	house		building
+431	SWAP	johnson		jonson
+432	SWAP	mooring		berth
+433	SWAP	nursing		care
+434	SWAP	road		street
+435	SWAP	upper		first
+436	SWAP	upstairs		first
+437	TOWN	abbess beauchamp and berners roding		
+438	TOWN	abbots langley		
+439	TOWN	abridge		
+440	TOWN	acton		
+441	TOWN	addlestone		
+442	TOWN	aldenham		
+443	TOWN	amersham		
+444	TOWN	anerley		
+445	TOWN	apex corner		
+446	TOWN	arkley		
+447	TOWN	arkley barnet section		
+448	TOWN	ash		
+449	TOWN	ashford		
+450	TOWN	ashtead		
+451	TOWN	aveley		
+452	TOWN	badgers dene		
+453	TOWN	badgers mount		
+454	TOWN	ballards lane to dollis road		
+455	TOWN	ballards lane to high road		
+456	TOWN	ballards lane to number three		
+457	TOWN	banstead		
+458	TOWN	barbican		
+459	TOWN	barking		
+460	TOWN	barking and dagenham		
+461	TOWN	barking riverside		
+462	TOWN	barkingside		
+463	TOWN	barnehurst		
+464	TOWN	barnes		
+465	TOWN	barnet		
+466	TOWN	barnet gate		
+467	TOWN	barnhill		
+468	TOWN	basildon		
+469	TOWN	batchworth heath		
+470	TOWN	bayford		
+471	TOWN	bayleys hill		
+472	TOWN	bayswater		
+473	TOWN	beaconsfield		
+474	TOWN	bean		
+475	TOWN	beckenham		
+476	TOWN	beckton		
+477	TOWN	beddington		
+478	TOWN	bedfont		
+479	TOWN	bellingham		
+480	TOWN	belmont		
+481	TOWN	belsize		
+482	TOWN	belvedere		
+483	TOWN	bentley heath		
+484	TOWN	berrys green		
+485	TOWN	betwen kestrel close and falcon way		
+486	TOWN	bexley		
+487	TOWN	bexleyheath		
+488	TOWN	bfpo		
+489	TOWN	bickley		
+490	TOWN	biggin hill		
+491	TOWN	billericay		
+492	TOWN	blackheath		
+493	TOWN	blackmore		
+494	TOWN	bletchingley		
+495	TOWN	bloomsbury		
+496	TOWN	bluewater		
+497	TOWN	bookham		
+498	TOWN	borehamwood		
+499	TOWN	borough green		
+500	TOWN	bourne business park		
+501	TOWN	bowers gifford		
+502	TOWN	bowmans farm		
+503	TOWN	brasted		
+504	TOWN	brasted chart		
+505	TOWN	brasted place		
+506	TOWN	brent		
+507	TOWN	brent cross		
+508	TOWN	brent street to somerset road		
+509	TOWN	brent way to nether street		
+510	TOWN	brentford		
+511	TOWN	brentwood		
+512	TOWN	brickendon		
+513	TOWN	bricket wood		
+514	TOWN	broadgate		
+515	TOWN	brockley		
+516	TOWN	bromley		
+517	TOWN	bromley by bow		
+518	TOWN	brondesbury		
+519	TOWN	brook green		
+520	TOWN	brookhill road to borough boundary		
+521	TOWN	brookhill road to longmore avenue		
+522	TOWN	brooklands industrial park		
+523	TOWN	brookmans park		
+524	TOWN	broxbourne		
+525	TOWN	brunswick park		
+526	TOWN	brunswick park north section		
+527	TOWN	brunswick park south section		
+528	TOWN	bryanston		
+529	TOWN	btwn windermere avenue and east end road		
+530	TOWN	buckhurst hill		
+531	TOWN	buckinghamshire		
+532	TOWN	bucks hill		
+533	TOWN	bulphan		
+534	TOWN	bulwer road to potters road		
+535	TOWN	burgh heath		
+536	TOWN	burnham		
+537	TOWN	burnt oak		
+538	TOWN	burnt oak broadway to deans lane		
+539	TOWN	burwood park		
+540	TOWN	bushey		
+541	TOWN	bushey heath		
+542	TOWN	business park research area		
+543	TOWN	camden		
+544	TOWN	camden town		
+545	TOWN	canning town		
+546	TOWN	carshalton		
+547	TOWN	castle hill		
+548	TOWN	castle way		
+549	TOWN	caterham		
+550	TOWN	catford		
+551	TOWN	chadwell heath		
+552	TOWN	chadwell street mary		
+553	TOWN	chafford hundred		
+554	TOWN	chaldon		
+555	TOWN	chalfont st giles		
+556	TOWN	chalfont street peter		
+557	TOWN	chalkways		
+558	TOWN	chalvey		
+559	TOWN	chandlers cross		
+560	TOWN	charlwood		
+561	TOWN	chase cross		
+562	TOWN	cheam		
+563	TOWN	chelsea harbour		
+564	TOWN	chelsfield		
+565	TOWN	chelsham		
+566	TOWN	chenies		
+567	TOWN	chertsey		
+568	TOWN	chesham		
+569	TOWN	cheshunt		
+570	TOWN	chessington		
+571	TOWN	chevening		
+572	TOWN	chigwell		
+573	TOWN	childs hill		
+574	TOWN	chipperfield		
+575	TOWN	chipping barnet		
+576	TOWN	chipstead		
+577	TOWN	chislehurst		
+578	TOWN	chiswick		
+579	TOWN	chorleywood		
+580	TOWN	church end		
+581	TOWN	church end by surrey close		
+582	TOWN	church road to queens road		
+583	TOWN	church terrace to fuller street		
+584	TOWN	city of london		
+585	TOWN	city of westminster		
+586	TOWN	claremont park		
+587	TOWN	claremont road		
+588	TOWN	claygate		
+589	TOWN	clayhall		
+590	TOWN	cobham		
+591	TOWN	cockfosters		
+592	TOWN	coleshill		
+593	TOWN	colindale		
+594	TOWN	collier row		
+595	TOWN	colliers wood		
+596	TOWN	colnbrook		
+597	TOWN	colney hatch		
+598	TOWN	colney heath		
+599	TOWN	colney street		
+600	TOWN	coombe		
+601	TOWN	coopersale		
+602	TOWN	corringham		
+603	TOWN	coulsdon		
+604	TOWN	coulsdon north		
+605	TOWN	covent garden		
+606	TOWN	cowley		
+607	TOWN	cranbrook		
+608	TOWN	cranes industrial		
+609	TOWN	cranford		
+610	TOWN	crayford		
+611	TOWN	cricklewood		
+612	TOWN	crockenhill		
+613	TOWN	crockham hill		
+614	TOWN	crofton park		
+615	TOWN	cromarty road to rannoch close		
+616	TOWN	crossways business park		
+617	TOWN	croxley green		
+618	TOWN	croxley hall		
+619	TOWN	croydon		
+620	TOWN	cudham		
+621	TOWN	cuffley		
+622	TOWN	dagenham		
+623	TOWN	darent industrial park		
+624	TOWN	darenth		
+625	TOWN	dartford		
+626	TOWN	datchet		
+627	TOWN	deans lane to lyndhurst avenue		
+628	TOWN	denham		
+629	TOWN	denham garden village		
+630	TOWN	denham green		
+631	TOWN	deptford		
+632	TOWN	doddinghurst		
+633	TOWN	dollis road to ballards lane		
+634	TOWN	dorking		
+635	TOWN	downe		
+636	TOWN	downside		
+637	TOWN	dunton		
+638	TOWN	dunton green		
+639	TOWN	dury road to great north road		
+640	TOWN	ealing		
+641	TOWN	earlswood		
+642	TOWN	east barnet		
+643	TOWN	east barnet road to brookhill road		
+644	TOWN	east finchley		
+645	TOWN	east ham		
+646	TOWN	east horsley		
+647	TOWN	east lane business park		
+648	TOWN	east molesey		
+649	TOWN	east of junction one b		
+650	TOWN	east sheen		
+651	TOWN	eastbound		
+652	TOWN	eastcote		
+653	TOWN	ebbsfleet valley		
+654	TOWN	edenbridge		
+655	TOWN	edgware		
+656	TOWN	edgware north section		
+657	TOWN	edgware south section		
+658	TOWN	effingham		
+659	TOWN	effingham junction		
+660	TOWN	egham		
+661	TOWN	eighty five to eighty nine		
+662	TOWN	elm park		
+663	TOWN	elmstead woods		
+664	TOWN	elstree		
+665	TOWN	emerson park		
+666	TOWN	enfield		
+667	TOWN	enfield north		
+668	TOWN	englefield green		
+669	TOWN	epping		
+670	TOWN	epping green		
+671	TOWN	epping upland		
+672	TOWN	epsom		
+673	TOWN	epsom downs		
+674	TOWN	erith		
+675	TOWN	esher		
+676	TOWN	essendon		
+677	TOWN	essex		
+678	TOWN	eton		
+679	TOWN	eton college		
+680	TOWN	eton wick		
+681	TOWN	ewell		
+682	TOWN	eynsford		
+683	TOWN	farnborough		
+684	TOWN	farnham common		
+685	TOWN	farnham royal		
+686	TOWN	farningham		
+687	TOWN	fawkham		
+688	TOWN	feltham		
+689	TOWN	fetcham		
+690	TOWN	fiddlers hamlet		
+691	TOWN	field way		
+692	TOWN	finchley		
+693	TOWN	finchley central		
+694	TOWN	first section up to number one		
+695	TOWN	first twelve metres adopted		
+696	TOWN	flaunden		
+697	TOWN	forest gate		
+698	TOWN	forest hill		
+699	TOWN	forest walk		
+700	TOWN	four elms		
+701	TOWN	fresh wharf estate		
+702	TOWN	friern barnet		
+703	TOWN	frith lane to brent way		
+704	TOWN	frogmore		
+705	TOWN	from no thirty seven to sixty one		
+706	TOWN	from no three to manor view		
+707	TOWN	from number four to abbots road		
+708	TOWN	from number one to end of street		
+709	TOWN	fulham		
+710	TOWN	fuller street to sunny gardens road		
+711	TOWN	fulmer		
+712	TOWN	gants hill		
+713	TOWN	george green		
+714	TOWN	gerrards cross		
+715	TOWN	gidea park		
+716	TOWN	goathurst common		
+717	TOWN	godstone		
+718	TOWN	goffs oak		
+719	TOWN	golders green		
+720	TOWN	goodmayes		
+721	TOWN	grahame park		
+722	TOWN	grahame park north section		
+723	TOWN	grahame park south section		
+724	TOWN	gravesend		
+725	TOWN	grays		
+726	TOWN	great warley		
+727	TOWN	green dragon lane		
+728	TOWN	green street green		
+729	TOWN	greenford		
+730	TOWN	greenhithe		
+731	TOWN	greensted		
+732	TOWN	greenwich		
+733	TOWN	grimsdyke crescent to no sixty seven		
+734	TOWN	grove avenue to ballards lane		
+735	TOWN	grove park		
+736	TOWN	hackbridge		
+737	TOWN	hackney		
+738	TOWN	hainault		
+739	TOWN	hale lane to manor close		
+740	TOWN	halstead		
+741	TOWN	ham		
+742	TOWN	hammersmith and fulham		
+743	TOWN	hampstead		
+744	TOWN	hampstead garden suburb		
+745	TOWN	hampstead town		
+746	TOWN	hampton		
+747	TOWN	hampton hill		
+748	TOWN	hampton wick		
+749	TOWN	hanworth		
+750	TOWN	harefield		
+751	TOWN	haringey		
+752	TOWN	harlesden		
+753	TOWN	harlington		
+754	TOWN	harlow		
+755	TOWN	harmondsworth		
+756	TOWN	harold hill		
+757	TOWN	harold wood		
+758	TOWN	harrow		
+759	TOWN	harrow weald		
+760	TOWN	hatch end		
+761	TOWN	hatfield		
+762	TOWN	hatton cross		
+763	TOWN	havering		
+764	TOWN	havering-atte-bower		
+765	TOWN	hawley		
+766	TOWN	hayes		
+767	TOWN	headley		
+768	TOWN	heath park		
+769	TOWN	heathrow		
+770	TOWN	hedgerley		
+771	TOWN	hemel hempstead		
+772	TOWN	hendon		
+773	TOWN	hendon north section		
+774	TOWN	hendon south section		
+775	TOWN	henlys corner		
+776	TOWN	herongate		
+777	TOWN	heronsgate		
+778	TOWN	hersham		
+779	TOWN	hertford		
+780	TOWN	hertfordshire		
+781	TOWN	heston		
+782	TOWN	hextable		
+783	TOWN	high barnet		
+784	TOWN	high beech		
+785	TOWN	high ongar		
+786	TOWN	high street		
+787	TOWN	high wycombe		
+788	TOWN	higher denham		
+789	TOWN	hillingdon		
+790	TOWN	hinchley wood		
+791	TOWN	historic		
+792	TOWN	hither green		
+793	TOWN	hoddesdon		
+794	TOWN	holborn and covent garden		
+795	TOWN	holcombe hill to marsh lane		
+796	TOWN	hook end		
+797	TOWN	hooley		
+798	TOWN	horley		
+799	TOWN	hornchurch		
+800	TOWN	horndon-on-the-hill		
+801	TOWN	horns cross		
+802	TOWN	hornsey		
+803	TOWN	horton		
+804	TOWN	horton kirby		
+805	TOWN	hounslow		
+806	TOWN	hunton bridge		
+807	TOWN	hurst green		
+808	TOWN	hutton		
+809	TOWN	hyde park		
+810	TOWN	hythe end		
+811	TOWN	ickenham		
+812	TOWN	ide hill		
+813	TOWN	ilford		
+814	TOWN	ingatestone		
+815	TOWN	ingrave		
+816	TOWN	inner temple		
+817	TOWN	isleworth		
+818	TOWN	islington		
+819	TOWN	iver		
+820	TOWN	iver heath		
+821	TOWN	jordans		
+822	TOWN	junction with booth road		
+823	TOWN	kelvedon common		
+824	TOWN	kelvedon hatch		
+825	TOWN	kemsing		
+826	TOWN	kenley		
+827	TOWN	kensington and chelsea		
+828	TOWN	kent		
+829	TOWN	kentish town		
+830	TOWN	kenton		
+831	TOWN	keston		
+832	TOWN	kew		
+833	TOWN	kilburn		
+834	TOWN	king's cross		
+835	TOWN	kings langley		
+836	TOWN	kingsbury		
+837	TOWN	kingston upon thames		
+838	TOWN	kingswood		
+839	TOWN	knatts valley		
+840	TOWN	knockholt		
+841	TOWN	ladywell		
+842	TOWN	laindon		
+843	TOWN	laleham		
+844	TOWN	lambeth		
+845	TOWN	lambourne		
+846	TOWN	lambourne end		
+847	TOWN	lane end		
+848	TOWN	langdon hill		
+849	TOWN	langdon hills		
+850	TOWN	langley		
+851	TOWN	latimer		
+852	TOWN	laurel way to southover		
+853	TOWN	lbmerton		
+854	TOWN	leacroft		
+855	TOWN	leatherhead		
+856	TOWN	leavesden		
+857	TOWN	lee chapel south		
+858	TOWN	lee green		
+859	TOWN	letchmore heath		
+860	TOWN	lewisham		
+861	TOWN	limpsfield		
+862	TOWN	limpsfield chart		
+863	TOWN	linford		
+864	TOWN	little berkhamsted		
+865	TOWN	little bookham common		
+866	TOWN	little burstead		
+867	TOWN	little chalfont		
+868	TOWN	little heath		
+869	TOWN	little venice		
+870	TOWN	little warley		
+871	TOWN	little woodcote estate		
+872	TOWN	locality		
+873	TOWN	london		
+874	TOWN	london colney		
+875	TOWN	london heathrow airport		
+876	TOWN	london road		
+877	TOWN	london road to brasted road		
+878	TOWN	long ditton		
+879	TOWN	longfield		
+880	TOWN	longford		
+881	TOWN	longmore avenue to cat hill		
+882	TOWN	longmore avenue to great north road		
+883	TOWN	loudwater		
+884	TOWN	loughton		
+885	TOWN	loughton town		
+886	TOWN	lower dunton road		
+887	TOWN	lower kingswood		
+888	TOWN	lower morden		
+889	TOWN	lower sydenham		
+890	TOWN	lyne		
+891	TOWN	maida hill		
+892	TOWN	malden rushett		
+893	TOWN	manor close to hale grove gardens		
+894	TOWN	manor park		
+895	TOWN	manor park crescent to garden city		
+896	TOWN	maple cross		
+897	TOWN	marsh lane to totteridge common		
+898	TOWN	marylebone		
+899	TOWN	mawneys		
+900	TOWN	mayfair		
+901	TOWN	mays green		
+902	TOWN	meadowlands		
+903	TOWN	meadowlands park		
+904	TOWN	merstham		
+905	TOWN	merton		
+906	TOWN	merton park		
+907	TOWN	mickleham		
+908	TOWN	middle green		
+909	TOWN	middle section to kenley avenue		
+910	TOWN	middle temple		
+911	TOWN	middlegreen		
+912	TOWN	mill end		
+913	TOWN	mill hill		
+914	TOWN	mill hill east		
+915	TOWN	mill hill north section		
+916	TOWN	mill hill south section		
+917	TOWN	mitcham		
+918	TOWN	mitcham junction		
+919	TOWN	monken hadley		
+920	TOWN	morden		
+921	TOWN	moreton industrial estate		
+922	TOWN	mortlake		
+923	TOWN	mottingham		
+924	TOWN	mountnessing		
+925	TOWN	muswell hill		
+926	TOWN	muswell hill barnet section		
+927	TOWN	napsbury		
+928	TOWN	navestock		
+929	TOWN	navestockside		
+930	TOWN	nazeing		
+931	TOWN	neasden		
+932	TOWN	nether street to grove avenue		
+933	TOWN	new addington		
+934	TOWN	new barnet		
+935	TOWN	new cross		
+936	TOWN	new denham		
+937	TOWN	new malden		
+938	TOWN	new southgate		
+939	TOWN	newbury park		
+940	TOWN	newgate street		
+941	TOWN	newham		
+942	TOWN	no fifty three to sixty one		
+943	TOWN	no sixty seven to cavendish road		
+944	TOWN	noak hill		
+945	TOWN	norbury		
+946	TOWN	north finchley		
+947	TOWN	north harrow		
+948	TOWN	north kensington		
+949	TOWN	north mymms		
+950	TOWN	north ockendon		
+951	TOWN	north section borough of barnet		
+952	TOWN	north stifford		
+953	TOWN	north west section to kitts end road		
+954	TOWN	north woolwich		
+955	TOWN	northaw		
+956	TOWN	northfleet		
+957	TOWN	northolt		
+958	TOWN	northumberland heath		
+959	TOWN	northwick park		
+960	TOWN	northwood		
+961	TOWN	nutfield		
+962	TOWN	oakleigh park		
+963	TOWN	off wheatsheaf hill east spur		
+964	TOWN	old windsor		
+965	TOWN	ongar		
+966	TOWN	orchards residential park		
+967	TOWN	orpington		
+968	TOWN	orsett		
+969	TOWN	otford		
+970	TOWN	oxshott		
+971	TOWN	oxted		
+972	TOWN	palmers green		
+973	TOWN	pampisford road		
+974	TOWN	park street		
+975	TOWN	paths s off pinks hill		
+976	TOWN	penge		
+977	TOWN	penn		
+978	TOWN	penton park		
+979	TOWN	perivale		
+980	TOWN	petts wood		
+981	TOWN	pilgrims hatch		
+982	TOWN	pinner		
+983	TOWN	plaistow		
+984	TOWN	platt		
+985	TOWN	potters bar		
+986	TOWN	potters road to hadley common		
+987	TOWN	poyle		
+988	TOWN	pratts bottom		
+989	TOWN	priory road		
+990	TOWN	purfleet		
+991	TOWN	purley		
+992	TOWN	purley oaks road		
+993	TOWN	queen elizabeth olympic park		
+994	TOWN	questor		
+995	TOWN	radlett		
+996	TOWN	rainham		
+997	TOWN	rayners lane		
+998	TOWN	raynes park		
+999	TOWN	redbridge		
+1000	TOWN	redhill		
+1001	TOWN	regent's park		
+1002	TOWN	regents park		
+1003	TOWN	reigate		
+1004	TOWN	remainder from number forty one pri		
+1005	TOWN	richings park		
+1006	TOWN	richmond		
+1007	TOWN	richmond upon thames		
+1008	TOWN	rickmansworth		
+1009	TOWN	ridge		
+1010	TOWN	riverhead		
+1011	TOWN	romford		
+1012	TOWN	roydon		
+1013	TOWN	ruislip		
+1014	TOWN	rush green		
+1015	TOWN	russell hill		
+1016	TOWN	salfords		
+1017	TOWN	sanderstead road		
+1018	TOWN	sarratt		
+1019	TOWN	scadbury		
+1020	TOWN	seal		
+1021	TOWN	seer green		
+1022	TOWN	service road at knockholt		
+1023	TOWN	seven kings		
+1024	TOWN	sevenoaks		
+1025	TOWN	shenfield		
+1026	TOWN	shenley		
+1027	TOWN	shepperton		
+1028	TOWN	shirley		
+1029	TOWN	shoreham		
+1030	TOWN	shortlands		
+1031	TOWN	sidcup		
+1032	TOWN	silvertown		
+1033	TOWN	sipson		
+1034	TOWN	slough		
+1035	TOWN	south croydon		
+1036	TOWN	south darenth		
+1037	TOWN	south godstone		
+1038	TOWN	south greenhithe		
+1039	TOWN	south harrow		
+1040	TOWN	south mimms		
+1041	TOWN	south norwood		
+1042	TOWN	south nutfield		
+1043	TOWN	south ockendon		
+1044	TOWN	south of swanley		
+1045	TOWN	south ruislip		
+1046	TOWN	south stifford		
+1047	TOWN	south weald		
+1048	TOWN	south wimbledon		
+1049	TOWN	south woodford		
+1050	TOWN	southall		
+1051	TOWN	southern junction		
+1052	TOWN	southfields business park		
+1053	TOWN	southfleet		
+1054	TOWN	southgate		
+1055	TOWN	southover to arlington		
+1056	TOWN	southwark		
+1057	TOWN	st albans		
+1058	TOWN	staines lane		
+1059	TOWN	staines-upon-thames		
+1060	TOWN	stanford rivers		
+1061	TOWN	stanford-le-hope		
+1062	TOWN	stanmore		
+1063	TOWN	stanwell		
+1064	TOWN	stanwell moor		
+1065	TOWN	stapleford abbotts		
+1066	TOWN	stapleford tawney		
+1067	TOWN	station road to brookhill road		
+1068	TOWN	station road to longmore avenue		
+1069	TOWN	stifford clays		
+1070	TOWN	stockley park		
+1071	TOWN	stoke d'abernon		
+1072	TOWN	stoke dabernon		
+1073	TOWN	stoke poges		
+1074	TOWN	stondon massey		
+1075	TOWN	stone		
+1076	TOWN	stonebridge		
+1077	TOWN	stonegrove and spur road estate		
+1078	TOWN	stonegrove estate		
+1079	TOWN	stonehill green golf course		
+1080	TOWN	stoneleigh		
+1081	TOWN	stratford		
+1082	TOWN	streatham		
+1083	TOWN	street george's		
+1084	TOWN	street georges hill		
+1085	TOWN	street james's		
+1086	TOWN	street johns		
+1087	TOWN	street johns wood		
+1088	TOWN	street mary cray		
+1089	TOWN	street pancras and somers town		
+1090	TOWN	street pauls cray		
+1091	TOWN	sudbury hill		
+1092	TOWN	sunbury-on-thames		
+1093	TOWN	sundridge		
+1094	TOWN	sunny gardens road to downage		
+1095	TOWN	surbiton		
+1096	TOWN	surrey		
+1097	TOWN	sutton		
+1098	TOWN	sutton at hone		
+1099	TOWN	sutton green		
+1100	TOWN	swanley		
+1101	TOWN	swanley footbridge east		
+1102	TOWN	swanley footbridge west		
+1103	TOWN	swanley village		
+1104	TOWN	swanscombe		
+1105	TOWN	sydenham		
+1106	TOWN	tadworth		
+1107	TOWN	tandridge		
+1108	TOWN	tatling end		
+1109	TOWN	tatsfield		
+1110	TOWN	teddington		
+1111	TOWN	temple fortune		
+1112	TOWN	thames ditton		
+1113	TOWN	the hale		
+1114	TOWN	the hyde		
+1115	TOWN	the hyde north section		
+1116	TOWN	the hyde south west section		
+1117	TOWN	the mount		
+1118	TOWN	the ridgeway		
+1119	TOWN	theydon bois		
+1120	TOWN	theydon garnon		
+1121	TOWN	theydon mount		
+1122	TOWN	thornton heath		
+1123	TOWN	thorpe		
+1124	TOWN	thorpe industrial estate		
+1125	TOWN	thurrock		
+1126	TOWN	tilbury		
+1127	TOWN	titsey		
+1128	TOWN	to end no two at start of turner ct		
+1129	TOWN	toot hill		
+1130	TOWN	tooting		
+1131	TOWN	tottenham		
+1132	TOWN	totteridge		
+1133	TOWN	tower hamlets		
+1134	TOWN	toys hill		
+1135	TOWN	turnford		
+1136	TOWN	twickenham		
+1137	TOWN	unadopted		
+1138	TOWN	underhill		
+1139	TOWN	underriver		
+1140	TOWN	upminster		
+1141	TOWN	upper gatton		
+1142	TOWN	upper norwood		
+1143	TOWN	upton park		
+1144	TOWN	uxbridge		
+1145	TOWN	virginia park		
+1146	TOWN	virginia water		
+1147	TOWN	wallington		
+1148	TOWN	waltham abbey		
+1149	TOWN	waltham abbey town		
+1150	TOWN	waltham cross		
+1151	TOWN	waltham forest		
+1152	TOWN	waltham street lawrence		
+1153	TOWN	walton on the hill		
+1154	TOWN	walton-on-thames		
+1155	TOWN	wandsworth		
+1156	TOWN	wanstead		
+1157	TOWN	warley		
+1158	TOWN	warlingham		
+1159	TOWN	watford		
+1160	TOWN	weald		
+1161	TOWN	wealdstone		
+1162	TOWN	weldon		
+1163	TOWN	welham green		
+1164	TOWN	well end		
+1165	TOWN	welling		
+1166	TOWN	wembley		
+1167	TOWN	wennington		
+1168	TOWN	west beckton		
+1169	TOWN	west drayton		
+1170	TOWN	west ewell		
+1171	TOWN	west finchley		
+1172	TOWN	west finchley north section		
+1173	TOWN	west finchley south section		
+1174	TOWN	west hampstead		
+1175	TOWN	west harrow		
+1176	TOWN	west hendon		
+1177	TOWN	west horndon		
+1178	TOWN	west hyde		
+1179	TOWN	west kingsdown		
+1180	TOWN	west molesey		
+1181	TOWN	west thurrock		
+1182	TOWN	west tilbury		
+1183	TOWN	west view to egerton gardens		
+1184	TOWN	west wickham		
+1185	TOWN	west wimbledon		
+1186	TOWN	westbound		
+1187	TOWN	westbury road to gainsborough road		
+1188	TOWN	westerham		
+1189	TOWN	westerham hill		
+1190	TOWN	westhumble		
+1191	TOWN	westminster		
+1192	TOWN	wexham		
+1193	TOWN	wexham court		
+1194	TOWN	weybridge		
+1195	TOWN	whetstone		
+1196	TOWN	white city estate		
+1197	TOWN	whitefoot		
+1198	TOWN	whiteley village hersham		
+1199	TOWN	whitton		
+1200	TOWN	whyteleafe		
+1201	TOWN	willesden		
+1202	TOWN	wilmington		
+1203	TOWN	wimbledon		
+1204	TOWN	wimbledon chase		
+1205	TOWN	wimbledon park		
+1206	TOWN	wimbledon village		
+1207	TOWN	windsor		
+1208	TOWN	windsor and maidenhead		
+1209	TOWN	windsor castle		
+1210	TOWN	windsor great park		
+1211	TOWN	winkfield		
+1212	TOWN	woldingham		
+1213	TOWN	wood green		
+1214	TOWN	woodford bridge		
+1215	TOWN	woodford green		
+1216	TOWN	woodside drive		
+1217	TOWN	woodside lane to westbury road		
+1218	TOWN	woodside park		
+1219	TOWN	worcester park		
+1220	TOWN	wormley		
+1221	TOWN	wraysbury		
+1222	TOWN	wrotham		
+1223	TOWN	wyatts green		
+1224	TOWN	yiewsley		
+1225	VERTICALS	1st & 2nd floor		high
+1226	VERTICALS	1st & 2nd floors		high
+1227	VERTICALS	1st and 2nd floor		high
+1228	VERTICALS	1st and 2nd floors		high
+1229	VERTICALS	1st floor		high
+1230	VERTICALS	1st floor flat		high
+1231	VERTICALS	1st-2nd floors		high
+1232	VERTICALS	1st-2nd-3rd		high
+1233	VERTICALS	1st-2nd-3rd floors		high
+1234	VERTICALS	1st2nd & 3rd floors		high
+1235	VERTICALS	1st2nd & third floors		high
+1236	VERTICALS	1st2nd and 3rd floors		high
+1237	VERTICALS	1st2nd and third floors		high
+1238	VERTICALS	2nd & 3rd floors		high
+1239	VERTICALS	2nd and 3rd floors		high
+1240	VERTICALS	2nd floor		high
+1241	VERTICALS	2nd floor flat		high
+1242	VERTICALS	4th & 5thfloor		high
+1243	VERTICALS	4th and 5thfloor		high
+1244	VERTICALS	above		high
+1245	VERTICALS	b-ment & ground floor		low
+1246	VERTICALS	b-ment and ground floor		low
+1247	VERTICALS	basement		low
+1248	VERTICALS	basement & ground floor		low
+1249	VERTICALS	basement & ground floors		low
+1250	VERTICALS	basement & part ground floor		low
+1251	VERTICALS	basement and ground floor		low
+1252	VERTICALS	basement and ground floors		low
+1253	VERTICALS	basement and part ground floor		low
+1254	VERTICALS	basement flat		low
+1255	VERTICALS	first & second floor flat		low
+1256	VERTICALS	first & second floors		high
+1257	VERTICALS	first and second floor		high
+1258	VERTICALS	first and second floor flat		low
+1259	VERTICALS	first and second floors		high
+1260	VERTICALS	first floor		low
+1261	VERTICALS	first floor east		low
+1262	VERTICALS	first floor flat		low
+1263	VERTICALS	first floor west		low
+1264	VERTICALS	first second & third floor		high
+1265	VERTICALS	first second & third floors		high
+1266	VERTICALS	first second and third floor		high
+1267	VERTICALS	first second and third floors		high
+1268	VERTICALS	fourth & fifth		high
+1269	VERTICALS	fourth & fifth floor		high
+1270	VERTICALS	fourth & fifth floors		high
+1271	VERTICALS	fourth and fifth		high
+1272	VERTICALS	fourth and fifth floor		high
+1273	VERTICALS	fourth and fifth floors		high
+1274	VERTICALS	frst floor front		low
+1275	VERTICALS	grd floor		low
+1276	VERTICALS	grnd floor		low
+1277	VERTICALS	ground		low
+1278	VERTICALS	ground & 1st floors		low
+1279	VERTICALS	ground & first floors		low
+1280	VERTICALS	ground and 1st floors		low
+1281	VERTICALS	ground and first floors		low
+1282	VERTICALS	ground first & second floors		low
+1283	VERTICALS	ground first and second floors		low
+1284	VERTICALS	ground floor		low
+1285	VERTICALS	ground floor & basement		low
+1286	VERTICALS	ground floor and basement		low
+1287	VERTICALS	ground floor east		high
+1288	VERTICALS	ground floor flat		low
+1289	VERTICALS	ground floor rear		low
+1290	VERTICALS	ground floor west		high
+1291	VERTICALS	ground front floor & first floor		low
+1292	VERTICALS	ground front floor and first floor		low
+1293	VERTICALS	ground part & first floor		low
+1294	VERTICALS	ground part and first floor		low
+1295	VERTICALS	ground rear floor & basement		low
+1296	VERTICALS	ground rear floor and basement		low
+1297	VERTICALS	lower		low
+1298	VERTICALS	lower flat		low
+1299	VERTICALS	pt ground-1st floor		low
+1300	VERTICALS	pt ground/1st floor		low
+1301	VERTICALS	rear ground floor		low
+1302	VERTICALS	second & third floors		high
+1303	VERTICALS	second and third floors		high
+1304	VERTICALS	second floor		low
+1305	VERTICALS	second floor east		low
+1306	VERTICALS	second floor flat		low
+1307	VERTICALS	second floor west		low
+1308	VERTICALS	third floor		high
+1309	VERTICALS	third floor east		high
+1310	VERTICALS	third floor flat		high
+1311	VERTICALS	third floor west		high
+1312	VERTICALS	top		high
+1313	VERTICALS	top flat		high
+1314	VERTICALS	top floor		high
+1315	VERTICALS	top floor east		high
+1316	VERTICALS	top floor flat		high
+1317	VERTICALS	top floor west		high
+1318	VERTICALS	top floors		high
+1319	VERTICALS	upper		high
+1320	VERTICALS	upper flat		high
+1321	VERTICALS	upper floor	first floor	h
+1322	VERTICALS	upper floor	second floor	h
+1323	VERTICALS	upper floor	third floor	h
+1324	VERTICALS	upper floor east		high
+1325	VERTICALS	upper floor flat		high
+1326	VERTICALS	upper floor west		high
+1327	VERTICALS	upper floors	first floor	h
+1328	VERTICALS	upper floors	second floor	h
+1329	VERTICALS	upper floors	third floor	h
+1330	VERTICALSX	basement	basement	
+1331	VERTICALSX	basement	basement floor	
+1332	VERTICALSX	basement	basement floors	
+1333	VERTICALSX	basement floor	basement	
+1334	VERTICALSX	basement floor	basement floor	
+1335	VERTICALSX	basement floors	basement	
+1336	VERTICALSX	basement floors	basement floors	
+1337	VERTICALSX	first	first	
+1338	VERTICALSX	first	first floor	
+1339	VERTICALSX	first	first floors	
+1340	VERTICALSX	first floor	first	
+1341	VERTICALSX	first floor	first floor	
+1342	VERTICALSX	first floors	first	
+1343	VERTICALSX	first floors	first floors	
+1344	VERTICALSX	ground	ground	
+1345	VERTICALSX	ground	ground floor	
+1346	VERTICALSX	ground	ground floors	
+1347	VERTICALSX	ground floor	ground	
+1348	VERTICALSX	ground floor	ground floor	
+1349	VERTICALSX	ground floors	ground	
+1350	VERTICALSX	ground floors	ground floors	
+1351	VERTICALSX	second	second	
+1352	VERTICALSX	second	second floor	
+1353	VERTICALSX	second	second floors	
+1354	VERTICALSX	second floor	second	
+1355	VERTICALSX	second floor	second floor	
+1356	VERTICALSX	second floors	second	
+1357	VERTICALSX	second floors	second floors	
+1358	VERTICALSX	top	upper	
+1359	VERTICALSX	top	upper floor	
+1360	VERTICALSX	top	upper floors	
+1361	VERTICALSX	top floor	upper	
+1362	VERTICALSX	top floor	upper floor	
+1363	VERTICALSX	top floors	upper	
+1364	VERTICALSX	top floors	upper floors	
+1365	VERTICALSX	upper	top	
+1366	VERTICALSX	upper	top floor	
+1367	VERTICALSX	upper	top floors	
+1368	VERTICALSX	upper floor	top	
+1369	VERTICALSX	upper floor	top floor	
+1370	VERTICALSX	upper floor	upper floors	
+1371	VERTICALSX	upper floor	upper floors floor	
+1372	VERTICALSX	upper floor	upper floors floors	
+1373	VERTICALSX	upper floor floor	upper floors	
+1374	VERTICALSX	upper floor floor	upper floors floor	
+1375	VERTICALSX	upper floor floors	upper floors	
+1376	VERTICALSX	upper floor floors	upper floors floors	
+1377	VERTICALSX	upper floors	top	
+1378	VERTICALSX	upper floors	top floors	
+1379	VERTICALSX	upper floors	upper floor	
+1380	VERTICALSX	upper floors	upper floor floor	
+1381	VERTICALSX	upper floors	upper floor floors	
+1382	VERTICALSX	upper floors floor	upper floor	
+1383	VERTICALSX	upper floors floor	upper floor floor	
+1384	VERTICALSX	upper floors floors	upper floor	
+1385	VERTICALSX	upper floors floors	upper floor floors	
