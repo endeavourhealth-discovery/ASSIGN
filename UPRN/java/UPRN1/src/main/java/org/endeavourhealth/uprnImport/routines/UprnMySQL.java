@@ -76,7 +76,7 @@ public class UprnMySQL implements AutoCloseable {
        String newfile = repository.pathToCsv + "LPI_new.csv";
        FileWriter newWriter = new FileWriter(newfile);
 
-       System.out.println("Identifying LPI records");
+       System.out.println("\nIdentifying LPI records");
 
        Integer count = 1;
        while ((row = csvReader.readLine()) != null) {
@@ -138,8 +138,6 @@ public class UprnMySQL implements AutoCloseable {
 
        csvReader.close();
        newWriter.close();
-
-       System.out.println("\nFinished!");
 
        hashtable.clear();
 

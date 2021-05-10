@@ -25,17 +25,17 @@ public class UprnImporter {
         if (args.length>=1 && args[0].equalsIgnoreCase("IMPORT")) {
             try ( UprnMySQL z = new UprnMySQL(properties) ) {
                 //z.Test();
-                //z.LoadClassification();
-                //z.IMPCLASS();
-                //z.IMPSTR();
-                //z.IMPBLP2();
+                z.LoadClassification();
+                z.IMPCLASS();
+                z.IMPSTR();
+                z.IMPBLP2();
 
                 // not used (do not run this)
                 //z.IMPUPC();
 
                 z.IMPDPA();
-                //z.UPRNS();
-                //z.IMPLPI();
+                z.UPRNS();
+                z.IMPLPI();
                 //z.UPRNIND();
 
                 // loads gill's abp stuff

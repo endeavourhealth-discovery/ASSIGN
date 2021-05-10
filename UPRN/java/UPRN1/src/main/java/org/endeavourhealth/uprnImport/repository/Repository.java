@@ -480,7 +480,7 @@ public class Repository {
             f.delete();
         }
 
-        System.out.println("Exporting BLPU");
+        System.out.println("\nExporting BLPU");
 
         String q = "SELECT * FROM  uprn_v2.`uprn_blpu` INTO OUTFILE '"+ mysqldir + "1-uprn-export-blpu.csv';";
         PreparedStatement preparedStatement = connection.prepareStatement(q);
@@ -552,8 +552,6 @@ public class Repository {
         String usrn = data[0];
         String lang = data[1];
         String q = "select * from uprn_v2.`uprn_lpstr` where usrn='"+usrn+"' and lang ='"+lang+"'";
-
-        //System.out.println(q);
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -649,7 +647,7 @@ public class Repository {
         String tFile = mysqluploaddir + "1-ID24_LPI_Records.csv.txt";
         FileWriter tabWriter = new FileWriter(tFile);
 
-        System.out.println("\nImporting ID24_LPI_Records.csv");
+        System.out.println("Importing ID24_LPI_Records.csv");
 
         // use that MySQL function to get the last index in the file (don't use MAX)
 
@@ -740,8 +738,6 @@ public class Repository {
 
             tabbed = tabbed+flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype;
 
-            System.out.println(count);
-
             if (count % 10000 == 0) {
                 System.out.print(".");
             }
@@ -769,7 +765,7 @@ public class Repository {
         tFile = mysqluploaddir + "2-ID24_LPI_Records.csv.txt";
         tabWriter = new FileWriter(tFile);
 
-        System.out.println("\nFiling into MySQL");
+        System.out.println("\nFiling LPI");
 
         count = 1;
         while ((row = csvReader.readLine()) != null) {
@@ -805,6 +801,8 @@ public class Repository {
         preparedStatement = connection.prepareStatement(q);
         rs = preparedStatement.executeQuery();
         preparedStatement.close();
+
+        System.out.print("\n");
     }
 
     public void TurnFileIntoTabDelimeted(String filename, String newFile, String epoch, String table) throws IOException, SQLException
@@ -848,8 +846,6 @@ public class Repository {
                 System.out.print(".");
 
                 String q = "load data infile '" + tFile + "' into table " + table + " FIELDS TERMINATED BY '\\t';";
-
-                //System.out.println(q);
 
                 PreparedStatement preparedStatement = connection.prepareStatement(q);
                 ResultSet rs = preparedStatement.executeQuery();
@@ -942,7 +938,7 @@ public class Repository {
         //Integer out = 1;
         //if (out.equals(1)) {return;}
 
-        System.out.println("Importing ID28_DPA_Records.csv");
+        System.out.println("\nImporting ID28_DPA_Records.csv");
 
         Enumeration names;
 
@@ -1052,7 +1048,7 @@ public class Repository {
         }
         preparedStatement.close();
 
-        System.out.println("\nImporting ID28_DPA_Records.csv into MySQL");
+        System.out.println("\nImporting ID28_DPA_Records.csv");
 
         while(names.hasMoreElements()) {
             String uprnKey = (String) names.nextElement();
@@ -1120,8 +1116,6 @@ public class Repository {
         }
 
         csvParser.close();
-
-        System.out.println("test");
 
         String parentcsv = mysqldir+"1-blpu-parents.csv.txt";
 
@@ -1218,7 +1212,7 @@ public class Repository {
 
         names = hashtable.keys();
 
-        System.out.println("\nImporting ID21_BLPU_Records.csv into MySQL");
+        System.out.println("\nImporting ID21_BLPU_Records.csv");
 
         count = 1;
 
@@ -1317,8 +1311,6 @@ public class Repository {
             if (!zword.isEmpty()) {word=zword;}
 
             q = "SELECT * from uprn_v2.`uprn_x.` where `index`='X."+index+"' and term='"+word+"'";
-
-            System.out.println(q);
 
             preparedStatement = connection.prepareStatement(q);
             rs = preparedStatement.executeQuery();
@@ -1598,7 +1590,7 @@ public class Repository {
 
         Enumeration names;
 
-        System.out.println("Importing ID15_StreetDesc_Records.csv");
+        System.out.println("\nImporting ID15_StreetDesc_Records.csv");
 
         Hashtable<String, String> hashtable =
                 new Hashtable<String, String>();
@@ -1652,7 +1644,7 @@ public class Repository {
         tabWriter.flush();
         tabWriter.close();
 
-        System.out.println("\nImporting ID15_StreetDesc_Records.csv into MySQL");
+        System.out.println("\nImporting ID15_StreetDesc_Records.csv");
 
         String q = "load data infile '"+mysqldir+"1-ID15_StreetDesc_Records.csv.txt' into table uprn_v2.`uprn_lpstr` FIELDS TERMINATED BY '\\t';";
         PreparedStatement preparedStatement = connection.prepareStatement(q);
@@ -1698,7 +1690,7 @@ public class Repository {
         count = 1;
 
         System.out.println();
-        System.out.println("Importing ID32_Class_Records.csv into MySQL");
+        System.out.println("Importing ID32_Class_Records.csv");
 
         while(names.hasMoreElements()) {
 
@@ -1764,7 +1756,6 @@ public class Repository {
             preparedStmt.addBatch();
 
             if (count % 5000 == 0) {
-                System.out.println("modulate");
                 preparedStmt.executeLargeBatch();
             }
             count = count + 1;
@@ -1773,6 +1764,7 @@ public class Repository {
 
     public void InsertClassifications() throws SQLException, IOException
     {
+        System.out.println("Importing Residential_codes.txt");
         String file = pathToCsv + "Residential_codes.txt";
         BufferedReader csvReader = new BufferedReader(new FileReader(file));
         String row = "";
@@ -1788,10 +1780,6 @@ public class Repository {
             String code = ss[1];
             String term = ss[2];
 
-            System.out.println(include);
-            System.out.println(code);
-            System.out.println(term);
-
             preparedStmt.setString(1, code);
             preparedStmt.setString(2, term);
             preparedStmt.setString(3, include);
@@ -1800,7 +1788,6 @@ public class Repository {
         }
 
         preparedStmt.executeLargeBatch();
-        connection.close();
 
         csvReader.close();
     }
