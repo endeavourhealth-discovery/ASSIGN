@@ -46,9 +46,9 @@ public class Repository {
 
         try {
 
-            String url = "jdbc:mysql://localhost:3306/uprn";
-            String username = "root";
-            String pass = "1qaz1qaz";
+            String url = props.getProperty("url");
+            String username = props.getProperty("username");
+            String pass = props.getProperty("password");
 
             pathToCsv = props.getProperty("pathToCsv");
             mysqluploaddir = props.getProperty("mysqluploaddir");
@@ -573,7 +573,7 @@ public class Repository {
     //
     public List<List<String>> GETLPI(String saos, String saosf, String saoe, String saoef, String saot, String paos, String paosf, String paoe, String paoef, String paot, String lpstr, String uprn) throws SQLException
     {
-        String  lpdes = ""; String lploc = ""; String lptown = "";
+        String  lpdes = ""; String lploc = ""; String lptown = ""; String lpname = ""; String lpadmin = "";
 
         /*
         String ret = getLPSTR(lpstr);
@@ -591,6 +591,10 @@ public class Repository {
             lpdes = data[3];
             lploc = data[4];
             lptown = data[6];
+
+            //
+            lpname = data[3];
+            lpadmin = data[5];
         }
 
         List<List<String>> apadr = new ArrayList<>();
@@ -627,6 +631,9 @@ public class Repository {
 
         String apaddress = flat + " " + building + " " + number + " " + street + " " + locality + " " + post;
         row.add(apaddress); // 7
+
+        row.add(lpname); // 8
+        row.add(lpadmin); // 9
 
         apadr.add(row);
         return apadr;
@@ -679,23 +686,25 @@ public class Repository {
             String uprn = data[3];
             String key = data[4];
 
-            String saos = data[11];
-            String saosf = data[12];
-            String saoe = data[13];
-            String saoef = data[14];
-            String saot = data[15];
-            String status = data[6];
-            String end = data[8];
-            String paos = data[16];
-            String paosf = data[17];
-            String paoe = data[18];
-            String paoef = data[19];
-            String paot = data[20];
-            String str = data[21] + "-" + data[5];
+            // sao = secondary adddressable object
+            // pao = primary addressable object
+            String saos = data[11]; // sao_start_number (1)
+            String saosf = data[12]; // sao_start_suffix (A)
+            String saoe = data[13]; // sao_end_number (1)
+            String saoef = data[14]; // sao_end_suffix (B)
+            String saot = data[15]; // sao_text (UNITS)
+            String status = data[6]; // logical_status
+            String end = data[8]; // end_date
+            String paos = data[16]; // pao_start_number
+            String paosf = data[17]; // pao_start_suffix
+            String paoe = data[18]; // pao_end_number
+            String paoef = data[19]; // pao_end_suffix
+            String paot = data[20]; // pao_text
+            String str = data[21] + "-" + data[5]; // usrn+"-"+language
 
-            String level = data[24];
+            String level = data[24]; // level (ground floor)
 
-            String org = "";
+            String org = ""; // intentionally set to null - organisation is in DPA data
 
             // should always return 1 row
             List<List<String>> dpadd = GETLPI(saos, saosf, saoe, saoef, saot, paos, paosf, paoe, paoef, paot, str, uprn);
@@ -707,11 +716,14 @@ public class Repository {
 
             String bno = correct(apaddress.get(2));
 
-            String depth = "";
+            String depth = ""; // set to null in mumps code (see IMPLPI^UPRN1)
             String street =apaddress.get(3).trim();
-            String loc = apaddress.get(4).trim();
+            String loc = apaddress.get(4).trim(); // locality
             String town = apaddress.get(5);
             String post = apaddress.get(6);
+
+            String name = apaddress.get(8);
+            String admin = apaddress.get(9);
 
             street = correct(street);
             build = correct(build);
@@ -721,10 +733,12 @@ public class Repository {
 
             loc = correct(loc);
 
-            String dep = ""; String ptype = ""; String deploc = "";
+            String dep = "";
+            String ptype = "";
+            String deploc = ""; // interntionally set to null in m code (see GETLPI^UPRNU)
 
             // missing level (needs adding to schema)
-            String tabbed = "L"+d+uprn+d+key+d; // +flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype+d;
+            String tabbed = "L" +d+ uprn +d+ key +d; // +flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype+d;
 
             // don't need to lowercase the var because the whole record gets lower case'd?
             // see mumps code
@@ -736,7 +750,7 @@ public class Repository {
             deploc = welsh(deploc);
             loc = welsh(loc);
 
-            tabbed = tabbed+flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype;
+            tabbed = tabbed+flat +d+ build +d+ bno +d+ depth +d+ street +d+ deploc +d+ loc +d+ town +d+ post +d+ org +d+ dep +d+ ptype +d+ admin +d+ name;
 
             if (count % 10000 == 0) {
                 System.out.print(".");
@@ -969,23 +983,24 @@ public class Repository {
 
             //row = row.replace(", ,",",,");
             //row = row.replace(".'","");
+
             String[] data = row.split(",",-1);
             String uprn = data[3];
-            String post = data[15];
+            String post = data[15]; // postcode
             String key = data[4];
             String change = data[1];
-            String org = data[5];
-            String dep = data[6];
-            String flat = data[7];
-            String build = data[8];
-            String bno = data[9];
-            String depth = data[10];
-            String street = data[11];
-            String deploc = data[12];
-            String loc = data[13];
-            String town = data[14];
-            String ptype = data[16];
-            String suff = data[17];
+            String org = data[5]; // organization
+            String dep = data[6]; // department_name
+            String flat = data[7]; // sub_building_name or flat
+            String build = data[8]; // building_name
+            String bno = data[9]; // building number
+            String depth = data[10]; // dependent_throughfare
+            String street = data[11]; // throughfare or street
+            String deploc = data[12]; // double_dependent_locality
+            String loc = data[13]; // dependent_locality
+            String town = data[14]; // post_town
+            String ptype = data[16]; // postcode_type
+            String suff = data[17]; // deliver_point_suffix
 
             // o* fields
             String tabbed = "D"+d+uprn+d+key+d; //+flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype+d;
@@ -999,7 +1014,7 @@ public class Repository {
             deploc = deploc.toLowerCase();
             loc = loc.toLowerCase();
             town = town.toLowerCase();
-            post = post.toLowerCase();
+            post = post.replace(" ","").toLowerCase();
             org = org.toLowerCase();
             dep = dep.toLowerCase();
             ptype = ptype.toLowerCase();
@@ -1023,7 +1038,10 @@ public class Repository {
             depth = correct(depth);
             deploc = correct(deploc);
 
-            tabbed = tabbed+flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype;
+            String admin = "";
+            String name = "";
+
+            tabbed = tabbed+flat +d+ build +d+ bno +d+ depth +d+ street +d+ deploc +d+ loc +d+ town +d+ post +d+ org +d+ dep +d+ ptype +d+ admin +d+ name;
 
             if (count % 10000 == 0) {
                 System.out.print(".");
@@ -1342,30 +1360,24 @@ public class Repository {
         csvReader.close();
     }
 
+    // COVERING INDEXES!
     public void UPRNINDMAIN() throws SQLException, IOException {
-
-        //File f = new File("C:\\ProgramData\\MySQL\\MySQL Server 5.7\\Uploads\\1-uprn-export.csv");
-
         File f = new File(mysqluploaddir+"1-uprn-export.csv");
 
         if(f.exists() && !f.isDirectory()) {
             f.delete();
         }
 
-        //String q = "SELECT flat, build, bno, depth, street, deploc, loc, town, post, org, dep, ptype, `table`, uprn, `key` FROM  uprn_v2.`temp_import_u` INTO OUTFILE 'C:\\\\ProgramData\\\\MySQL\\\\MySQL Server 5.7\\\\Uploads\\\\1-uprn-export.csv';";
-
-        String q = "SELECT flat, build, bno, depth, street, deploc, loc, town, post, org, dep, ptype, `table`, uprn, `key` FROM  uprn_v2.`temp_import_u` INTO OUTFILE "+mysqluploaddir+"'1-uprn-export.csv';";
+        String q = "SELECT flat, build, bno, depth, street, deploc, loc, town, post, org, dep, ptype, `table`, uprn, `key`, name, admin  FROM  uprn_v2.`temp_import_u` INTO OUTFILE '"+mysqluploaddir+"1-uprn-export.csv';";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
         preparedStatement.close();
 
-        //String filename = "C:\\ProgramData\\MySQL\\MySQL Server 5.7\\Uploads\\1-uprn-export.csv";
         String filename = mysqluploaddir+"1-uprn-export.csv";
 
         BufferedReader csvReader = new BufferedReader(new FileReader(filename));
 
-        //String idxfile = "C:\\ProgramData\\MySQL\\MySQL Server 5.7\\Uploads\\idx-indmain.txt";
         String idxfile = mysqluploaddir+"idx-indmain.txt";
 
         FileWriter tabWriter = new FileWriter(idxfile);
@@ -1394,6 +1406,8 @@ public class Repository {
             String table = ss[12];
             String uprn = ss[13];
             String key = ss[14];
+            String name = ss[15];
+            String admin = ss[16];
 
             // check if town exists?
             // if not exists then add to another export file
@@ -1418,12 +1432,13 @@ public class Repository {
             indrec = indrec.trim();
 
             // String x_tabbed = count+d+indrec+d+uprn+d+table+d+key;
-            String xn1=""; String xbno=""; String xbuild=""; String xflat=""; String xstreet="";
+            String xbno=""; String xbuild=""; String xflat=""; String xstreet="";
             String xindrec = "";
 
             String xname = ""; String xlocality = ""; String xadmin = ""; String xtown = "";
+            String xdeploc = ""; String xloc = ""; String xorg = "";
 
-            x_tabbed = count+d+"X"+d+uprn+d+table+d+key+d+post+d+xn1+d+indrec+d+xbno+d+xbuild+d+xflat+d+xstreet+d+xname+d+xlocality+d+xadmin+d+xtown;
+            x_tabbed = count +d+ "X" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ xname +d+ loc +d+ xadmin +d+ town;
             tabWriter.append(x_tabbed+"\n");
             count++;
 
@@ -1432,7 +1447,7 @@ public class Repository {
                 indrec = indrec.replaceAll("  "," ");
                 indrec = indrec.trim();
                 //x_tabbed = count+d+indrec+d+uprn+d+table+d+key;
-                x_tabbed = count+d+"X"+d+uprn+d+table+d+key+d+post+d+xn1+d+indrec+d+xbno+d+xbuild+d+xflat+d+xstreet;
+                x_tabbed = count +d+ "X" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ xbno +d+ xbuild +d+ xflat +d+ xstreet;
                 //count++;
                 //tabWriter.append(x_tabbed+"\n");
             }
