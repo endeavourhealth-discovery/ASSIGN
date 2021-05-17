@@ -837,6 +837,11 @@ p1 ;Completely wrong post code ignore, building, null flat, needs number and str
 3300 ;
  S ALG="3300-"
  s matches=$$match62(adpost,adstreet,adbno,adbuild,adflat,adloc,adeploc)
+ 
+3400 ;
+ I $D(^TUPRN($J,"MATCHED")) Q
+ S ALG="3400-"
+ s matches=$$match63^UPRNC(adpost,adstreet,adbno,adbuild,adflat,adloc,adeploc)
  Q
  q
  
@@ -1574,6 +1579,9 @@ match18(tpost,tstreet,tbno,tbuild,tflat,adloc)
  n matched,front,back
  k flatlist
  s matched=0
+ ;Check for flat range/number/building/street mismath
+ d match18^UPRNB1(tpost,tstreet,tbno,tbuild,tflat)
+ I $D(^TUPRN($J,"MATCHED")) Q 1
  s uprn=""
  for  s uprn=$O(^UPRNX("X1",tpost,uprn)) q:uprn=""  d  q:matched
  .s table=""

@@ -32,6 +32,10 @@ bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
  d bestfitr
  I $G(^TUPRN($J,"MATCHED")) Q
  d bestfit2
+ ;
+CH ;Care home flag set?
+ i $D(^TCQC($J)) d bestch
+ I $G(^TUPRN($J,"MATCHED")) Q
  d bestfitn
  d bestfitx
  d farpost
@@ -538,6 +542,17 @@ whichf(matchrec,tpost,tstreet,tbno,tbuild,tflat)
  .i $D(^TORDER($J,matchrec,"F",count,"")) d
  ..s matched=$$set(matchrec,tpost,tstreet,tbno,tbuild,"")
  q matched
+bestch ;Fits with a care home
+ n build,matched
+ s build="",matched=0
+ for  s build=$O(^UPRNX("X5",tpost,tstreet,tbno,build)) q:build=""  d
+ .I $D(^UPRNX("X5",tpost,tstreet,tbno,build,tflat)) d
+ ..s uprn=""
+ ..for  s uprn=$O(^UPRNX("X5",tpost,tstreet,tbno,build,tflat,uprn)) q:uprn=""  d  Q:matched
+ ...I $G(^UPRN("CLASS",uprn))="RI01" d
+ ....s matchrec="Pe,Se,Ne,Bi,Fe"
+ ....s matched=$$setuprns(matchrec,"X5",tpost,tstreet,tbno,build,tflat) d
+ q
  
 bestfitn          ;Fits with no building
  ;but may be an exact match on building and close post code

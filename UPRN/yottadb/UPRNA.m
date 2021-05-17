@@ -199,6 +199,9 @@ f16 f var="adbuild","adstreet","adepth","adeploc","adloc" d
 f17 ;Dependent locality is street
  i adeploc'="" d
  .i $$isroad(adeploc),'$$isroad(adstreet) d
+ ..i adstreet?1"no"1" "1n.n d
+ ...s adstreet=$p(adstreet," ",2)_" "_adeploc
+ ...s adeploc=""
  ..I adbuild'="",adstreet?1n.n!(adstreet?1n.n1l) d
  ...s adstreet=adstreet_" "_adeploc,adeploc=""
 f18 ..if adstreet?1l.e,adeploc?1n.n."-".n1" "1l.e d  q
@@ -420,6 +423,8 @@ f109 ;Street has flat name and flat has street
 f110 ;Duplicate flat building number and street,remove flat and building
  if adflat'="",adbuild'="",adbno'="",adstreet'="" d
  .if $e((adbno*1)_" "_adstreet,1,$l((adflat*1)_" "_adbuild))=((adflat*1)_" "_adbuild) d
+ ..i adflat?1n.nl,adbno?1n.n d
+ ...s adbno=adflat
  ..set adflat="",adbuild=""
  
  
@@ -682,7 +687,10 @@ f152 ;Flat contains street number
  .s adflat=$p(adflat," ")
  .s adstreet=adbuild_" "_adstreet
  .s adbuild=""
+ ;
  
+f153 ;
+ D ^UPRNA1(.adflat,.adbuild,.adbno,.adstreet,.adloc,.adeploc)
  
  
 setadd ;set address object values
@@ -798,6 +806,10 @@ f51 ;19a-19c eagle house
  if adbuild?1n.n.l1"-"1n.n.1" ".l.e do  q
  .set adflat=$p(adbuild," ",1)
  .set adbuild=$p(adbuild," ",2,20)
+f51a ;73a-b
+ if adbuild?1n.n.l1"-"1l1" ".l.e do  q
+ .set adflat=$p(adbuild," ",1)
+f51a3 .set adbuild=$p(adbuild," ",2,20)
  
 f52 ;19- eagle house
  if adbuild?1n.n1"-"1" "1l.e do  q
@@ -889,6 +901,10 @@ f66 ;38 & 40 arthur street
  i adstreet?1n.n1" "1"&"1" "1n.n1" "1l.e d  q
  .s adbno=$p(adstreet," ",1)_"-"_$p(adstreet," ",3)
  .s adstreet=$p(adstreet," ",4,40)
+f66a ;Off road
+ i adstreet?1"off"1" "1l.e d
+ .i $d(^UPRNX("X.STR",$p(adstreet," ",2,20))) d
+F66d ..s adstreet=$p(adstreet," ",2,20)
  
 f67 ;11 high street
  if adstreet?1n.n1" "2l.e do  q
