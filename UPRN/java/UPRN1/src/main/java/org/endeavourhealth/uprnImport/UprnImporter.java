@@ -12,6 +12,43 @@ public class UprnImporter {
 
         Properties properties = loadProperties( args );
 
+        // Gill's ABP stuff
+        if (args.length>=1 && args[0].equalsIgnoreCase("ABP")) {
+            try ( UprnMySQL z = new UprnMySQL(properties) ) {
+                z.IMPABP();
+            }
+            catch (Exception e) {
+                System.out.println(e);
+                e.printStackTrace();
+            }
+            System.exit(0);
+        }
+
+        // TEST
+        if (args.length>=1 && args[0].equalsIgnoreCase("DICTION")) {
+            System.out.println("DICTION");
+            try ( UprnMySQL z = new UprnMySQL(properties) ) {
+                z.UPRNS();
+            }
+            catch (Exception e) {
+                System.out.println(e);
+                e.printStackTrace();
+            }
+            System.exit(0);
+        }
+
+        if (args.length>=1 && args[0].equalsIgnoreCase("TEST")) {
+            System.out.println("TEST");
+            try ( UprnMySQL z = new UprnMySQL(properties) ) {
+                z.Test();
+            }
+            catch (Exception e) {
+                System.out.println(e);
+                e.printStackTrace();
+            }
+            System.exit(0);
+        }
+
         if (args.length>=1 && args[0].equalsIgnoreCase("EXPORT")) {
             System.out.println(args[0]);
             // filename
@@ -24,22 +61,22 @@ public class UprnImporter {
 
         if (args.length>=1 && args[0].equalsIgnoreCase("IMPORT")) {
             try ( UprnMySQL z = new UprnMySQL(properties) ) {
-                //z.Test();
-                z.LoadClassification();
-                z.IMPCLASS();
-                z.IMPSTR();
-                z.IMPBLP2();
+
+                //z.Test(); COMMENTED OUT
+
+                //z.LoadClassification();
+                //z.IMPCLASS();
+                //z.IMPSTR();
+                //z.IMPBLP2();
 
                 // not used (do not run this)
-                //z.IMPUPC();
+                //z.IMPUPC(); COMMENTED OUT
 
-                z.IMPDPA();
-                z.UPRNS();
-                z.IMPLPI();
+                //z.IMPDPA();
+                //z.UPRNS();
+                //z.IMPLPI();
                 //z.UPRNIND();
-
-                // loads gill's abp stuff
-                //z.IMPABP();
+                z.AREAS();
 
                 // populates ABP data
                 //z.TurnIntoTab();

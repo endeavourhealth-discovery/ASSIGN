@@ -57,6 +57,10 @@ public class UprnMySQL implements AutoCloseable {
        repository.IMPDPA2();
    }
 
+   public void AREAS() throws SQLException,IOException {
+        repository.AREAS();
+   }
+
    public void IMPLPI() throws SQLException, IOException, InterruptedException {
 
        // split the file up into 1 million records

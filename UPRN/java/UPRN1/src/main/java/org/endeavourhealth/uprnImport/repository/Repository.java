@@ -20,6 +20,8 @@ import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
 import java.util.Map;
 
+import java.lang.*;
+
 public class Repository {
 
     private MysqlDataSource dataSource;
@@ -177,7 +179,7 @@ public class Repository {
 
         word = word.replaceAll("'","''");
 
-        String q= "SELECT * FROM uprn.`uprn-s` where n1 = '"+node+"' and n2='" + word + "'";
+        String q= "SELECT * FROM uprn_v2.`uprn-s` where n1 = '"+node+"' and n2='" + word + "'";
 
         //System.out.println(q);
 
@@ -218,7 +220,7 @@ public class Repository {
 
         String data = ""; String n2 = "";
 
-        String q= "SELECT * FROM uprn.`uprn-s` where n1 = '"+node+"'";
+        String q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = '"+node+"'";
 
         //System.out.println(q);
 
@@ -364,7 +366,7 @@ public class Repository {
 
         // could use a like command?
 
-        String q= "SELECT * FROM uprn.`uprn-s` where n1 = 'FLAT'";
+        String q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT'";
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
         ResultSet rs = preparedStmt.executeQuery();
@@ -392,7 +394,7 @@ public class Repository {
             // get last piece
             String flat = p[p.length-1];
             // flat exist in uprn-s?
-            q= "SELECT * FROM uprn.`uprn-s` where n1 = 'FLAT' and n2='"+flat+"'";
+            q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT' and n2='"+flat+"'";
             preparedStmt = connection.prepareStatement(q);
             rs = preparedStmt.executeQuery();
             if (rs.next()) {
@@ -1155,7 +1157,7 @@ public class Repository {
                 tabParentWriter.flush();
                 tabParentWriter.close();
 
-                String q = "load data infile '"+mysqldir+"1-blpu-parents.csv.txt' into table uprn.`uprn-upc` FIELDS TERMINATED BY '\\t';";
+                String q = "load data infile '"+mysqldir+"1-blpu-parents.csv.txt' into table uprn_v2.`uprn_upc` FIELDS TERMINATED BY '\\t';";
                 PreparedStatement preparedStatement = connection.prepareStatement(q);
                 ResultSet rs = preparedStatement.executeQuery();
                 preparedStatement.close();
@@ -1170,7 +1172,7 @@ public class Repository {
         tabParentWriter.flush();
         tabParentWriter.close();
 
-        String q = "load data infile '"+mysqldir+"1-blpu-parents.csv.txt' into table uprn.`uprn-upc` FIELDS TERMINATED BY '\\t';";
+        String q = "load data infile '"+mysqldir+"1-blpu-parents.csv.txt' into table uprn_v2.`uprn_upc` FIELDS TERMINATED BY '\\t';";
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
         preparedStatement.close();
@@ -1295,12 +1297,12 @@ public class Repository {
     private void indexstr(String index, String term, Integer strno) throws SQLException
     {
         // might change this into a hash table - but for now use inserts
-        String q = "SELECT * from uprn.`uprn-x.` where `index`='X."+index+"' and term='"+term+"'";
+        String q = "SELECT * from uprn_v2.`uprn_x.` where `index`='X."+index+"' and term='"+term+"'";
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
         if (!rs.next()) {
 
-            q = "insert into uprn.`uprn-x.` (`index`, term, strno) values(?,?,?)";
+            q = "insert into uprn_v2.`uprn_x.` (`index`, term, strno) values(?,?,?)";
             PreparedStatement preparedStmt = connection.prepareStatement(q);
             preparedStmt.setString(1,"X."+index);
             preparedStmt.setString(2,term);
@@ -1360,6 +1362,69 @@ public class Repository {
         csvReader.close();
     }
 
+    private String area(String post) {
+        Integer z = post.length();
+        for (Integer i=0; i <z; i++) {
+            if (Character.isDigit(post.charAt(i))) {
+                return post.substring(0, i);
+            }
+        }
+        return "";
+    }
+
+    public void AREAS() throws SQLException, IOException
+    {
+        String q = "SELECT post FROM  uprn_v2.`temp_import_u` INTO OUTFILE '"+mysqluploaddir+"areas.csv';";
+
+        /*
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+         */
+
+        String filename = mysqluploaddir+"areas.csv";
+        BufferedReader csvReader = new BufferedReader(new FileReader(filename));
+
+        Hashtable<String, String> hashAreas =
+                new Hashtable<String, String>();
+
+        String post;
+
+        Integer count = 1;
+        while ((post = csvReader.readLine()) != null) {
+
+            String area = area(post);
+
+            if (!area.isEmpty()) {
+                //System.out.println(area);
+                hashAreas.put(area,"");
+            }
+
+            if (count % 10000 == 0) {System.out.print(".");}
+
+            count++;
+        }
+
+        csvReader.close();
+
+        q = "DELETE FROM uprn_v2.uprn_dictionary where n1 =?";
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+        preparedStmt.setString(1,"AREAS");
+        preparedStmt.execute();
+
+        // loop down the hastable and update uprn_dictionary
+        Enumeration names;
+        names = hashAreas.keys();
+        while(names.hasMoreElements()) {
+            String area = (String) names.nextElement();
+            System.out.println(area);
+
+            q = "INSERT INTO ";
+        }
+
+        preparedStmt.close();
+    }
+
     // COVERING INDEXES!
     public void UPRNINDMAIN() throws SQLException, IOException {
         File f = new File(mysqluploaddir+"1-uprn-export.csv");
@@ -1368,7 +1433,7 @@ public class Repository {
             f.delete();
         }
 
-        String q = "SELECT flat, build, bno, depth, street, deploc, loc, town, post, org, dep, ptype, `table`, uprn, `key`, name, admin  FROM  uprn_v2.`temp_import_u` INTO OUTFILE '"+mysqluploaddir+"1-uprn-export.csv';";
+        String q = "SELECT flat, build, bno, depth, street, deploc, loc, town, post, org, dep, ptype, `table`, uprn, `key`, `name`, admin  FROM  uprn_v2.`temp_import_u` INTO OUTFILE '"+mysqluploaddir+"1-uprn-export.csv';";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -1428,110 +1493,159 @@ public class Repository {
 
             String indrec = post + " " + flat + " " + build + " " + bno + " " + depth + " " + street + " " + deploc + " " + loc;
 
-            indrec = indrec.replaceAll("  "," ");
-            indrec = indrec.trim();
+            indrec = indrec.replaceAll("\\s{2,}", " ").trim();
 
             // String x_tabbed = count+d+indrec+d+uprn+d+table+d+key;
             String xbno=""; String xbuild=""; String xflat=""; String xstreet="";
             String xindrec = "";
 
             String xname = ""; String xlocality = ""; String xadmin = ""; String xtown = "";
-            String xdeploc = ""; String xloc = ""; String xorg = "";
+            String xdeploc = ""; String xloc = ""; String xorg = ""; String xdep = "";
 
-            x_tabbed = count +d+ "X" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ xname +d+ loc +d+ xadmin +d+ town;
+            x_tabbed = count +d+ "X" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ xbno +d+ xbuild +d+ xflat +d+ xstreet +d+ xname +d+ xadmin +d+ xtown +d+ xdeploc +d+ xloc +d+ xorg +d+ xdep;
+
             tabWriter.append(x_tabbed+"\n");
             count++;
 
             if (same.equals(0)) {
                 indrec = post + " " + flat + " " + pbuild + " " + bno + " " + pdepth + " " + pstreet + " " + deploc + " " + loc;
-                indrec = indrec.replaceAll("  "," ");
-                indrec = indrec.trim();
-                //x_tabbed = count+d+indrec+d+uprn+d+table+d+key;
-                x_tabbed = count +d+ "X" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ xbno +d+ xbuild +d+ xflat +d+ xstreet;
-                //count++;
-                //tabWriter.append(x_tabbed+"\n");
+                indrec = indrec.replaceAll("\\s{2,}", " ").trim();
+                x_tabbed = count +d+ "X" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ xbno +d+ xbuild +d+ xflat +d+ xstreet +d+ xname +d+ xadmin +d+ xtown +d+ xdeploc +d+ xloc +d+ xorg +d+ xdep;
+                tabWriter.append(x_tabbed+"\n");
+                count++;
             }
 
-            String x5_tabbed = "";
             if (!deploc.isEmpty()) {
-                //x5_tabbed = count+d+post + d + street+" "+deploc+d+bno+d+build+d+flat+d+uprn+d+table+d+key;
-                x_tabbed = count+d+"X5"+d+uprn+d+table+d+key+d+post+d+street+" "+deploc+d+xindrec+d+bno+d+build+d+flat+d+xstreet;
-                //tabWriter.append(x_tabbed+"\n");
-                //count++;
+                indrec = street + " " + deploc;
+                // ^UPRNX("X5",post,street_" "_deploc,bno,build,flat,uprn,table,key)=""
+                x_tabbed = count +d+ "X5" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                tabWriter.append(x_tabbed+"\n");
+                count++;
             }
 
             if (!depth.isEmpty()) {
-                //x5_tabbed = post + d + depth+" "+street+d+bno+d+build+d+flat+d+uprn+d+table+d+key;
-                x_tabbed = count+d+"X5"+d+uprn+d+table+d+key+d+post+d+ depth+" "+street+d+xindrec+d+bno+d+build+flat+d+xstreet;
-                //tabWriter.append(x_tabbed+"\n");
-                //count++;
+                indrec = depth+" "+street;
+                // ^UPRNX("X5",post,depth_" "_street,bno,build,flat,uprn,table,key)=""
+                x_tabbed = count +d+ "X5" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                tabWriter.append(x_tabbed+"\n");
+                count++;
 
-                // table def: id,node,uprn,table,key,post,n1,indrec,bno,build,flat,street
+                // table def: id,node,uprn,table,key,post,indrec,bno,build,flat,street
 
-                //x5_tabbed = post+d+street+d+bno+d+depth+d+flat+" "+build+d+uprn+d+table+d+key;
-                //x_tabbed = count+d+"X5"+uprn+d+table+d+key+post+d+flat+" "+build+d+xindrec+d+bno+d+build+d+flat+street;
+                //indrec = street;
+                // ^UPRNX("X5",post,street,bno,depth,flat_" "_build,uprn,table,key)=""
+                //x_tabbed = count +d+ "X5" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat+" "+build +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
                 //tabWriter.append(x_tabbed+"\n");
                 //count++;
 
                 if (same.equals(0)) {
-                    //x5_tabbed = count+d+post+d+street+d+bno+d+pdepth+d+flat+" "+pbuild+d+uprn+table+key;
-                    //x_tabbed = count+d+"X5"+d+uprn+d+table+d+key+d+post+d+flat+" "+pbuild+d+bno+d+pdepth+d+xflat+d+pstreet;
-                    //tabWriter.append(x_tabbed);
-                    //count++;
+                    indrec = pstreet;
+                    // ^UPRNX("X5",post,pstreet,bno,pdepth,flat_" "_pbuild,uprn,table,key)=""
+                    x_tabbed = count +d+ "X5" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ pdepth +d+ flat+" "+pbuild +d+ pstreet +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                    tabWriter.append(x_tabbed+"\n");
+                    count++;
                 }
             }
 
-            //x5_tabbed = post+d+street+d+bno+d+build+d+flat+d+uprn+d+table+d+key;
-            //x_tabbed = count+d+"X5"+uprn+d+table+d+key+d+post+d+xn1+d+xindrec+d+bno+d+build+d+flat+d+street;
-            //tabWriter.append(x_tabbed);
-            //count++;
+            indrec = street;
+            // UPRNX("X5",post,street,bno,build,flat,uprn,table,key)=""
+            x_tabbed = count +d+ "X5" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+            tabWriter.append(x_tabbed+"\n");
+            count++;
 
             if (same.equals(0)) {
-                x5_tabbed = count+d+pstreet+d+bno+d+pbuild+d+flat+d+uprn+d+table+d+key;
+                indrec = pstreet;
+                // ^UPRNX("X5",post,pstreet,bno,pbuild,flat,uprn,table,key)=""
+                x_tabbed = count +d+ "X5" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ pbuild +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                tabWriter.append(x_tabbed+"\n");
+                count++;
             }
 
-            String x3_tabbed = "";
             if (!depth.isEmpty()) {
-                x3_tabbed = count+depth+d+bno+d+post+d+uprn+d+table+d+key;
-                x3_tabbed = count+pdepth+d+bno+d+post+d+uprn+d+table+d+key;
+                indrec = depth;
+                // ^UPRNX("X3",depth,bno,post,uprn,table,key)=""
+                x_tabbed = count +d+ "X3" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d + flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                tabWriter.append(x_tabbed+"\n");
+                count++;
+
+                if (!pdepth.equals(depth)) {
+                    indrec = pdepth;
+                    // ^UPRNX("X3",pdepth,bno,post,uprn,table,key)=""
+                    x_tabbed = count +d+ "X3" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                    tabWriter.append(x_tabbed + "\n");
+                    count++;
+                }
+
+                /*
                 strno = strno++;
-                //indexstr("STR", depth, strno);
+                indexstr("STR", depth, strno);
                 if (!pdepth.equals(depth)) {
                     strno++;
-                    //indexstr("STR",pdepth, strno);
+                    indexstr("STR",pdepth, strno);
                 }
+                */
             }
 
             if (!deploc.isEmpty() && street.isEmpty()) {
-                x5_tabbed = count+d+post+d+deploc+d+bno+d+build+d+flat+d+uprn+d+table+d+key;
+                indrec = deploc;
+                // ^UPRNX("X5",post,deploc,bno,build,flat,uprn,table,key)
+                x_tabbed = count +d+ "X5" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                tabWriter.append(x_tabbed + "\n");
+                count++;
             }
 
+            // first ndde should be post code??
             if (!depth.isEmpty() && street.isEmpty()) {
-                x5_tabbed = depth+d+bno+d+build+d+flat+d+uprn+d+table+d+key;
+                // ^UPRNX("X5",depth,bno,build,flat,uprn,table,key)
+                //x5_tabbed = depth+d+bno+d+build+d+flat+d+uprn+d+table+d+key;
                 if (same.equals(0)) {
-                    x5_tabbed = count+d+pdepth+d+bno+d+pbuild+d+flat+d+uprn+d+table+d+key;
+                    //x5_tabbed = count+d+pdepth+d+bno+d+pbuild+d+flat+d+uprn+d+table+d+key;
                 }
             }
 
             if (!street.isEmpty()) {
-                x3_tabbed = count+d+street+d+bno+d+post+d+uprn+d+table+d+key;
+                // ^UPRNX("X3",street,bno,post,uprn,table,key)
+                indrec = street;
+                x_tabbed = count +d+ "X3" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                tabWriter.append(x_tabbed + "\n");
+                count++;
+
                 if (same.equals(0)) {
-                    x3_tabbed = count+d+pstreet+d+bno+d+post+d+uprn+d+table+d+key;
+                    // ^UPRNX("X3",pstreet,bno,post,uprn,table,key)=""
+                    indrec = pstreet;
+                    x_tabbed = count +d+ "X3" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                    tabWriter.append(x_tabbed + "\n");
+                    count++;
                 }
-                x3_tabbed = count+d+street.replace(" ","")+d+bno+d+post+d+uprn+d+table+d+key;
+
+                // ^UPRNX("X3",$tr(street," "),bno,post,uprn,table,key)
+                indrec = street.replaceAll("\\s","");
+                x_tabbed = count +d+ "X3" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                tabWriter.append(x_tabbed + "\n");
+                count++;
+
                 if (!depth.isEmpty()) {
-                    x3_tabbed = count+d+depth+" "+street+d+bno+d+post+d+uprn+d+table+d+key;
-                    if (same.equals(0)) { x3_tabbed = count+d+pdepth+" "+street+d+bno+d+post+d+uprn+d+table+d+key;}
+                    indrec = depth+" "+street;
+                    x_tabbed = count +d+ "X3" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                    tabWriter.append(x_tabbed + "\n");
+                    count++;
+
+                    if (same.equals(0) && !pdepth.equals(depth)) {
+                        indrec = pdepth+" "+pstreet;
+                        x_tabbed = count +d+ "X3" +d+ uprn +d+ table +d+ key +d+ post +d+ indrec +d+ bno +d+ build +d+ flat +d+ street +d+ name +d+ admin +d+ town +d+ deploc +d+ loc +d+ org +d+ dep;
+                        tabWriter.append(x_tabbed + "\n");
+                        count++;
+                    }
                 }
-                strno++;
+                //strno++;
                 //indexstr("STR",street,strno);
                 //if (!pstreet.equals(street)) {strno++; indexstr("STR",pstreet,strno);}
             }
 
             if (!build.isEmpty()) {
-                x3_tabbed = count+d+build+d+flat+d+post+d+uprn+d+table+d+key;
+                x_tabbed = count+d+build+d+flat+d+post+d+uprn+d+table+d+key;
                 if (same.equals(0)) {
-                    x3_tabbed = count+d+pbuild+flat+d+post+d+uprn+d+table+d+key;
+                    x_tabbed = count+d+pbuild+flat+d+post+d+uprn+d+table+d+key;
                 }
                 //strno++; indexstr("BLD",build,strno);
                 //if (!pbuild.equals(build)) {strno++; indexstr("BLD",pbuild,strno);}
@@ -1546,12 +1660,12 @@ public class Repository {
             }
 
             if (build.isEmpty() && !org.isEmpty()) {
-                x5_tabbed = count+d+post+d+street+d+bno+d+org+d+flat+d+uprn+d+table+d+key;
+                //x5_tabbed = count+d+post+d+street+d+bno+d+org+d+flat+d+uprn+d+table+d+key;
                 if (same.equals(0)) {
-                    x5_tabbed = count+d+post+d+pstreet+d+bno+d+org+d+flat+d+uprn+d+table+d+key;
+                    //x5_tabbed = count+d+post+d+pstreet+d+bno+d+org+d+flat+d+uprn+d+table+d+key;
                 }
                 if (!flat.isEmpty()) {
-                    x3_tabbed = count+d+org+d+flat+d+post+d+uprn+d+table+d+key;
+                    x_tabbed = count+d+org+d+flat+d+post+d+uprn+d+table+d+key;
                     //strno++; indexstr("BLD",org,strno);
                 }
             }
@@ -1565,10 +1679,10 @@ public class Repository {
 
             if (!pstreet.equals(street) || !pbuild.equals(build)) {
                 if (!deploc.isEmpty()) {
-                    x5_tabbed = count+d+post+d+pstreet+" "+deploc+d+bno+d+pbuild+d+flat+d+uprn+d+table+d+key;
+                    //x5_tabbed = count+d+post+d+pstreet+" "+deploc+d+bno+d+pbuild+d+flat+d+uprn+d+table+d+key;
                 }
                 if (!pdepth.isEmpty()) {
-                    x5_tabbed = count+d+post+d+pdepth+" "+pstreet+d+bno+d+pbuild+d+flat+d+uprn+d+table+d+key;
+                    //x5_tabbed = count+d+post+d+pdepth+" "+pstreet+d+bno+d+pbuild+d+flat+d+uprn+d+table+d+key;
                 }
             }
 
@@ -1753,7 +1867,7 @@ public class Repository {
         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
         Integer ft = 1;
 
-        String q = "INSERT INTO uprn.`uprn-class` (uprn, code) values (?, ?)";
+        String q = "INSERT INTO uprn_v2.`uprn_class` (uprn, code) values (?, ?)";
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
         Integer count = 1;
@@ -1811,17 +1925,20 @@ public class Repository {
     {
         List<List<String>> result = new ArrayList<>();
 
-        String preparedSql = "SELECT * FROM uprn.`uprn-class`";
+        String preparedSql = "SELECT * FROM uprn_v2.`uprn_dictionary` limit 10";
+
+        System.out.println(preparedSql);
+
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
 
         ResultSet rs = preparedStatement.executeQuery();
 
         while (rs.next()) {
-            String uprn = rs.getString("uprn");
-            String code = rs.getString("code");
+            String id = rs.getString("id");
+            String data = rs.getString("data");
             List<String> row = new ArrayList<>();
-            row.add(uprn);
-            row.add(code);
+            row.add(id);
+            row.add(data);
             result.add(row);
         }
 
