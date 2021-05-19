@@ -1376,11 +1376,9 @@ public class Repository {
     {
         String q = "SELECT post FROM  uprn_v2.`temp_import_u` INTO OUTFILE '"+mysqluploaddir+"areas.csv';";
 
-        /*
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
         preparedStatement.close();
-         */
 
         String filename = mysqluploaddir+"areas.csv";
         BufferedReader csvReader = new BufferedReader(new FileReader(filename));
@@ -1419,7 +1417,13 @@ public class Repository {
             String area = (String) names.nextElement();
             System.out.println(area);
 
-            q = "INSERT INTO ";
+            q = "INSERT INTO uprn_v2.uprn_dictionary (n1, `data`) values(?, ?)";
+
+            preparedStmt = connection.prepareStatement(q);
+
+            preparedStmt.setString(1,"AREAS");
+            preparedStmt.setString(2,area);
+            preparedStmt.execute();
         }
 
         preparedStmt.close();

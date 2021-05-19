@@ -40,8 +40,43 @@ public class Repository {
         }
     }
 
-    public String GetUPRN() throws SQLException {
+    // X.STR
+    public Integer XSTR(String street, Integer like) throws SQLException
+    {
+        Integer in = 0;
 
+        String e = "="; String p = "";
+        if (like.equals(1)) {
+            e = "like"; p = "%";
+        }
+        String q ="SELECT street from uprn_v2.uprn_main where street "+e+" '" + street +p+"'";
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            in = 1;
+        }
+        return in;
+    }
+
+    // OutOfArea
+    public Integer inpost(String area, String qpost) throws SQLException
+    {
+        Integer in = 0;
+        String q = "SELECT * FROM uprn_v2.uprn_dictionary where n1 = 'AREAS' and `data` = '"+area+"'";
+        if (!qpost.isEmpty()) {
+            q = "SELECT * FROM uprn_v2.uprn_dictionary where n1 = 'AREAS' and `data` = '"+qpost+"'";
+        }
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) {in = 1;}
+        preparedStatement.close();
+
+        return in;
+    }
+
+    public String GetUPRN() throws SQLException {
         // test that we can connect to the mysql database?
         String preparedSql = "SELECT * FROM uprn_v2.`uprn_dictionary` limit 10";
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
@@ -52,6 +87,7 @@ public class Repository {
             System.out.println(data);
         }
 
+        preparedStatement.close();
         return "{}";
     }
 
