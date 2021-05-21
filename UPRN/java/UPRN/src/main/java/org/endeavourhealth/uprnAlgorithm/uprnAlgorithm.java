@@ -23,6 +23,15 @@ public class uprnAlgorithm {
                 // 0.1 the askew building,50 bartholomew close,,, london, ec1a7bd
                 // flat 1 to - 2 anglian house,,,,106 renwick road,ig110rf
 
+                // 02 Belgrave Road,,,,London,E178QG <= addlines should be 1
+                // 1 Attlee Terrace Prospect Hill,Walthamstow, London,,,London,E173EG <= addlines should be 2
+                // 02 Saddleworth Square,Harold Hill,,,Romford,RM38YX <= addlines should be 3
+                // 92~summit estate~portland avenue~stamford hill~n166ea <= f4
+                // room 6 house~27~p o box 1558~n165jj <= f5
+                // pentland house~30 stamford hill~stamford hill~n166xz <= f6
+                // 11a northfield road~n165rl <= f8
+                // flat 1 157 chruch walk~n168qa <= f9
+
                 Scanner scanner = new Scanner(System.in);
                 System.out.print("Enter an address: ");
                 String adrec = scanner.nextLine();

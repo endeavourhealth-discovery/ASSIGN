@@ -76,7 +76,10 @@ public class UprnImporter {
                 //z.UPRNS();
                 //z.IMPLPI();
                 //z.UPRNIND();
-                z.AREAS();
+
+                // Dictionary stuff
+                //z.AREAS();
+                z.TOWNS();
 
                 // populates ABP data
                 //z.TurnIntoTab();

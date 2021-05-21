@@ -40,6 +40,41 @@ public class Repository {
         }
     }
 
+    public String QueryDictionary(String node, String word) throws SQLException
+    {
+        String data = "";
+
+        word = word.replaceAll("'","''");
+
+        String q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = '"+node+"' and n2='" + word + "'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            data = rs.getString("data");
+        }
+
+        preparedStatement.close();
+
+        return data;
+    }
+
+    public Integer QueryIndexes(String data, String column) throws SQLException
+    {
+        Integer in = 0;
+
+        // select post from uprn_v2.uprn_main WHERE post = 'ig110rf'
+        String q = "SELECT "+column+" FROM uprn_v2.uprn_main WHERE "+column+" = '" +data+ "'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {in=1;}
+
+        return in;
+    }
+
     // X.STR
     public Integer XSTR(String street, Integer like) throws SQLException
     {

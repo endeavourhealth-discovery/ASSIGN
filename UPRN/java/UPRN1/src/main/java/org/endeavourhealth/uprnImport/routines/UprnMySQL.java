@@ -57,6 +57,10 @@ public class UprnMySQL implements AutoCloseable {
        repository.IMPDPA2();
    }
 
+   public void TOWNS() throws SQLException, IOException {
+        repository.TOWNS();
+   }
+
    public void AREAS() throws SQLException,IOException {
         repository.AREAS();
    }

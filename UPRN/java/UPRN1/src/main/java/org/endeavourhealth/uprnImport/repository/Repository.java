@@ -1372,8 +1372,76 @@ public class Repository {
         return "";
     }
 
+    // populate Dictionary with towns
+    public void TOWNS() throws SQLException, IOException
+    {
+        File f = new File(mysqluploaddir + "towns.csv");
+        if(f.exists() && !f.isDirectory()) {
+            f.delete();
+        }
+
+        String q = "SELECT town, loc FROM  uprn_v2.`temp_import_u` INTO OUTFILE '"+mysqluploaddir+"towns.csv';";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        preparedStatement.close();
+
+        String filename = mysqluploaddir+"towns.csv";
+        BufferedReader csvReader = new BufferedReader(new FileReader(filename));
+
+        Hashtable<String, String> hashTowns = new Hashtable<String, String>();
+
+        String town;
+
+        Integer count = 1; String row; String loc;
+        while ((row = csvReader.readLine()) != null) {
+            if (!row.isEmpty()) {
+                String[] data = row.split("\t",-1);
+                town = data[0]; loc = data[1];
+                //System.out.println(area);
+                if (!town.isEmpty()) hashTowns.put(town,"");
+                if (!loc.isEmpty()) hashTowns.put(loc,"");
+            }
+
+            if (count % 10000 == 0) {System.out.print(".");}
+
+            count++;
+        }
+
+        csvReader.close();
+
+        q = "DELETE FROM uprn_v2.uprn_dictionary where n1 =?";
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+        preparedStmt.setString(1,"TOWN");
+        preparedStmt.execute();
+
+        // loop down the hastable and update uprn_dictionary
+        Enumeration names;
+        names = hashTowns.keys();
+        while(names.hasMoreElements()) {
+            town = (String) names.nextElement();
+            System.out.println(town);
+
+            q = "INSERT INTO uprn_v2.uprn_dictionary (n1, `data`) values(?, ?)";
+
+            preparedStmt = connection.prepareStatement(q);
+
+            preparedStmt.setString(1,"TOWN");
+            preparedStmt.setString(2,town);
+            preparedStmt.execute();
+        }
+
+        preparedStmt.close();
+    }
+
+    // populate Dictionary with post code areas or post code regions
     public void AREAS() throws SQLException, IOException
     {
+        File f = new File(mysqluploaddir + "areas.csv");
+        if(f.exists() && !f.isDirectory()) {
+            f.delete();
+        }
+
         String q = "SELECT post FROM  uprn_v2.`temp_import_u` INTO OUTFILE '"+mysqluploaddir+"areas.csv';";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
@@ -1383,8 +1451,7 @@ public class Repository {
         String filename = mysqluploaddir+"areas.csv";
         BufferedReader csvReader = new BufferedReader(new FileReader(filename));
 
-        Hashtable<String, String> hashAreas =
-                new Hashtable<String, String>();
+        Hashtable<String, String> hashAreas = new Hashtable<String, String>();
 
         String post;
 
