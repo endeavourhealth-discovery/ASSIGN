@@ -6,6 +6,8 @@ import java.io.*;
 import java.sql.*;
 import java.util.*;
 
+import static org.endeavourhealth.uprnAlgorithm.common.uprnCommon.*;
+
 public class Repository {
 
     private MysqlDataSource dataSource;
@@ -73,6 +75,98 @@ public class Repository {
         if (rs.next()) {in=1;}
 
         return in;
+    }
+
+    public Integer floor(String floor) throws SQLException
+    {
+        Integer n = 0;
+        String q ="SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLOOR' and n2 = '"+floor+"'";
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+        if (rs.next()) { n = 1; }
+        preparedStmt.close();
+
+        return n;
+    }
+
+
+    public Integer isroad(String text) throws SQLException {
+        Integer n = 0;
+
+        String q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'ROAD' and n2='"+text+"'";
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+        if (rs.next()) { n = 1; }
+
+        preparedStmt.close();
+
+        return n;
+    }
+
+    public Integer QueryFlat(String text) throws SQLException {
+        Integer n = 0;
+        String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT' and n2='"+text+"'";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+        while (rs.next()) {
+            String word = rs.getString("n2");
+            if (Piece(text," ",1,1).equals(word)) {
+                n = 1;
+            }
+        }
+        // is floor
+        // i text?1l.l1" ".e,$d(^UPRNS("FLOOR",text)) q 1
+        // ^[a-z]+( )\w+$
+        if (RegEx(text, "^[a-z]+( )\\w+$").equals(1) && floor(text).equals(1)) {n=1;}
+        preparedStmt.close();
+
+        return n;
+    }
+
+    public String flat(String text) throws SQLException {
+        String q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT'";
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+
+        while (rs.next()) {
+            String word = rs.getString("n2");
+            if (text.contains(word+" ")) {
+                String a = Piece(text, word+" ",1, 1);
+                String b = Piece(text, word+" ", 2, 20);
+                text = a + b;
+            }
+        }
+
+        preparedStmt.close();
+
+        // for  q:($e(text)'="0")  s text=$e(text,2,50)
+        for (;;){
+            if (!text.substring(0, 0).equals("0")) {break;}
+            text = text.substring(1,49);
+        }
+
+        // Flat at end
+        String p[] = text.split(" ",-1);
+        if (indexInBound(p, 1)) {
+            // get last piece
+            String flat = p[p.length-1];
+            // flat exist in uprn-s?
+            q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT' and n2='"+flat+"'";
+            preparedStmt = connection.prepareStatement(q);
+            rs = preparedStmt.executeQuery();
+            if (rs.next()) {
+                text = rs.getString("n2");
+            }
+        }
+
+        preparedStmt.close();
+
+        return text;
     }
 
     // X.STR
