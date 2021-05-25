@@ -105,6 +105,40 @@ public class Repository {
         return n;
     }
 
+    public Integer VERTICALS(String text) throws SQLException {
+        Integer n = 0;
+
+        String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'VERTICALS' and n2='"+text+"'";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+        if (rs.next()) {
+            n = 1;
+        }
+
+        preparedStmt.close();
+
+        return n;
+    }
+
+    public Integer BUILDING(String text) throws SQLException {
+        Integer n = 0;
+
+        String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'BUILDING' and n2='"+text+"'";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+        if (rs.next()) {
+            n = 1;
+        }
+
+        preparedStmt.close();
+
+        return n;
+    }
+
     public Integer QueryFlat(String text) throws SQLException {
         Integer n = 0;
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT' and n2='"+text+"'";
