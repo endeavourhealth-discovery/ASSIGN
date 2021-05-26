@@ -105,6 +105,23 @@ public class Repository {
         return n;
     }
 
+    public Integer FLAT(String text) throws SQLException {
+        Integer n = 0;
+
+        String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT' and n2='"+text+"'";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+        if (rs.next()) {
+            n = 1;
+        }
+
+        preparedStmt.close();
+
+        return n;
+    }
+
     public Integer VERTICALS(String text) throws SQLException {
         Integer n = 0;
 
@@ -137,6 +154,24 @@ public class Repository {
         preparedStmt.close();
 
         return n;
+    }
+
+    public Integer hasflat(String text) throws SQLException {
+        Integer hasflat = 0;
+        String q = "SELECT * FROM uprn_v2.`uprn_dictionary` WHERE n1='FLAT'";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+
+        while (rs.next()) {
+            String word = rs.getString("n2");
+            if ((" "+text+" ").contains(" "+word+ " ")) {
+                hasflat = 1;
+            }
+        }
+
+        return hasflat;
     }
 
     public Integer QueryFlat(String text) throws SQLException {
