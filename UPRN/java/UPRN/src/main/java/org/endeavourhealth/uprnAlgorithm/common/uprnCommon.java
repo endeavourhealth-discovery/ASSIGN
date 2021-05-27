@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.mysql.cj.util.StringUtils;
 import com.mysql.cj.xdevapi.PreparableStatement;
 import com.sun.corba.se.impl.orbutil.RepositoryIdStrings;
 import com.sun.deploy.security.SelectableSecurityManager;
@@ -188,6 +189,11 @@ public class uprnCommon {
 
 		if (matcher.lookingAt()) {n=1;}
 
+		/*
+		if (matcher.matches()) {n=1;}
+		if (matcher.find()) {n=1;}
+		 */
+
 		return n;
 	}
 
@@ -292,7 +298,7 @@ public class uprnCommon {
 		}
 
 		// f37
-		for (; ; ) {
+		for (;;) {
 			if (isflat(adbuild, repository).equals(1)) {
 				adflat = Piece(adbuild, " ", 1, 2);
 				adbuild = Piece(adbuild, " ", 3, 10);
@@ -343,11 +349,12 @@ public class uprnCommon {
 				}
 				break;
 			}
+			break;
 		}
 
 		// f43
 		if (repository.VERTICALS(adbuild).equals(1)) {
-			// *** TO DO return adflat and adbuild here
+			// *** TO DO return adflat and adbuild
 			adflat = adbuild;
 			adbuild = "";
 			return;
@@ -777,8 +784,26 @@ public class uprnCommon {
         return adflat +"~"+ adbuild +"~"+ adbno +"~"+ adstreet;
     }
 
+    public static int ConverStrtoNum(String num)
+	{
+		int xnum;
+		try {
+			xnum = Integer.parseInt(num);
+		}
+		catch (NumberFormatException e)
+		{
+			xnum = 0;
+		}
+		return xnum;
+	}
+
 	// a version of format^UPRNA
 	public static String format(Repository repository, String adrec) throws SQLException {
+
+		if (RegEx("123","^[0-9]+$").equals(1)) {
+			System.out.println("phew!");
+		}
+
 		String d = "~";
 
 		String adflat = "";
@@ -988,6 +1013,7 @@ public class uprnCommon {
 					}
 				}
 				// f9
+				// flat 43 48church road~e153hz
 				if (RegEx(adstreet,"^[a-z]+").equals(1)) {
 					for (i = 1; i <= CountPieces(adstreet," "); i++) {
 						if (!adbuild.isEmpty()) {break;}
@@ -1250,6 +1276,7 @@ public class uprnCommon {
                 adbuild = adbuild.replace("("," ");
                 adbuild = adbuild.replace(")"," ");
                 adbuild = adbuild.replaceAll("  "," ");
+                break;
             }
         }
 
@@ -1332,6 +1359,7 @@ public class uprnCommon {
                     break;
                 }
             }
+            break;
         }
 
         // f92
@@ -1384,6 +1412,7 @@ public class uprnCommon {
                         adstreet = xbuild;
                     }
                 }
+                break;
             }
         }
 
@@ -1565,7 +1594,397 @@ public class uprnCommon {
         }
 
         // f119 ;110 , 110 carlton road
-        // ** HERE **
+		int xadflat = ConverStrtoNum(adflat);
+
+		if (adflat.equals(adbno) && adbuild.isEmpty() && xadflat > 20) { adflat = "";}
+
+		// f120 ;street number is in location!
+		// ; bendish road , 11
+		if (RegEx(adloc, "^[0-9]+$").equals(1) && adbno.isEmpty()) {
+			adbno = adloc;
+			adloc = "";
+		}
+
+		// f121 ;Error in flat number
+		// ;flat go1
+		// ?1l.l1"o"1n.n
+		// [a-z]+(o)[0-9]+$
+		if (RegEx(Piece(adflat, " ", 2, 2),"[a-z]+(o)[0-9]+$").equals(1)) {
+			adflat = setSingle$Piece(adflat, " ", Piece(adflat," ",2, 2).replace("o","0"), 2);
+		}
+
+		// f122 ;Now has flat as number and number still in street
+		// ;,,flat 1, 22 plashet road
+		if (!adbno.isEmpty() && isno(Piece(adstreet, " ",2, 2)).equals(1)) {
+			if (adflat.isEmpty() && adbuild.isEmpty()) {
+				adflat = adbno;
+				adbno = Piece(adstreet, " ", 1, 1);
+				adstreet = Piece(adstreet, " ", 2, 20);
+			}
+		}
+
+		// f123 ;area in street
+		if (adloc.isEmpty() && CountPieces(adstreet, " ")>1) {
+			if (repository.XBLD(adstreet, 0).equals(0) && repository.XSTR(adstreet,0).equals(0)) {
+				Integer z = CountPieces(adstreet, " ");
+				if (repository.TOWN(Piece(adstreet, " ", z, z)).equals(1)) {
+					adloc = Piece(adstreet, " ", z, z);
+					adstreet = Piece(adstreet, " ", 1, z-1);
+				}
+			}
+		}
+
+		// f124 ;building is the number
+		if (isno(adbuild).equals(1) && !adstreet.isEmpty() && adbno.isEmpty()) {
+			adbno = adbuild;
+			adbuild = "";
+		}
+
+		// f125 ;suffixes split across fields
+		// ?1l1" "1l.e
+		// ^[a-z]( )([a-z]|[a-z]+)
+		if (!adflat.isEmpty() && RegEx(adbuild, "^[a-z]( )([a-z]|[a-z]+)").equals(1)) {
+			adflat = adflat + adbuild.substring(0, 0);
+			adbuild = adbuild.substring(2, 20);
+		}
+
+		// f126
+		if (!adbno.isEmpty() && RegEx(adstreet, "^[a-z]( )([a-z]|[a-z]+)").equals(1)) {
+			if (!adstreet.substring(0, 0).equals("y")) {
+				adbno = adbno + adstreet.substring(0, 0);
+				adstreet = Piece(adstreet, " ", 2, 20);
+			}
+		}
+
+		// f127 ;Two streets
+		if (isroad(adloc, repository).equals(1) && isroad(adstreet, repository).equals(1)) {
+			if (adflat.isEmpty() && adbuild.isEmpty()) {
+				adflat = adbno;
+				adbuild = adstreet;
+				adbno = "";
+				adstreet = adloc;
+				adloc = "";
+			}
+		}
+
+		// f128 ;009
+		// ;strip leading zeros
+		if (RegEx(adflat, "^[0-9]+$").equals(1)) {
+			adflat = adflat.replaceFirst("^0*", "");
+		}
+
+		// f129 ;Building ends in number
+		// ?1l.l1" "1l.l.e
+		// ^[a-z]+( )([a-z]|[a-z]+)
+		if (adbno.isEmpty() && adflat.isEmpty() && RegEx(adstreet,"^[a-z]+( )([a-z]|[a-z]+)").equals(1)) {
+			Integer z = CountPieces(adbuild, " ");
+			if (RegEx(Piece(adbuild, " ", z, z), "^[0-9]+$").equals(1)) {
+				adbno = Piece(adbuild, " ", z, z);
+				adbuild = Piece(adbuild, " ", 1, z-1);
+			}
+		}
+
+		// ;Correct spelling
+		// f130
+		// i '$d(address("obuild")) s address("obuild")=adbuild <= ** TO DO need to add to hash
+		// s address("ostr")=adstreet <= add to hash
+
+		adbuild = correct(adbuild, repository);
+		adstreet = correct(adstreet, repository);
+
+		// set adflat=$$flat^UPRNU($$co($$correct^UPRNU(adflat)))
+		adflat = flat(co(correct(adflat, repository)), repository);
+
+		// f131
+		if (!adbno.isEmpty()) {
+			adbno = flat(co(correct(adbno, repository)), repository);
+		}
+
+		// f132 ;Duplicate building
+		if (adbuild.equals(adstreet)) {
+			if (adbno.isEmpty() && !adflat.isEmpty()) {
+				adbno = adflat;
+				adbuild = "";
+				adflat = "";
+			}
+		}
+
+		// f133 ;Street still has number
+		// 1n.n1l1" "1l.e
+		if (RegEx(adstreet, "^[0-9]+[a-z]( )([a-z]|[a-z]+)").equals(1) && adbno.isEmpty() && !adflat.isEmpty()) {
+			adbno = Piece(adstreet, " ", 1, 1);
+			adstreet = Piece(adstreet, " ", 2, 10);
+		}
+
+		// f134 ;Street contains building
+		if (!adbuild.isEmpty() && adflat.isEmpty()) {
+			if (isroad(adstreet, repository).equals(1)) {
+				Integer z = CountPieces(adstreet, " ")-2;
+				for (i = 1; i <= z; i++) {
+					// f135
+					if (repository.BUILDING(Piece(adstreet," ",i,i)).equals(1) || repository.COURT(Piece(adstreet," ",i,i)).equals(1)) {
+						adbuild = Piece(adstreet, " ",1, i);
+						adstreet = Piece(adstreet, " ", i+1, z);
+						adflat = adbno;
+						adbno = "";
+					}
+				}
+			}
+		}
+
+		// f136 ;dependent locality has number
+		// i adepth?1n.n1l!(adeploc?1n.n),adbno="" d
+		if (RegEx(adepth, "^[0-9]+[a-z]$").equals(1) || RegEx(adeploc, "^[0-9]+$").equals(1)) {
+			adbno = adepth;
+			adepth = "";
+		}
+
+		// f137 ;House and street in same line
+		if (adflat.isEmpty() && adbuild.isEmpty() && !adbno.isEmpty() && CountPieces(adstreet, " ")>2) {
+			int lenstr = CountPieces(adstreet, " ");
+			if (RegEx(Piece(adstreet, "^[0-9]+", lenstr, lenstr),"").equals(1)) {
+				Integer strfound = 0;
+				for (i = 1; i <= lenstr-1; i++) {
+					if (strfound.equals(1)) break;
+					// f138
+					if (repository.XSTR(Piece(adstreet, " ", i, lenstr-1), 0).equals(1)) {
+						strfound = 1;
+						adflat = adbno;
+						adbno = Piece(adstreet, " ",lenstr, lenstr);
+						adbuild = Piece(adstreet, " ", 1, i-1);
+						adstreet = Piece(adstreet, " ", i, lenstr-1);
+					}
+				}
+			}
+
+			// f139
+			// tests for 0 rather than 1
+			// I $D(^UPRNX("X.STR",adstreet)) q
+			if (repository.XSTR(adstreet, 0).equals(0)) {
+				for (i = CountPieces(adstreet, " ")-2; i==2; i--) {
+					if (repository.XSTR(Piece(adstreet," ",i, CountPieces(adstreet, " ")), 0).equals(1)) {
+						adflat = adbno;
+						adbuild = Piece(adstreet, " ", 1, i-1);
+						adbno = "";
+						adstreet = Piece(adstreet, " ", i, CountPieces(adstreet, " "));
+					}
+				}
+			}
+		}
+
+		// f140 ;Shifts building to stree if its in street dictionary
+		if (adbno.isEmpty() && !adbuild.isEmpty() && !adflat.isEmpty()) {
+			for (;;) {
+				if (repository.XSTR(adbuild, 0).equals(1)) {
+					if (repository.XSTR(adstreet, 0).equals(0)) {
+						if (adloc.contains(" ")) { break; }
+						if (!adeploc.isEmpty()) {
+							String xadloc = "";
+							if (!adloc.isEmpty()) xadloc = " ";
+							adloc = adeploc + xadloc + adloc;
+							adeploc = adstreet;
+						}
+						else {
+							adloc = adstreet;
+						}
+						adstreet = adbuild;
+						adbno = adflat;
+						adflat = "";
+						adbuild = "";
+					}
+				}
+				break;
+			}
+		}
+
+		// f141 ;town in street
+		String adtown = "";
+		if (!adloc.isEmpty() && adbno.isEmpty()) {
+			if (repository.TOWN(adloc).equals(1)) {
+				if (!adstreet.isEmpty()) {
+					if (repository.TOWN(adstreet).equals(1)) {
+						adtown = adloc;
+						adloc = adstreet;
+						adstreet = adbuild;
+						adbno = adflat;
+						adflat = ""; adbuild = "";
+					}
+				}
+			}
+		}
+
+		// f142 ;Looks for more verticals
+		if (repository.VERTICALS(adflat +" "+ adbuild).equals(1)) {
+			adflat = adflat +" "+adbuild;
+			adbuild = "";
+		}
+
+		// F142a
+		if (adflat.isEmpty()) {
+			Integer numpos = numpos(adbuild);
+			if (numpos>0) {
+				if (repository.VERTICALS(Piece(adbuild, " ", 1, numpos-1)).equals(1)) {
+					adflat = Piece(adbuild, " ", 1, numpos);
+					adbuild = Piece(adbuild, " ", numpos+1, 20);
+				}
+			}
+		}
+
+		// f143
+		if (adflat.isEmpty()) {
+			String fbuild = adbuild;
+			// f144
+			if (isflat(Piece(adbuild, " ", 1, 1), repository).equals(1)) { fbuild = Piece(adbuild, " ",2, 20); };
+			for (i = CountPieces(fbuild, " "); i==2; i--) {
+				if (repository.VERTICALS(Piece(fbuild, " ",1, i)).equals(1)) {
+					adflat = Piece(fbuild, " ", 1, i);
+					adbuild = Piece(fbuild, " ", i+1, 20);
+					break;
+				}
+			}
+		}
+
+		// f145 ;Flat not yet found
+		if (adflat.isEmpty() && !adbuild.isEmpty() && !adstreet.isEmpty()) {
+			for (i = 1; i <= CountPieces(adbuild, " "); i++) {
+				if (RegEx(Piece(adbuild, " ", i , i), "^[0-9]+[a-z]").equals(1)) {
+					adflat = Piece(adbuild, " ", 1, i);
+					adbuild = Piece(adbuild, " ", i+1, 20);
+					break;
+				}
+				/* this is code that is not executed - take a look at the mumps code?
+				if (!adflat.isEmpty()) { continue; }
+				// i adbuild?1"studio"1" "1l
+				if (RegEx(adbuild, "^(studio)( )[a-z]$").equals(1)) {
+					continue;
+				}
+				 */
+			}
+		}
+
+		// f147 ;Look again for verticals
+		// ;Still looking
+		// i adbuild?1p1" ".e <= punctuation
+		//if (RegEx(adbuild, "^[!\"#$%&'()*+,-.\\/:;<=>?@[\\]^_`{|}~]( )[a-z]+").equals(1)) {
+		// \\p{Punct}
+
+		if (RegEx(adbuild, "(~!#*+,-.:;<=>?@`|\\{\\}\\^`)( )[a-z]+").equals(1)) {
+			if (repository.VERTICALS(Piece(adbuild, " ", 2, 20)).equals(1)) {
+				adflat = adflat +" "+ Piece(adbuild, " ", 2, 20);
+				adbuild = "";
+			}
+		}
+
+		// f148
+		if (repository.VERTICALS(adbuild).equals(1)) {
+			if (adflat.isEmpty()) {
+				adflat = adbuild;
+			}  else { adflat = adflat +" "+adbuild; }
+			adbuild = "";
+		}
+
+		// f149
+		// ;Probably got flat and number wrong
+		// i adbuild="flat",adflat?1n.n1l,adbno?1n.n
+		if (adbuild.equals("flat") && RegEx(adflat, "^[0-9]+[a-z]$").equals(1) && RegEx(adbno,"^[0-9]+$").equals(1)) {
+			String temp = adflat;
+			adflat = adbno;
+			adbno = temp;
+			adbuild = "";
+		}
+
+		// f150 ;Building has range number in it
+		Integer z = CountPieces(adbuild, " ");
+		if (adbno.isEmpty() && RegEx(Piece(adbuild," ", z, z), "^[0-9]+(-)[0-9]+").equals(1)) {
+			adbno = Piece(adbuild, " ", z, z);
+			adbuild = Piece(adbuild, " ", 1, z-1);
+			if (repository.VERTICALS(adflat +" "+ adbuild).equals(1)) {
+				adflat = adflat +" "+adbuild;
+				adbuild = "";
+			}
+		}
+
+		//f151 ; Street is building
+		if (!adflat.isEmpty() && adbuild.isEmpty() && adbno.isEmpty() && repository.XSTR(adbuild+" "+adstreet, 0).equals(0)) {
+			if (repository.XBLD(adstreet, 0).equals(1)) {
+				adbuild = adstreet; adstreet = "";
+			}
+		}
+
+		//f152 ;Flat contains street number
+		// 1n.n1" "1n.n
+		if (RegEx(adflat, "^[0-9]+( )[0-9]+$").equals(1) && adbno.isEmpty() && repository.XSTR(adbuild+" "+adstreet,0).equals(1)) {
+			adbno = Piece(adflat, " ", 2, 2);
+			adflat = Piece(adflat, " ", 1, 1);
+			adstreet = adbuild +" "+adstreet;
+			adbuild = "";
+		}
+
+		// f153 ; UPRNA1 - ;Additional preformatting routine
+		// care home changes
+		// Dependent location is street
+		if (!adeploc.isEmpty() && adbno.isEmpty() && adflat.isEmpty()) {
+			// ?1n.n.e1" "1l.e
+			// ^[0-9]+\w+( )[a-z]\w+
+			if (RegEx(adeploc, "^[0-9]+\\w+( )[a-z]\\w+").equals(1)) {
+				if (repository.XSTR(Piece(adeploc," ", 2, 20), 0).equals(1)) {
+					adbno = Piece(adeploc, " ", 1, 1);
+					adflat = adbuild; adbuild = adstreet; adstreet = Piece(adeploc, " ", 2, 20);
+					adeploc = "";
+				}
+			}
+		}
+		// ;is there a name and number or range in the street
+		if (!adbuild.isEmpty() && adbuild.equals(adstreet) && repository.XSTR(adbuild, 0).equals(1)) {
+			z = CountPieces(adflat, " ");
+			// ?1n.n.l
+			if (RegEx(Piece(adflat, " ", z, z),"^[0-9]+[a-z]$").equals(1)) {
+				adbno = Piece(adflat, " ",z, z);
+				adbuild = Piece(adflat, " ", 1, z-1);
+				adflat = "";
+			}
+		}
+		// i adbno="",adbuild="" d ????
+		z = CountPieces(adstreet, " ");
+		for (i = z-1; i==2; i--) {
+			String tstr = Piece(adstreet, " ",i, z);
+			if (repository.XSTR(tstr, 0).equals(1)) {
+				String tstno = Piece(adstreet, " ", i-1, i-1);
+				// ?1n.n.l
+				// ?1n.n1"-"1n.n
+				if (RegEx(tstno, "[0-9]+[a-z]$").equals(1) || RegEx(tstno, "^[0-9]+(-)[0-9]+$").equals(1)) {
+					adbno = Piece(adstreet, " ", i-1, i-1);
+					if (i== 2) {
+						adstreet = Piece(adstreet, " ", i, z);
+					}
+					else {
+						adbuild = Piece(adstreet, " ",1, i-2);
+						adstreet = Piece(adstreet, " ", i, z);
+					}
+				}
+			}
+		}
+		// I adstreet'="",'$D(^UPRNX("X.STR",adstreet)),adbno="" d ?????
+		z = CountPieces(adbuild, " ");
+		for (i = z-1; i==2; i--) {
+			String tstr = Piece(adbuild, " ",i, z);
+			if (repository.XSTR(tstr, 0).equals(1)) {
+				String tstno = Piece(adbuild, " ", i-1, i-1);
+				// 1n.n.l
+				// ?1n.n1"-"1n.n
+				if (RegEx(tstno, "[0-9]+[a-z]$").equals(1) || RegEx(tstno, "^[0-9]+(-)[0-9]+$").equals(1)) {
+					adbno = Piece(adbuild, " ", i-1, i-1);
+					int xadbno = ConverStrtoNum(adflat);
+					if (xadbno > 2) {
+						adstreet = Piece(adbuild, " ", i, z);
+						adbuild = Piece(adstreet, " ", 1, i-2);
+					}
+				}
+			}
+		}
+
+		// **** FINISHED ****
+
 		return "";
 	}
 

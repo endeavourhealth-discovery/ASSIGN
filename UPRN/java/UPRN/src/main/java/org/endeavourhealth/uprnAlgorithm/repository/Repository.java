@@ -105,6 +105,23 @@ public class Repository {
         return n;
     }
 
+    public Integer TOWN(String data) throws SQLException {
+        Integer n = 0;
+
+        String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'TOWN' and data='"+data+"'";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+        if (rs.next()) {
+            n = 1;
+        }
+
+        preparedStmt.close();
+
+        return n;
+    }
+
     public Integer FLAT(String text) throws SQLException {
         Integer n = 0;
 
@@ -126,6 +143,23 @@ public class Repository {
         Integer n = 0;
 
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'VERTICALS' and n2='"+text+"'";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+        if (rs.next()) {
+            n = 1;
+        }
+
+        preparedStmt.close();
+
+        return n;
+    }
+
+    public Integer COURT(String text) throws SQLException {
+        Integer n = 0;
+
+        String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'COURT' and n2='"+text+"'";
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
@@ -238,6 +272,27 @@ public class Repository {
         return text;
     }
 
+    // X.BLD
+    public Integer XBLD(String building, Integer like) throws SQLException
+    {
+        Integer in = 0;
+
+        String e = "="; String p = "";
+        if (like.equals(1)) {
+            e = "like"; p = "%";
+        }
+        String q ="SELECT street from uprn_v2.uprn_main where build "+e+" '" + building +p+"'";
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            in = 1;
+        }
+
+        preparedStatement.close();
+        return in;
+    }
+
     // X.STR
     public Integer XSTR(String street, Integer like) throws SQLException
     {
@@ -254,6 +309,9 @@ public class Repository {
         if (rs.next()) {
             in = 1;
         }
+
+        preparedStatement.close();
+
         return in;
     }
 
