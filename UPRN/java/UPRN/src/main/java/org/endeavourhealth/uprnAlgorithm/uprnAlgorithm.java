@@ -13,6 +13,17 @@ public class uprnAlgorithm {
 	
 		Properties properties = loadProperties( args );
 
+		if (args.length>=1 && args[0].equalsIgnoreCase("TESTUPRNA")) {
+            try ( runAlgorithm z = new runAlgorithm(properties) ) {
+                z.GetAdrFromFileAndProcess();
+            }
+            catch (Exception e) {
+                System.out.println(e);
+                e.printStackTrace();
+            }
+            System.exit(0);
+        }
+
         if (args.length>=1 && args[0].equalsIgnoreCase("CONSOLE")) {
             try ( runAlgorithm z = new runAlgorithm(properties) ) {
 

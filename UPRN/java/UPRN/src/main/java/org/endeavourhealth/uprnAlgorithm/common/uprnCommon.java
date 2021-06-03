@@ -1,5 +1,7 @@
 package org.endeavourhealth.uprnAlgorithm.common;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +14,7 @@ import com.mysql.cj.xdevapi.PreparableStatement;
 import com.sun.corba.se.impl.orbutil.RepositoryIdStrings;
 import com.sun.deploy.security.SelectableSecurityManager;
 import com.sun.org.apache.regexp.internal.REProgram;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import javafx.scene.input.PickResult;
 import org.endeavourhealth.uprnAlgorithm.repository.Repository;
 
@@ -30,7 +33,7 @@ public class uprnCommon {
 		Pattern pattern = Pattern.compile(regex);
 
 		Matcher matcher = pattern.matcher(post);
-		System.out.println(matcher.matches());
+		//System.out.println(matcher.matches());
 
 		if (!matcher.matches()) {
 			return 0;
@@ -72,7 +75,7 @@ public class uprnCommon {
 
 		if (zdel.equals((1)) && !z.isEmpty()) {
 			// remove delimeter
-			z = z.substring(0, z.length()-1);
+			z = z.substring(0, z.length()-del.length());
 		}
 
 		return z;
@@ -125,10 +128,10 @@ public class uprnCommon {
 					// $Order(^UPRNX("X.STR",saint))
 					in = repository.XSTR(saint,1);
 					if (in.equals(1)) {continue;}
-					text = setSingle$Piece(text," ","street",i);
+					text = setSingle$Piece(text," ","street",i+1);
 					continue;
 				}
-				text = setSingle$Piece(text," ",correct,i);
+				text = setSingle$Piece(text," ",correct,i+1);
 			}
 		}
 
@@ -147,7 +150,7 @@ public class uprnCommon {
 		Integer part; Integer wordno;
 		for (part = 1; part <= l; part++) {
 			String field = Piece(address,"~", part, part);
-			System.out.println(field);
+			//System.out.println(field);
 			Integer zl = CountPieces(field," ");
 			String word = "";
 			for (wordno = 1; wordno <= zl; wordno++) {
@@ -176,26 +179,25 @@ public class uprnCommon {
 					}
 				}
 				word = correct(word, repository);
-				setSingle$Piece(field," ",word,wordno);
+				field = setSingle$Piece(field," ",word,wordno);
 			}
-			setSingle$Piece(address,"~",field,part);
+			address = setSingle$Piece(address,"~",field,part);
 		}
 		return address;
 	}
 
 	public static Integer RegEx(String data, String regex)
 	{
-		Integer n = 0;
+		Integer n = 0; Integer n2 = 0; Integer n3= 0;
 
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(data);
 
 		if (matcher.lookingAt()) {n=1;}
 
-		/*
-		if (matcher.matches()) {n=1;}
-		if (matcher.find()) {n=1;}
-		 */
+		if (matcher.matches()) {n2=1;}
+		if (matcher.find()) {n3=1;}
+
 
 		return n;
 	}
@@ -204,9 +206,10 @@ public class uprnCommon {
 		Integer n = 0;
 
 		// $p(text," ",2)'?1n.n.e
-		if (Piece(text," ",1,1).equals("tower") && RegEx(Piece(text, " ",2, 2),"^(\\d\\w+)").equals(0)) return 0;
+		//if (Piece(text," ",1,1).equals("tower") && RegEx(Piece(text, " ",2, 2),"^(\\d\\w+)").equals(0)) return 0;
+		//if (repository.QueryFlat(text).equals(1)) { n =1; }
 
-		if (repository.QueryFlat(text).equals(1)) { n =1; }
+        n = repository.isflat(text);
 
 		return n;
 	}
@@ -284,6 +287,108 @@ public class uprnCommon {
         }
         return sb;
     }
+
+	public static String f17(String adeploc, String adstreet, String adbuild, String adepth, Repository repository) throws SQLException
+	{
+		if (!adeploc.isEmpty()) {
+			if (isroad(adeploc, repository).equals(1) && isroad(adstreet, repository).equals(0)) {
+				if (RegEx(adstreet, "^(no )\\d+$").equals(1)) {
+					adstreet = Piece(adstreet, " ", 2, 2) + " " + adeploc;
+					adeploc = "";
+				}
+				if (!adbuild.isEmpty() && (RegEx(adstreet, "\\d+$").equals(1) || RegEx(adstreet, "^(\\d+\\w)$").equals(1))) {
+					adstreet = adstreet + " " + adeploc;
+					adeploc = "";
+				}
+				if (RegEx(adstreet, "^([a-z]\\w+)").equals(1) && (RegEx(adeploc, "^(\\d+(-)\\d+|\\d+( )[a-z]\\w+)").equals(1))) {
+					if (adstreet.contains("flat")) {
+						adbuild = adstreet + " " + adbuild;
+						adstreet = adeploc;
+						adeploc = "";
+					}
+					else {
+						adbuild = adbuild + " " + adstreet;
+						adstreet = adeploc;
+						adeploc = "";
+					}
+					return adeploc +"~"+ adstreet +"~"+ adbuild +"~"+ adepth;
+				}
+				if (!adbuild.isEmpty()) {
+					Integer n = repository.floor(Piece(adstreet, " ", 1, 1));
+					if (n.equals(1)) {
+						adbuild = adbuild + " " + adstreet;
+						adstreet = "";
+						if (!adepth.isEmpty()) {
+							adstreet = adepth + " " + adeploc;
+							adepth = ""; adeploc = "";
+						}
+						else {
+							adstreet = adeploc;
+						}
+						return adeploc +"~"+ adstreet +"~"+ adbuild +"~"+ adepth;
+					}
+					if (isflat(adstreet, repository).equals(1)) {
+						adbuild = adstreet + " " + adbuild;
+						adstreet = adepth + " " + adeploc;
+						adepth = ""; adeploc = "";
+					}
+				}
+			}
+		}
+		return adeploc +"~"+ adstreet +"~"+ adbuild +"~"+ adepth;
+	}
+
+	// Location is street, street is building
+	public static String f23(String adloc, String adstreet, String adbuild, String adflat, Repository repository) throws SQLException
+	{
+		if (!adloc.isEmpty() && !adstreet.isEmpty()) {
+			if (isroad(adloc, repository).equals(1) && isroad(adstreet, repository).equals(0)) {
+				// adloc?1n.n1" "1l.e
+				// ^(\d+( )[a-z]\w+)$
+				// f24
+				if (RegEx(adloc, "^(\\d+( )[a-z]\\w+)$").equals(1)) {
+					// f25
+					if (RegEx(adstreet, "^\\d+$").equals(1)) {
+						if (RegEx(adbuild, "^[a-z]+\\w$").equals(1)) {
+							adbuild = adstreet + " " + adbuild;
+							adstreet = adloc;
+							adloc = "";
+						}
+					}
+					return adloc+"~"+adstreet+"~"+adbuild+"~"+adflat;
+				}
+				// f26
+				if (RegEx(adstreet, "^[0-9]+$").equals(1) || RegEx(adstreet, "^[0-9]+(-)[0-9]+$").equals(1) || RegEx(adstreet, "^[0-9]+([a-z]|[a-z]+)$").equals(1)) {
+					adstreet = adstreet + " " + adloc;
+					adloc = "";
+					return adloc+"~"+adstreet+"~"+adbuild+"~"+adflat;
+				}
+				// f27
+				if (adflat.isEmpty()) {
+					adflat = adbuild;
+					if (!adstreet.isEmpty()) {
+						adbuild = adstreet;
+					}
+					else
+					{
+						if (RegEx(adflat, "^[0-9]+[a-z]( )[a-z][a-z]").equals(1)) {
+							adbuild = Piece(adflat, " ", 2, 20);
+							adflat = Piece(adflat, " ", 1, 1);
+							adstreet = adloc;
+							adloc = "";
+						}
+					}
+					adstreet = adloc;
+					adloc = "";
+					return adloc+"~"+adstreet+"~"+adbuild+"~"+adflat;
+				}
+				adbuild = adbuild +" "+adstreet;
+				adstreet = adloc;
+				adloc = "";
+			}
+		}
+		return adloc+"~"+adstreet+"~"+adbuild+"~"+adflat;
+	}
 
 	public static String flatbld(String adflat, String adbuild, Repository repository) throws SQLException {
 		// is it a flat or number and if so what piece is the rest?
@@ -387,7 +492,7 @@ public class uprnCommon {
 
 		// f46 19a
 		// ?1n.n.l
-		if (RegEx(adbuild, "^[0-9][a-z]+$").equals(1)) {
+		if (RegEx(adbuild, "^([0-9]+|[0-9]+[a-z]+)$").equals(1)) {
 			adflat = adbuild;
 			adbuild = "";
 			return adflat+"~"+adbuild;
@@ -542,7 +647,7 @@ public class uprnCommon {
 		if (adbuild.contains("flat")) {
 			// f63
 			// ?1n.n.l
-			if (RegEx(Piece(adbuild, " ",2, 2),"^[0-9][a-z]$").equals(1)) {
+			if (RegEx(Piece(adbuild, " ",2, 2),"^([0-9]+|[0-9]+[a-z]+)$").equals(1)) {
 				adflat = "flat" + " " + Piece(adbuild, " ", 2, 2);
 				adbuild = Piece(adbuild, " ", 3, 3);
 			}
@@ -559,7 +664,7 @@ public class uprnCommon {
 		// f65 workshop 6
 		// ?1.l1" "1n.n.l
 		// ^[a-z]+( )([0-9]+|[a-z]+)
-		if (!adflat.isEmpty() && RegEx(adbuild, "^[a-z]+( )([0-9]+|[a-z]+)").equals(1)) {
+		if (!adflat.isEmpty() && RegEx(adbuild, "^[a-z]+( )([0-9]+)").equals(1)) {
 			adflat=adbuild;
 			adbuild = "";
 		}
@@ -686,11 +791,11 @@ public class uprnCommon {
         // ** TO DO debug loop
         if (RegEx(adstreet, "^[0-9]+([a-z]{2}|[a-z]{2}\\w+)( )([a-z]{2}|[a-z]{2}\\w+)").equals(1)) {
             Integer z = adstreet.length();
-            for (Integer i=0; i<z; i++) {
-                if (!Character.isDigit(adstreet.charAt(i))) {
+            for (Integer i=1; i<=z; i++) {
+                if (!Character.isDigit(adstreet.charAt(i-1))) {
                     break;
                 }
-                adbno = adbno + adstreet.substring(i, i);
+                adbno = adbno + adstreet.substring(i-1, i);
             }
             adstreet = Piece(adstreet, adbno, 2, 10);
             return adbno+"~"+adstreet+"~"+adflat+"~"+adbuild;
@@ -808,7 +913,7 @@ public class uprnCommon {
 	}
 
 	// a version of format^UPRNA
-	public static String format(Repository repository, String adrec) throws SQLException {
+	public static String format(Repository repository, String adrec, String oadrec) throws SQLException, IOException {
 
 		String d = "~";
 
@@ -862,7 +967,7 @@ public class uprnCommon {
 				if (word.contains(".")) {
 					matcher = pattern.matcher(word);
 					if (matcher.lookingAt()) {
-						System.out.println(word);
+						//System.out.println(word);
 						word = word.replace(".","-");
 						address = setSingle$Piece(address," ",word,i);
 					}
@@ -942,7 +1047,7 @@ public class uprnCommon {
 		if (addlines > 2) {
 			// ?1n.n."-".n
 			// ?1l.e
-			if (RegEx(Piece(address, d, 1, 1), "^([0-9]+)|([0-9]+(-)[0-9]+)").equals(1) && RegEx(Piece(address, d, 2, 2), "^([a-z]|[a-z]+)").equals(1)) {
+			if (RegEx(Piece(address, d, 1, 1), "^(^[0-9]+$|[0-9]+(-)[0-9]+)").equals(1) && RegEx(Piece(address, d, 2, 2), "^([a-z]|[a-z]+)").equals(1)) {
 				String n = Piece(address, d, 1, 1) +" "+ Piece(address, d, 2, 2);
 				address = setSingle$Piece(address, d, n, 1);
 				address = Piece(address, d, 1, 1) +d+ Piece(address, d, 3, 10);
@@ -988,7 +1093,7 @@ public class uprnCommon {
 					if (repository.XSTR(Piece(adstreet," ",i,lenstr),0).equals(1)) {
 						strfound = 1;
 						// ?1n.n.l
-						if (RegEx(Piece(adstreet," ",i-1,i-1), "\\d\\w").equals(1)) {
+						if (RegEx(Piece(adstreet," ",i-1,i-1), "^([0-9]+|[0-9]+[a-z]+)$").equals(1)) {
 							if (ISFLAT.equals(1)) {
 								adflat = Piece(adstreet," ", 1, 2);
 								adstreet = Piece(adstreet, " ", 3, CountPieces(adstreet," "));
@@ -1017,22 +1122,22 @@ public class uprnCommon {
 					for (i = 1; i <= CountPieces(adstreet," "); i++) {
 						if (!adbuild.isEmpty()) {break;}
 						// ?1n.n.l <= \\d\\w
-						if (RegEx(Piece(adstreet, " ", i, i),"\\d\\w").equals(1)) {
+						if (RegEx(Piece(adstreet, " ", i, i),"^([0-9]+|[0-9]+[a-z]+)$").equals(1)) {
 							if (RegEx(Piece(adstreet, " ", i+1, i+1),"\\d\\w").equals(1)) {
 								adbuild = Piece(adstreet," ",1,i);
 								adstreet = Piece(adstreet, " ", i+1, 20);
 								continue;
 							}
-							adbuild = Piece(adstreet, " ", 1, i-1);
-							adstreet = Piece(adstreet, " ",i, 20);
-							Integer z = CountPieces(adbuild, " ");
-							String last = Piece(adbuild," ", z, z);
-							if (last.contains("-")) {
-								if (RegEx(last,"\\d(-)$").equals(1)) {
-									adstreet = last+adstreet;
-									z = CountPieces(adbuild," ");
-									adbuild = Piece(adbuild, " ",1, z-1);
-								}
+						}
+						adbuild = Piece(adstreet, " ", 1, i-1);
+						adstreet = Piece(adstreet, " ",i, 20);
+						Integer z = CountPieces(adbuild, " ");
+						String last = Piece(adbuild," ", z, z);
+						if (last.contains("-")) {
+							if (RegEx(last,"\\d(-)$").equals(1)) {
+								adstreet = last+adstreet;
+								z = CountPieces(adbuild," ");
+								adbuild = Piece(adbuild, " ",1, z-1);
 							}
 						}
 					}
@@ -1056,6 +1161,7 @@ public class uprnCommon {
 			adbuild = Piece(address, d, 1, 1);
 			adstreet = Piece(address, d, 2, 2);
 			adloc = Piece(address, d, 3, 3);
+			System.out.println("f11");
 		}
 
 		// f12
@@ -1104,6 +1210,10 @@ public class uprnCommon {
 		// hAddress is what we should return
 		hAddress.put("original", orig);
 
+		String ret = f17(adeploc, adstreet, adbuild, adepth, repository);
+		adeploc = Piece(ret,"~",1,1); adstreet = Piece(ret,"~",2,2); adbuild = Piece(ret,"~",3,3); adepth=Piece(ret,"~",5,5);
+
+		/*
 		// f17
 		for (;;) {
 			if (!adeploc.isEmpty()) {
@@ -1170,8 +1280,15 @@ public class uprnCommon {
 			}
 			break; // make sure we exit infinite loop
 		}
+		 */
 
 		// Location is street, street is building
+		ret = f23(adloc, adstreet, adbuild, adflat, repository);
+		adloc = Piece(ret, "~", 1, 1); adstreet = Piece(ret, "~", 2, 2); adbuild = Piece(ret, "~", 3, 3); adflat = Piece(ret, "~", 4, 4);
+
+		/*
+		// Location is street, street is building
+		// f23
 		for (;;) {
 			if (!adloc.isEmpty() && !adstreet.isEmpty()) {
 				if (isroad(adloc, repository).equals(1) && isroad(adstreet, repository).equals(0)) {
@@ -1204,27 +1321,27 @@ public class uprnCommon {
 						// f28
 						if (!adstreet.isEmpty()) {
 							adbuild = adstreet;
+						}
+					} else {
+						// ?1n.n.l1" "2l.e
+						// ^[0-9]+[a-z]( )[a-z][a-z]
+						// f29
+						if (RegEx(adflat, "^[0-9]+[a-z]( )[a-z][a-z]").equals(1)) {
+							adbuild = Piece(adflat, " ", 2, 20);
+							adflat = Piece(adflat, " ", 1, 1);
+							adstreet = adloc;
+							adloc = "";
 							break;
-						} else {
-							// ?1n.n.l1" "2l.e
-							// ^[0-9]+[a-z]( )[a-z][a-z]
-							// f29
-							if (RegEx(adflat, "^[0-9]+[a-z]( )[a-z][a-z]").equals(1)) {
-								adbuild = Piece(adflat, " ", 2, 20);
-								adflat = Piece(adflat, " ", 1, 1);
-								adstreet = adloc;
-								adloc = "";
-								break;
-							}
 						}
 					}
+					adbuild = adbuild +" "+adstreet;
+					adstreet = adloc;
+					adloc = "";
 				}
-				adbuild = adbuild +" "+adstreet;
-				adstreet = adloc;
-				adloc = "";
 			}
 			break;
 		}
+		 */
 
 		//Only one  line, likely to be street But may be flat and building
 		//Location is actually number and street
@@ -1261,8 +1378,8 @@ public class uprnCommon {
 					    // f35
 					    else {
 					        adbuild = Piece(adstreet, " ", 1, 2);
-					        adstreet = Piece(adstreet, " ", 3, 20);
                         }
+						adstreet = Piece(adstreet, " ", 3, 20);
                     }
 				}
 			}
@@ -1354,7 +1471,7 @@ public class uprnCommon {
 
                     // f91
                     if (adloc.isEmpty()) {
-                        if (isroad(adstreet, repository).equals(1)) {
+                        if (isroad(adstreet, repository).equals(0)) {
                             adloc = adstreet;
                             adstreet = adbuild;
                             adbno = adflat;
@@ -1523,24 +1640,27 @@ public class uprnCommon {
         if (!adflat.isEmpty() && !adbuild.isEmpty() && !adbno.isEmpty() && !adstreet.isEmpty()) {
             String xadbno = extractNumber(adbno) +" "+ adstreet;
             Integer l = (extractNumber(adflat)+" "+adbuild).length();
-            if (xadbno.substring(0, (l-1)).equals(extractNumber(adflat) +" "+ adbuild)) {
-                // i adflat?1n.nl,adbno?1n.n d
-                if (RegEx(adflat, "^[0-9]+[a-z]$").equals(1) && RegEx(adbno, "^[0-9]+$").equals(1)) {
-                    adbno = adflat;
-                }
-                adflat = ""; adbuild = "";
-            }
+            if (xadbno.length()>=l) {
+				if (xadbno.substring(0, l).equals(extractNumber(adflat) + " " + adbuild)) {
+					// i adflat?1n.nl,adbno?1n.n d
+					if (RegEx(adflat, "^([0-9]+|[0-9]+[a-z]+)$").equals(1) && RegEx(adbno, "^[0-9]+$").equals(1)) {
+						adbno = adflat;
+					}
+					adflat = "";
+					adbuild = "";
+				}
+			}
         }
 
         // f1101 ;first floor 96a second avenue
         // ;street contains flat term before the number
         if (adbno.isEmpty()) {
             length = CountPieces(adstreet, " ");
-            for (i = 2; i <= length - 1; i++) {
+            for (i = 2; i <= length; i++) {
                 String word = Piece(adstreet, " ", i, i);
                 // f111
                 // 1n.n.l
-                if (RegEx(word, "\"^[0-9][a-z]+$").equals(1)) {
+                if (RegEx(word, "^[0-9][a-z]+$").equals(1)) {
                     if (adflat.isEmpty() && adbuild.isEmpty()) {
                         adflat = Piece(adstreet, " ", 1, i - 1);
                         // f112
@@ -1649,14 +1769,14 @@ public class uprnCommon {
 		// ?1l1" "1l.e
 		// ^[a-z]( )([a-z]|[a-z]+)
 		if (!adflat.isEmpty() && RegEx(adbuild, "^[a-z]( )([a-z]|[a-z]+)").equals(1)) {
-			adflat = adflat + adbuild.substring(0, 0);
-			adbuild = adbuild.substring(2, 20);
+			adflat = adflat + adbuild.substring(0, 1);
+			adbuild = adbuild.substring(1, adbuild.length());
 		}
 
 		// f126
 		if (!adbno.isEmpty() && RegEx(adstreet, "^[a-z]( )([a-z]|[a-z]+)").equals(1)) {
-			if (!adstreet.substring(0, 0).equals("y")) {
-				adbno = adbno + adstreet.substring(0, 0);
+			if (!adstreet.substring(0, 1).equals("y")) {
+				adbno = adbno + adstreet.substring(0, 1);
 				adstreet = Piece(adstreet, " ", 2, 20);
 			}
 		}
@@ -1852,7 +1972,8 @@ public class uprnCommon {
 		// f145 ;Flat not yet found
 		if (adflat.isEmpty() && !adbuild.isEmpty() && !adstreet.isEmpty()) {
 			for (i = 1; i <= CountPieces(adbuild, " "); i++) {
-				if (RegEx(Piece(adbuild, " ", i , i), "^[0-9]+[a-z]").equals(1)) {
+				// ?1n.n.l
+				if (RegEx(Piece(adbuild, " ", i , i), "^([0-9]+|[0-9]+[a-z]+)$").equals(1)) {
 					adflat = Piece(adbuild, " ", 1, i);
 					adbuild = Piece(adbuild, " ", i+1, 20);
 					break;
@@ -1943,7 +2064,7 @@ public class uprnCommon {
 		if (!adbuild.isEmpty() && adbuild.equals(adstreet) && repository.XSTR(adbuild, 0).equals(1)) {
 			z = CountPieces(adflat, " ");
 			// ?1n.n.l
-			if (RegEx(Piece(adflat, " ", z, z),"^[0-9]+[a-z]$").equals(1)) {
+			if (RegEx(Piece(adflat, " ", z, z),"^([0-9]+|[0-9]+[a-z]+)$").equals(1)) {
 				adbno = Piece(adflat, " ",z, z);
 				adbuild = Piece(adflat, " ", 1, z-1);
 				adflat = "";
@@ -1957,7 +2078,7 @@ public class uprnCommon {
 				String tstno = Piece(adstreet, " ", i-1, i-1);
 				// ?1n.n.l
 				// ?1n.n1"-"1n.n
-				if (RegEx(tstno, "[0-9]+[a-z]$").equals(1) || RegEx(tstno, "^[0-9]+(-)[0-9]+$").equals(1)) {
+				if (RegEx(tstno, "^([0-9]+|[0-9]+[a-z]+)$").equals(1) || RegEx(tstno, "^[0-9]+(-)[0-9]+$").equals(1)) {
 					adbno = Piece(adstreet, " ", i-1, i-1);
 					if (i== 2) {
 						adstreet = Piece(adstreet, " ", i, z);
@@ -1988,7 +2109,21 @@ public class uprnCommon {
 			}
 		}
 
-		System.out.println(adbuild);
+		System.out.println("adrec >> " + adrec);
+		System.out.println("adflat 'flat' >> "+ adflat);
+		System.out.println("adbuild 'building' >> "+ adbuild);
+		System.out.println("adbno 'number' >> "+ adbno);
+		System.out.println("adepth 'depth' >> "+ adepth);
+		System.out.println("adeploc 'deploc' >> "+ adeploc);
+		System.out.println("adstreet 'street' >> "+ adstreet);
+		System.out.println("adloc 'locality' >> "+ adloc);
+		System.out.println("post 'post' >> "+ post);
+		System.out.println("adtown >> "+ adtown);
+
+		String F2 = "d:\\temp\\java_address.txt";
+		FileWriter fw = new FileWriter(F2,true); //the true will append the new data
+		fw.write(oadrec +"\t"+ adbuild +"\t"+ adeploc +"\t"+ adepth + "\t"+ adflat + "\t"+ adloc + "\t"+ adbno +"\t"+ post +"\t"+ adstreet + "\t"+ adtown +"\n");
+		fw.close();
 
 		// **** FINISHED ****
 

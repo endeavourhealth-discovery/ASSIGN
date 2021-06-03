@@ -22,12 +22,14 @@ public class runAlgorithm implements AutoCloseable {
         	this.repository = repository;
     	}
 
-	public String GetUPRN(String adrec, String qpost, String country, String summary, String orgpost) throws SQLException {
+	public String GetUPRN(String adrec, String qpost, String country, String summary, String orgpost) throws SQLException, IOException {
+
+		String oadrec = adrec;
 
 	    adrec = adrec.replaceAll(",","~");
 	    adrec = adrec.toLowerCase();
 
-	    System.out.println(adrec);
+	    //System.out.println(adrec);
 
         Hashtable<String, String> TUPRN = uprnCommon.ADRQUAL(adrec, country);
         if (TUPRN.get("INVALID") != null) {
@@ -48,9 +50,42 @@ public class runAlgorithm implements AutoCloseable {
 		}
 
 		// format^UPRNA
-		uprnCommon.format(repository, adrec);
+		uprnCommon.format(repository, adrec, oadrec);
 
 		return "{}"; // json
+	}
+
+	public void GetAdrFromFileAndProcess() throws IOException, SQLException
+	{
+		String filename = "d:\\temp\\address.txt";
+		BufferedReader csvReader = new BufferedReader(new FileReader(filename));
+
+		File f = new File("d:\\temp\\java_address.txt");
+		if(f.exists() && !f.isDirectory()) {
+			f.delete();
+		}
+
+		String F2 = "d:\\temp\\java_address.txt";
+		FileWriter fw = new FileWriter(F2,true); //the true will append the new data
+		fw.write("candidate" +"\t"+ "building" +"\t"+ "deploc" +"\t"+ "depth" + "\t"+ "flat" + "\t"+ "locality" + "\t"+ "number" +"\t"+ "postcode" +"\t"+ "street" + "\t"+ "town" +"\n");
+		fw.close();
+
+		String row = "";
+		Integer count = 1; Integer ft =1 ;
+		while ((row = csvReader.readLine()) != null) {
+			if (ft.equals(1)) {ft=0; continue;}
+			String[] data = row.split("\t",-1);
+			String adrec = data[0];
+			System.out.println(adrec);
+
+			String json = GetUPRN(adrec, "","","","");
+
+			if (count % 10000 == 0) {
+				System.out.print(".");
+			}
+			count++;
+		}
+		csvReader.close();
 	}
 
 	public Hashtable<String, String> MATCHONE(String adrec, String post, String qpost, String orgpost) throws SQLException

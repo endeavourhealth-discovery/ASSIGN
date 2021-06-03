@@ -13,6 +13,8 @@ public class Repository {
     private MysqlDataSource dataSource;
     private Connection connection;
 
+    public String adrec;
+
     public Repository(Properties properties) throws SQLException {
         init( properties );
     }
@@ -21,7 +23,7 @@ public class Repository {
 
     try {
 
-	String url = props.getProperty("url");
+	    String url = props.getProperty("url");
         String username = props.getProperty("username");
         String pass = props.getProperty("password");
 
@@ -55,6 +57,7 @@ public class Repository {
 
         if (rs.next()) {
             data = rs.getString("data");
+            if (data.isEmpty()) data = rs.getString("n1");
         }
 
         preparedStatement.close();
@@ -65,6 +68,8 @@ public class Repository {
     public Integer QueryIndexes(String data, String column) throws SQLException
     {
         Integer in = 0;
+
+        data = data.replace("'", "''");
 
         // select post from uprn_v2.uprn_main WHERE post = 'ig110rf'
         String q = "SELECT "+column+" FROM uprn_v2.uprn_main WHERE "+column+" = '" +data+ "'";
@@ -80,6 +85,9 @@ public class Repository {
     public Integer floor(String floor) throws SQLException
     {
         Integer n = 0;
+
+        floor = floor.replace("'", "''");
+
         String q ="SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLOOR' and n2 = '"+floor+"'";
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
@@ -94,6 +102,8 @@ public class Repository {
     public Integer isroad(String text) throws SQLException {
         Integer n = 0;
 
+        text = text.replace("'", "''");
+
         String q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'ROAD' and n2='"+text+"'";
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
@@ -107,6 +117,8 @@ public class Repository {
 
     public Integer TOWN(String data) throws SQLException {
         Integer n = 0;
+
+        data = data.replace("'", "''");
 
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'TOWN' and data='"+data+"'";
 
@@ -141,6 +153,8 @@ public class Repository {
 
     public Integer VERTICALS(String text) throws SQLException {
         Integer n = 0;
+
+        text = text.replace("'","''");
 
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'VERTICALS' and n2='"+text+"'";
 
@@ -208,6 +222,30 @@ public class Repository {
         return hasflat;
     }
 
+    public Integer isflat(String text) throws SQLException {
+        Integer n = 0;
+
+        if (Piece(text, " ",1 ,1).equals("tower") && RegEx(Piece(text, " ",2, 2),"^[0-9][a-z]+$").equals(10)) {
+            return 0;
+        }
+
+        String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT'";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+        while (rs.next()) {
+            String word = rs.getString("n2");
+            if (Piece(text," ",1,1).equals(word)) {
+                n = 1;
+            }
+        }
+
+        if (RegEx(text, "^[a-z]+( )\\w+$").equals(1) && floor(text).equals(1)) {n=1;}
+
+        return n;
+    }
+
     public Integer QueryFlat(String text) throws SQLException {
         Integer n = 0;
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT' and n2='"+text+"'";
@@ -262,8 +300,10 @@ public class Repository {
             q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT' and n2='"+flat+"'";
             preparedStmt = connection.prepareStatement(q);
             rs = preparedStmt.executeQuery();
+            // flat at end
             if (rs.next()) {
-                text = rs.getString("n2");
+                //text = rs.getString("n2");
+                text = Piece(text, " ", 1, CountPieces(text, " ")-1);
             }
         }
 
@@ -277,11 +317,16 @@ public class Repository {
     {
         Integer in = 0;
 
-        String e = "="; String p = "";
+        String e = "="; String p = ""; String limit = " limit 1";
         if (like.equals(1)) {
             e = "like"; p = "%";
+            limit = "";
         }
-        String q ="SELECT street from uprn_v2.uprn_main where build "+e+" '" + building +p+"'";
+
+        building = building.replace("'", "''");
+
+        String q ="SELECT street from uprn_v2.uprn_main where build "+e+" '" + building +p + "'"+limit;
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -298,11 +343,25 @@ public class Repository {
     {
         Integer in = 0;
 
-        String e = "="; String p = "";
+        //System.out.println("["+street+"]");
+        if (street.isEmpty()) {
+            //System.out.println("street is null!");
+            return 0;
+        }
+
+        String e = "="; String p = ""; String limit = " limit 1";
+
+        // test - please remove
+        //limit = "";
+
         if (like.equals(1)) {
             e = "like"; p = "%";
+            limit = "";
         }
-        String q ="SELECT street from uprn_v2.uprn_main where street "+e+" '" + street +p+"'";
+
+        street = street.replace("'", "''");
+
+        String q ="SELECT street from uprn_v2.uprn_main where street "+e+" '" + street +p+"' "+limit;
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -340,7 +399,7 @@ public class Repository {
         ResultSet rs = preparedStatement.executeQuery();
         while (rs.next()) {
             String data = rs.getString("data");
-            System.out.println(data);
+            // System.out.println(data);
         }
 
         preparedStatement.close();
