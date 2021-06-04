@@ -2,6 +2,7 @@ package org.endeavourhealth.uprnImport.repository;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+import jdk.nashorn.internal.runtime.regexp.RegExp;
 import org.endeavourhealth.uprnImport.routines.RunMySQL;
 
 import java.io.*;
@@ -21,6 +22,8 @@ import org.mapdb.Serializer;
 import java.util.Map;
 
 import java.lang.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Repository {
 
@@ -947,6 +950,22 @@ public class Repository {
         preparedStatement.close();
     }
 
+    public static Integer RegEx(String data, String regex)
+    {
+        Integer n = 0; Integer n2 = 0; Integer n3= 0;
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(data);
+
+        if (matcher.lookingAt()) {n=1;}
+
+        if (matcher.matches()) {n2=1;}
+        if (matcher.find()) {n3=1;}
+
+
+        return n;
+    }
+
     public void IMPDPA2() throws SQLException, IOException {
 
         //Tests();
@@ -1003,6 +1022,48 @@ public class Repository {
             String town = data[14]; // post_town
             String ptype = data[16]; // postcode_type
             String suff = data[17]; // deliver_point_suffix
+
+            // ?1n.n1l d
+            if (RegEx(build, "^[0-9]+[a-z]$").equals(1)) {
+                for (;;) {
+                    if (flat.isEmpty()) {
+                        flat = build; build = "";
+                        break;
+                    }
+                    if (bno.isEmpty()) {
+                        bno = build; build = "";
+                        break;
+                    }
+                    break;
+                }
+            }
+
+            // ?1n.n.l1"-"1n.n.l
+            if (RegEx(build, "^[0-9]+[a-z](-)[0-9]+\\w( )[a-z]+$").equals(1)) {
+                for (;;) {
+                    if (flat.isEmpty()) {
+                        flat = build;
+                        build = "";
+                        break;
+                    }
+                    if (bno.isEmpty()) {
+                        bno = build;
+                        build = "";
+                        break;
+                    }
+                    break;
+                }
+            }
+
+            // ?1n.n.l1"-"1n.n1" "1e.e
+            if (RegEx(build, "^([0-9]+|[0-9]+[a-z]+)(-)([0-9]+)( )[a-z]+\\w").equals(1) && flat.isEmpty()) {
+
+            }
+
+            // ?1n.n.l1" "1e.e
+            if (RegEx(build, "([0-9]+|[0-9]+[a-z]+)( )[a-z]+\\w").equals(1) && flat.isEmpty()) {
+
+            }
 
             // o* fields
             String tabbed = "D"+d+uprn+d+key+d; //+flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype+d;

@@ -11,6 +11,8 @@ import java.util.*;
 
 import org.endeavourhealth.uprnAlgorithm.common.*;
 
+import static org.endeavourhealth.uprnAlgorithm.common.uprnCommon.*;
+
 public class runAlgorithm implements AutoCloseable {
 	private final Repository repository;
 
@@ -43,14 +45,11 @@ public class runAlgorithm implements AutoCloseable {
 		post = post.replaceAll("\\s","");
 
 		// ** TO DO return hash instead
-		TUPRN = MATCHONE(adrec, post, qpost, orgpost);
+		TUPRN = MATCHONE(adrec, post, qpost, orgpost, oadrec);
 		if (TUPRN.get("OUTOFAREA") != null)
 		{
 			return "OUTOFAREA";
 		}
-
-		// format^UPRNA
-		uprnCommon.format(repository, adrec, oadrec);
 
 		return "{}"; // json
 	}
@@ -88,7 +87,7 @@ public class runAlgorithm implements AutoCloseable {
 		csvReader.close();
 	}
 
-	public Hashtable<String, String> MATCHONE(String adrec, String post, String qpost, String orgpost) throws SQLException
+	public Hashtable<String, String> MATCHONE(String adrec, String post, String qpost, String orgpost, String oadrec) throws IOException, SQLException
 	{
 		Hashtable<String, String> hashTable = new Hashtable<String, String>();
 
@@ -105,7 +104,94 @@ public class runAlgorithm implements AutoCloseable {
 			}
 		}
 
+		// format^UPRNA
+		String ret = uprnCommon.format(repository, adrec, oadrec);
+
+		String adflat = Piece(ret,"~",1,1);
+		String adbuild = Piece(ret,"~",2,2);
+		String adbno = Piece(ret,"~",3,3);
+		String adstreet = Piece(ret,"~",4,4);
+		String adloc = Piece(ret,"~",5,5);
+		String adpost = Piece(ret,"~",6,6);
+		String adepth = Piece(ret,"~",7,7);
+		String adeploc = Piece(ret,"~",8,8);
+
+		String adpstreet = plural(adstreet);
+		String adpbuild = plural(adbuild);
+		String adflatbl = flat(adbuild+" ", repository);
+
+		Integer adplural = 0;
+		if (!adpstreet.equals(adstreet)) adplural=1;
+		if (!adpbuild.equals(adbuild)) adplural=1;
+
+		String adb2="";
+		String adf2 = "";
+
+		// adflat?1n.n1" "1l.l <= test this in mumps
+		if (!adbuild.isEmpty() && RegEx(adflat, "^(\\d+( )[a-z]+)$").equals(1)) {
+			adb2 = Piece(adflat, " ", 2, 10)+" "+adbuild;
+			adf2 = Piece(adflat, " ", 1, 1);
+		}
+
+		String indrec = adpost +" "+ adflat +" "+ adbuild +" "+ adbno +" "+ adepth +" "+ adstreet +" "+ adeploc +" "+ adloc;
+
+		for (;;) {
+			indrec = indrec.replace("  ", " ");
+			if (!indrec.contains("  ")) break;
+		}
+
+		indrec = indrec.trim();
+
+		String indprec = "";
+		if (adplural.equals(1)) {
+			indprec = adpost +" "+ adflat +" "+ adpbuild +" "+ adbno +" "+ adepth +" "+ adpstreet +" "+ adeploc +" "+ adloc;
+			indprec = indprec.replace("  ", " ").trim();
+		}
+
+		// ;Exact match all fields directly i.e. 1 candidate
+		ret = match(adflat, adbuild, adbno, adepth, adstreet, adeploc, adloc, adpost, adf2, adb2, indrec, indprec);
+
 		return hashTable;
+	}
+
+	public String match(String adflat, String adbuild, String adbno, String adepth, String adstreet, String adeploc, String adloc, String adpost, String adf2, String adb2, String indrec, String indprec) throws SQLException
+	{
+		// ;Match algorithms
+
+		// ;Reject crap codes
+		if (adflat.isEmpty() && adbuild.isEmpty() && adbno.isEmpty() && adstreet.isEmpty() && adeploc.isEmpty()) return "";
+
+		// ;Full match on post,street, building and flat
+		// ;Try concatenated fields
+
+		// 1
+		String ret = matchall(indrec);
+
+		return "";
+	}
+
+	public String matchall(String indrec) throws SQLException
+	{
+		String matchrec = "Pe,Ne,Be,Fe";
+		String ALG = "";
+
+		System.out.println(indrec);
+
+		if (repository.X(indrec).equals(1)) {
+			ALG = "1-match";
+
+		}
+		return "";
+	}
+
+	public String setuprns(String index, String n1, String n2, String n3, String n4, String n5)
+	{
+		return "";
+	}
+
+	public String set(String uprn, String table, String key)
+	{
+		return "";
 	}
 
 	@Override

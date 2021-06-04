@@ -114,24 +114,23 @@ public class uprnCommon {
 			text = Piece(text," ",3,20);
 		}
 
-		String[] data = text.split(" ",-1);
-		Integer i;
-		for (i=0; i < data.length; i++) {
-			String word = data[i];
+		int i;
+		for (i=1; i <= CountPieces(text," "); i++) {
+			String word = Piece(text, " ", i, i);
 			String correct = repository.QueryDictionary("CORRECT", word);
 			if (!correct.isEmpty()) {
 				if (word.equals("st")) {
-					String saint = "st "+Piece(text," ",i+1,i+1);
+					String saint = "st "+Piece(text," ",i+1 , i+1);
 					// $Data(^UPRNX("X.STR",saint))
 					Integer in = repository.XSTR(saint, 0);
 					if (in.equals(1)) {continue;}
 					// $Order(^UPRNX("X.STR",saint))
 					in = repository.XSTR(saint,1);
 					if (in.equals(1)) {continue;}
-					text = setSingle$Piece(text," ","street",i+1);
+					text = setSingle$Piece(text," ","street",i);
 					continue;
 				}
-				text = setSingle$Piece(text," ",correct,i+1);
+				text = setSingle$Piece(text," ",correct,i);
 			}
 		}
 
@@ -256,7 +255,8 @@ public class uprnCommon {
 		*/
 
         if (RegEx(word, "^[0-9]+$").equals(1)) return 1;
-        if (RegEx(word, "^[0-9][a-z]").equals(1)) return 1;
+        //if (RegEx(word, "^[0-9][a-z]").equals(1)) return 1;
+		if (RegEx(word, "^[0-9]+[a-z]$").equals(1)) return 1;
         if (RegEx(word, "^[0-9]+(-)[0-9]+$").equals(1)) return 1;
         if (RegEx(word, "^[0-9]+[a-z](-)[0-9]+[a-z]").equals(1)) return 1;
 
@@ -472,7 +472,9 @@ public class uprnCommon {
 		if (!adbuild.isEmpty()) {
 			// ** TO DO
 			// s address("obuild")=adbuild <= needs to be part of has table
-			adbuild = setSingle$Piece(adbuild, " ", correct(Piece(adbuild, " ", 1, 1), repository), 1);
+			String temp = correct(Piece(adbuild, " ", 1, 1), repository);
+			//adbuild = setSingle$Piece(adbuild, " ", correct(Piece(adbuild, " ", 1, 1), repository), 1);
+			adbuild = setSingle$Piece(adbuild, " ", temp, 1);
 		}
 
 		// f45 18pondo road
@@ -500,7 +502,7 @@ public class uprnCommon {
 
 		// f47
 		// ?1n.n1" "1l
-		if (RegEx(adbuild, "^[0-9]( )[a-z]$").equals(1)) {
+		if (RegEx(adbuild, "^[0-9]+( )[a-z]$").equals(1)) {
 			adflat = Piece(adbuild, " ", 1, 1) + Piece(adbuild, " ", 2, 2);
 			adbuild = "";
 			return adflat+"~"+adbuild;
@@ -1090,6 +1092,7 @@ public class uprnCommon {
 			if (CountPieces(adstreet, " ")>1) {
 				Integer lenstr = CountPieces(adstreet, " ");
 				for (i = 1; i <= lenstr; i++) {
+					if (strfound.equals(1)) {break;}
 					if (repository.XSTR(Piece(adstreet," ",i,lenstr),0).equals(1)) {
 						strfound = 1;
 						// ?1n.n.l
@@ -1213,135 +1216,9 @@ public class uprnCommon {
 		String ret = f17(adeploc, adstreet, adbuild, adepth, repository);
 		adeploc = Piece(ret,"~",1,1); adstreet = Piece(ret,"~",2,2); adbuild = Piece(ret,"~",3,3); adepth=Piece(ret,"~",5,5);
 
-		/*
-		// f17
-		for (;;) {
-			if (!adeploc.isEmpty()) {
-				if (isroad(adeploc, repository).equals(1) && isroad(adstreet, repository).equals(0)) {
-					// ?1"no"1" "1n.n <= ^(no )\d+$
-					if (RegEx(adstreet, "^(no )\\d+$").equals(1)) {
-						adstreet = Piece(adstreet, " ", 2, 2) + " " + adeploc;
-						adeploc = "";
-					}
-
-                    // adstreet?1n.n!(adstreet?1n.n1l)
-                    // \d+$ <= ?1n.n ! ^(\d+\w)$
-                    if (!adbuild.isEmpty() && (RegEx(adstreet, "\\d+$").equals(1) || RegEx(adstreet, "^(\\d+\\w)$").equals(1))) {
-                        adstreet = adstreet + " " + adeploc;
-                        adeploc = "";
-                    }
-
-					//f18
-					// if adstreet?1l.e, adeploc?1n.n."-".n1" "1l.e
-					// ^([a-z]\w+)$ , ^(\d+(-)\d+( )[a-z]\w+)
-                    // implemented OR | for stratford one~flat 305~1 international way~london south~e201gs
-                    // 1 international way
-					if (RegEx(adstreet, "^([a-z]\\w+)").equals(1) && (RegEx(adeploc, "^(\\d+(-)\\d+|\\d+( )[a-z]\\w+)").equals(1))) {
-						if (adstreet.contains("flat")) {
-							adbuild = adstreet + " " + adbuild;
-							adstreet = adeploc;
-							adeploc = "";
-						}
-						// f19
-						else {
-							adbuild = adbuild + " " + adstreet;
-							adstreet = adeploc;
-							adeploc = "";
-						}
-						break;
-					}
-					// f20
-					if (!adbuild.isEmpty()) {
-						n = repository.floor(Piece(adstreet, " ", 1, 1));
-						if (n.equals(1)) {
-							adbuild = adbuild + " " + adstreet;
-							adstreet = "";
-							break;
-						}
-					}
-					// f21
-					if (!adepth.isEmpty()) {
-						adstreet = adepth + " " + adbuild;
-						adepth = "";
-						adeploc = "";
-					}
-					// f22
-					else {
-						adstreet = adeploc;
-					}
-					if (isflat(adstreet, repository).equals(1)) {
-						adbuild = adstreet + " " + adbuild;
-						adstreet = adepth + " " + adeploc;
-						adepth = "";
-						adeploc = "";
-						break;
-					}
-				}
-			}
-			break; // make sure we exit infinite loop
-		}
-		 */
-
 		// Location is street, street is building
 		ret = f23(adloc, adstreet, adbuild, adflat, repository);
 		adloc = Piece(ret, "~", 1, 1); adstreet = Piece(ret, "~", 2, 2); adbuild = Piece(ret, "~", 3, 3); adflat = Piece(ret, "~", 4, 4);
-
-		/*
-		// Location is street, street is building
-		// f23
-		for (;;) {
-			if (!adloc.isEmpty() && !adstreet.isEmpty()) {
-				if (isroad(adloc, repository).equals(1) && isroad(adstreet, repository).equals(0)) {
-					// adloc?1n.n1" "1l.e
-					// ^(\d+( )[a-z]\w+)$
-					// f24
-					if (RegEx(adloc, "^(\\d+( )[a-z]\\w+)$").equals(1)) {
-						// f25
-						if (RegEx(adstreet, "^\\d+$").equals(1)) {
-							// ?1l.l.e
-							// ^[a-z]+\w$
-							if (RegEx(adbuild, "^[a-z]+\\w$").equals(1)) {
-								adbuild = adstreet + " " + adbuild;
-								adstreet = adloc;
-								adloc = "";
-							}
-						}
-						break;
-					}
-					// f26
-					// i adstreet?1n.n!(adstreet?1n.n1"-"1n.n)!(adstreet?1n.n1l)
-					if (RegEx(adstreet, "^[0-9]+$").equals(1) || RegEx(adstreet, "^[0-9]+(-)[0-9]+$").equals(1) || RegEx(adstreet, "^[0-9]+([a-z]|[a-z]+)$").equals(1)) {
-						adstreet = adstreet + " " + adloc;
-						adloc = "";
-						break;
-					}
-					// f27
-					if (adflat.isEmpty()) {
-						adflat = adbuild;
-						// f28
-						if (!adstreet.isEmpty()) {
-							adbuild = adstreet;
-						}
-					} else {
-						// ?1n.n.l1" "2l.e
-						// ^[0-9]+[a-z]( )[a-z][a-z]
-						// f29
-						if (RegEx(adflat, "^[0-9]+[a-z]( )[a-z][a-z]").equals(1)) {
-							adbuild = Piece(adflat, " ", 2, 20);
-							adflat = Piece(adflat, " ", 1, 1);
-							adstreet = adloc;
-							adloc = "";
-							break;
-						}
-					}
-					adbuild = adbuild +" "+adstreet;
-					adstreet = adloc;
-					adloc = "";
-				}
-			}
-			break;
-		}
-		 */
 
 		//Only one  line, likely to be street But may be flat and building
 		//Location is actually number and street
@@ -2031,7 +1908,7 @@ public class uprnCommon {
 		}
 
 		//f151 ; Street is building
-		if (!adflat.isEmpty() && adbuild.isEmpty() && adbno.isEmpty() && repository.XSTR(adbuild+" "+adstreet, 0).equals(0)) {
+		if (!adflat.isEmpty() && adbuild.isEmpty() && adbno.isEmpty() && repository.XSTR(adstreet, 0).equals(0)) {
 			if (repository.XBLD(adstreet, 0).equals(1)) {
 				adbuild = adstreet; adstreet = "";
 			}
@@ -2039,7 +1916,7 @@ public class uprnCommon {
 
 		//f152 ;Flat contains street number
 		// 1n.n1" "1n.n
-		if (RegEx(adflat, "^[0-9]+( )[0-9]+$").equals(1) && adbno.isEmpty() && repository.XSTR(adbuild+" "+adstreet,0).equals(1)) {
+		if (RegEx(adflat, "^[0-9]+( )[0-9]+$").equals(1) && adbno.isEmpty() && repository.XSTR(adbuild+" "+adstreet,0).equals(0)) {
 			adbno = Piece(adflat, " ", 2, 2);
 			adflat = Piece(adflat, " ", 1, 1);
 			adstreet = adbuild +" "+adstreet;
@@ -2125,9 +2002,29 @@ public class uprnCommon {
 		fw.write(oadrec +"\t"+ adbuild +"\t"+ adeploc +"\t"+ adepth + "\t"+ adflat + "\t"+ adloc + "\t"+ adbno +"\t"+ post +"\t"+ adstreet + "\t"+ adtown +"\n");
 		fw.close();
 
-		// **** FINISHED ****
+		ret = adflat +"~"+ adbuild +"~"+ adbno +"~"+ adstreet +"~"+ adloc +"~"+ post +"~"+ adepth +"~"+ adeploc;
 
-		return "";
+		// test plural method
+		//String tst = plural("paul pauls test ");
+
+		return ret;
+	}
+
+	public static String plural(String text)
+	{
+		// Function to remove trailing s
+		int i;
+		for (i = 1; i <= CountPieces(text, " "); i++) {
+			String word = Piece(text, " ", i, i);
+			if (word.isEmpty()) continue;
+			Integer l = word.length();
+			if (l>1 && word.substring(l-1, l).equals("s")) {
+				word = word.substring(0, l-1);
+				if (word.isEmpty()) continue;
+				text = setSingle$Piece(text, " ", word, i);
+			}
+		}
+		return text;
 	}
 
 	public static Integer inpost(Repository repository, String area, String qpost) throws SQLException {

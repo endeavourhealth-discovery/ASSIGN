@@ -312,6 +312,25 @@ public class Repository {
         return text;
     }
 
+    // X $D(^UPRNX("X",indrec))
+    public Integer X(String indrec) throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "SELECT * FROM uprn_v2.uprn_main where node='X' and indrec='"+indrec+"' limit 1";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            in = 1;
+        }
+
+        preparedStatement.close();
+
+        return in;
+    }
+
     // X.BLD
     public Integer XBLD(String building, Integer like) throws SQLException
     {
