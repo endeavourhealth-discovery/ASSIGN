@@ -280,7 +280,7 @@ public class Repository {
         return data != null && index >= 0 && index < data.length;
     }
 
-    private String Piece(String str, String del, Integer from, Integer to)
+    public static String Piece(String str, String del, Integer from, Integer to)
     {
         Integer i;
         String p[] = str.split(del,-1);
@@ -291,17 +291,16 @@ public class Repository {
         Integer zdel = 0;
         if (to > from) {zdel = 1;}
 
-        for (i = from; i < to; i++) {
+        for (i = from; i <= to; i++) {
             if (indexInBound(p, i)) {
                 z = z + p[i];
                 if (zdel.equals(1)) {z =z + del;}
             }
         }
 
-
         if (zdel.equals((1)) && !z.isEmpty()) {
             // remove delimeter
-            z = z.substring(0, z.length()-1);
+            z = z.substring(0, z.length()-del.length());
         }
 
         return z;
@@ -676,6 +675,12 @@ public class Repository {
         Hashtable<String, String> hashtable =
                 new Hashtable<String, String>();
 
+        // delete the original file
+        File f = new File(mysqluploaddir + "1-lpi-orginal.csv");
+        if(f.exists() && !f.isDirectory()) {
+            f.delete();
+        }
+
         while ((row = csvReader.readLine()) != null) {
             // take the ft stuff out if running split file
             if (ft.equals(1)) {
@@ -743,6 +748,9 @@ public class Repository {
             String deploc = ""; // interntionally set to null in m code (see GETLPI^UPRNU)
 
             // missing level (needs adding to schema)
+            String tabbed_orginal =  "L" +d+ uprn +d+ key +d+ flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype;
+            orginial(mysqluploaddir + "1-lpi-orginal.csv", tabbed_orginal);
+
             String tabbed = "L" +d+ uprn +d+ key +d; // +flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype+d;
 
             // don't need to lowercase the var because the whole record gets lower case'd?
@@ -966,6 +974,22 @@ public class Repository {
         return n;
     }
 
+    public void testoriginalDPA()
+    {
+
+    }
+
+    public void testoriginalLPI()
+    {
+
+    }
+
+    public void orginial(String filename, String orec) throws IOException {
+        FileWriter fw = new FileWriter(mysqluploaddir + filename,true); //the true will append the new data
+        fw.write(orec+"\n");
+        fw.close();
+    }
+
     public void IMPDPA2() throws SQLException, IOException {
 
         //Tests();
@@ -993,6 +1017,12 @@ public class Repository {
 
         String tFile = mysqluploaddir + "1-ID28_DPA_Records.csv.txt";
         FileWriter tabWriter = new FileWriter(tFile);
+
+        // delete the original file
+        File f = new File(mysqluploaddir + "1-dpa-orginal.csv");
+        if(f.exists() && !f.isDirectory()) {
+            f.delete();
+        }
 
         Integer count = 1;
 
@@ -1057,15 +1087,20 @@ public class Repository {
 
             // ?1n.n.l1"-"1n.n1" "1e.e
             if (RegEx(build, "^([0-9]+|[0-9]+[a-z]+)(-)([0-9]+)( )[a-z]+\\w").equals(1) && flat.isEmpty()) {
-
+                flat = Piece(build," ",1,1);
+                build = Piece(build," ",2,20);
             }
 
             // ?1n.n.l1" "1e.e
             if (RegEx(build, "([0-9]+|[0-9]+[a-z]+)( )[a-z]+\\w").equals(1) && flat.isEmpty()) {
-
+                flat = Piece(build," ",1,1);
+                build = Piece(build," ",2,20);
             }
 
             // o* fields
+            String tabbed_orginal = "D"+d+uprn+d+key+d+flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype+d;
+            orginial(mysqluploaddir + "1-dpa-orginal.csv", tabbed_orginal);
+
             String tabbed = "D"+d+uprn+d+key+d; //+flat+d+build+d+bno+d+depth+d+street+d+deploc+d+loc+d+town+d+post+d+org+d+dep+d+ptype+d;
 
             // lower case the fields

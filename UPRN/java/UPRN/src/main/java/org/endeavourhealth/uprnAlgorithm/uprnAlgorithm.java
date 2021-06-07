@@ -8,10 +8,19 @@ import java.util.Scanner;
 
 import org.endeavourhealth.uprnAlgorithm.routines.*;
 
+import static org.endeavourhealth.uprnAlgorithm.common.uprnCommon.Piece;
+
 public class uprnAlgorithm {
 	public static void main(String... args) throws IOException, SQLException {
 	
 		Properties properties = loadProperties( args );
+
+        for (String s: args) {
+            String ss = Piece(s,":",1,1);
+            if (ss.equals("commercials")) {
+                properties.setProperty("commercials", Piece(ss,":",2,2));
+            }
+        }
 
 		if (args.length>=1 && args[0].equalsIgnoreCase("TESTUPRNA")) {
             try ( runAlgorithm z = new runAlgorithm(properties) ) {

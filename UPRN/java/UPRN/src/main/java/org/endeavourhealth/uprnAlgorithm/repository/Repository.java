@@ -14,6 +14,7 @@ public class Repository {
     private Connection connection;
 
     public String adrec;
+    public String commercials;
 
     public Repository(Properties properties) throws SQLException {
         init( properties );
@@ -26,6 +27,8 @@ public class Repository {
 	    String url = props.getProperty("url");
         String username = props.getProperty("username");
         String pass = props.getProperty("password");
+
+        commercials= props.getProperty("commercials");
 
         dataSource = new MysqlDataSource();
 
@@ -423,6 +426,142 @@ public class Repository {
 
         preparedStatement.close();
         return "{}";
+    }
+
+    public List<List<String>> RunUprnMainQuery(String q, String ALG, String matchrec) throws SQLException {
+        List<List<String>> result = new ArrayList<>();
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (!rs.next()) {
+            return result;
+        }
+
+        String uprn = rs.getString("uprn");
+        Integer ok = isok(uprn);
+        if (ok.equals(0)) {
+            return result;
+        }
+
+        q = "select distinct `table`, `key` FROM uprn_v2.uprn_main where uprn = '"+uprn+"'";
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            String table = rs.getString("table");
+            String key = rs.getString("key");
+            List<String> row = new ArrayList<>();
+            row.add(uprn);
+            row.add(table);
+            row.add(key);
+            row.add(ALG);
+            row.add(matchrec);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
+    public Integer isok(String uprn) throws SQLException {
+        if (commercials.equals(1)) return 1;
+        return classQuery(uprn);
+    }
+
+    public String GETADRABP(String uprn, String table, String key) throws SQLException
+    {
+
+        String q = "";
+
+        String post=""; String org=""; String dep=""; String flat=""; String build=""; String bno=""; String depth="";
+        String street=""; String deploc=""; String loc=""; String town=""; String ptype=""; String suff="";
+
+        if (table.equals("L")) {
+            q = "select * from abp.lpi_records where uprn='" +uprn+ "' and lpi_key='" +key+ "' order by id desc;";
+        }
+
+        if (table.equals("D")) {
+            q = "select * from abp.dpa_records where uprn='" +uprn+ "' and uduprn = '"+key+"' order by id desc";
+            PreparedStatement preparedStatement = connection.prepareStatement(q);
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                post = rs.getString("post_code");
+                org = rs.getString("organization_name");
+                dep = rs.getString("department_name");
+                flat = rs.getString("sub_building_name");
+                build = rs.getString("building_name");
+                bno = rs.getString("building_number");
+                depth = rs.getString("dependent_throughfare");
+                street = rs.getString("throughfare");
+                deploc = rs.getString("double_dependent_locality");
+                loc = rs.getString("dependent_locality");
+                town = rs.getString("post_town");
+                ptype = rs.getString("postcode_type");
+                suff = rs.getString("delivery_point_suffix");
+                // ** TO DO copy the code from UPRN1 project to fix up the data using regex checks
+            }
+        }
+
+        System.out.println(q);
+        String d="~";
+        String ret = post +d+ org +d+ dep +d+ flat +d+ build +d+ bno +d+ depth +d+ street +d+ deploc +d+ loc +d+ town +d+ ptype +d+ suff;
+        return ret;
+    }
+
+    public String ClassTerm(String classcode) throws SQLException {
+        String classterm = "";
+
+        String q = "select * FROM uprn_v2.uprn_classification where code = '"+classcode+"'";
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            classterm = rs.getString("term");
+        }
+
+        preparedStatement.close();
+
+        return classterm;
+    }
+
+    public String ClassCode(String uprn) throws SQLException {
+        String classcode = "";
+
+        String q = "SELECT * FROM uprn_v2.uprn_class where uprn = '"+uprn+"'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            classcode = rs.getString("code");
+        }
+
+        preparedStatement.close();
+        return classcode;
+    }
+
+    public Integer classQuery(String uprn) throws SQLException {
+        String q = "select * from uprn_v2.uprn_class where uprn = '"+uprn+"'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (!rs.next()) return 1;
+
+        String code = rs.getString("code");
+        q = "select * from uprn_v2.uprn_classification where code = '" +code+ "'";
+
+        preparedStatement = connection.prepareStatement(q);
+        rs = preparedStatement.executeQuery();
+
+        if (!rs.next()) return 1;
+
+        String res = rs.getString("residential");
+        if (res.equals("Y")) return 1;
+
+        preparedStatement.close();
+        return 0;
     }
 
     public void close() throws SQLException {

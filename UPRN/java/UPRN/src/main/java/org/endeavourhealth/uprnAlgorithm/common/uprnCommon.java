@@ -2002,7 +2002,7 @@ public class uprnCommon {
 		fw.write(oadrec +"\t"+ adbuild +"\t"+ adeploc +"\t"+ adepth + "\t"+ adflat + "\t"+ adloc + "\t"+ adbno +"\t"+ post +"\t"+ adstreet + "\t"+ adtown +"\n");
 		fw.close();
 
-		ret = adflat +"~"+ adbuild +"~"+ adbno +"~"+ adstreet +"~"+ adloc +"~"+ post +"~"+ adepth +"~"+ adeploc;
+		ret = adflat +"~"+ adbuild +"~"+ adbno +"~"+ adstreet +"~"+ adloc +"~"+ post +"~"+ adepth +"~"+ adeploc +"~"+ orig;
 
 		// test plural method
 		//String tst = plural("paul pauls test ");
@@ -2053,9 +2053,14 @@ public class uprnCommon {
 		String post =  data[count-1];
 		post = post.replaceAll("\\s","");
 
+		if (post.isEmpty()) {
+			hashTable.put("POSTCODE","Missing post code");
+			return hashTable;
+		}
+
 		Integer i = validp(post);
 		if (i.equals(0)) {
-			hashTable.put("INVALID","Invalid post code");
+			hashTable.put("POSTCODE","Invalid post code");
 			return hashTable;
 		}
 
