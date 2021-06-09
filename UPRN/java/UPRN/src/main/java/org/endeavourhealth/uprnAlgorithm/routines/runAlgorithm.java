@@ -48,7 +48,6 @@ public class runAlgorithm implements AutoCloseable {
 		String post = data[length - 1];
 		post = post.replaceAll("\\s", "");
 
-		// ** TO DO return hash instead
 		MATCHONE(adrec, post, qpost, orgpost, oadrec);
 		if (TUPRNV.get("OUTOFAREA") != null) {
 			//return "OUTOFAREA";
@@ -74,6 +73,9 @@ public class runAlgorithm implements AutoCloseable {
 		json = MATCHK(json);
 
 		json = json + "}";
+
+		System.out.println(json);
+
 		return json;
 	}
 
@@ -111,7 +113,7 @@ public class runAlgorithm implements AutoCloseable {
 
 				String abp = repository.GETADRABP(uprn, table, key);
 
-				String post = Piece(abp,"~",1,1); String org = Piece(abp,"~",2,2);
+				String post = Piece(abp,"~",1,1); String org = Ini(Piece(abp,"~",2,2));
 				String dep = Piece(abp,"~",3,3); String flat = Piece(abp,"~",4,4);
 				String build = Piece(abp,"~",5,5); String bno=Piece(abp,"~",6,6);
 				String depth = Piece(abp,"~",7,7); String street = Piece(abp,"~",8,8);
@@ -126,24 +128,54 @@ public class runAlgorithm implements AutoCloseable {
 				json =json+"\"ABPAddress\":{";
 
 				if (!flat.isEmpty()) {
-
+					json = json+"\"Flat\":\""+flat+"\",";
 				}
 
 				if (!build.isEmpty()) {
-
+					json = json+"\"Building\":\""+build+"\",";
 				}
 
 				if (!bno.isEmpty()) {
-
+					json = json+"\"Number\":\""+bno+"\",";
 				}
 
+				if (!depth.isEmpty()) {
+					json = json+"\"Dependent_thoroughfare\":\""+depth+"\",";
+				}
+
+				if (!street.isEmpty()) {
+					json = json+"\"Street\":\""+Ini(street)+"\",";
+				}
+
+				if (!deploc.isEmpty()) {
+					json = json +"\"Dependent_locality\":\""+deploc+"\",";
+				}
+
+				if (!loc.isEmpty()) {
+					json = json +"\"Locality\":\""+loc+"\",";
+				}
+
+				if (!town.isEmpty()) {
+					json = json+"\"Town\":\""+town+"\",";
+				}
+
+				if (!post.isEmpty()) {
+					json = json+"\"Postcode\":\""+post+"\",";
+				}
+
+				if (!org.isEmpty()) {
+					json = json+"\"Organisation\":\""+org+"\",";
+				}
+
+				if (json.substring(json.length()-1,json.length()).equals(",")) {
+					json = json.substring(0, json.length()-1);
+				}
+
+				json = json+"},";
+
 				json = pattern(matchrec, json);
-				System.out.println(matchrec);
 			}
 		}
-
-		System.out.println(json);
-
 		return json;
 	}
 
@@ -169,7 +201,7 @@ public class runAlgorithm implements AutoCloseable {
 			json = json +"\""+TUPRNV.get("INVALID")+"\",";}
 		else
 		{
-			json = json + "\"good\"";
+			json = json + "\"good\",";
 		}
 
 		json = json +"\"Postcode quality\":";
@@ -185,7 +217,7 @@ public class runAlgorithm implements AutoCloseable {
 
 	public String pattern(String matchrec, String json) {
 
-	    json = json +"\"Match_pattern:\":\"";
+	    json = json +"\"Match_pattern:\":{";
 	    Integer i;
 	    for (i=1; i<=CountPieces(matchrec,","); i++) {
             String part = Piece(matchrec,",",i,i);
@@ -307,6 +339,9 @@ public class runAlgorithm implements AutoCloseable {
 	{
 		Hashtable<String, String> hashTable = new Hashtable<String, String>();
 
+		System.out.println(extract("abc",2,3));
+		System.out.println(Ini("aaaa bbbb"));
+
 		adrec = adrec.toLowerCase();
 
 		if (!post.isEmpty()) {
@@ -366,7 +401,7 @@ public class runAlgorithm implements AutoCloseable {
 		}
 
 		// ;Exact match all fields directly i.e. 1 candidate
-		Integer matched = match(adflat, adbuild, adbno, adepth, adstreet, adeploc, adloc, adpost, adf2, adb2, indrec, indprec, original, adplural);
+		Integer matched = match(adflat, adbuild, adbno, adepth, adstreet, adeploc, adloc, adpost, adf2, adb2, indrec, indprec, original, adplural, adpstreet, adpbuild);
 		if (matched.equals(0)) {
 			TUPRNV.put("NOMATCH","1");
 		}
@@ -375,7 +410,7 @@ public class runAlgorithm implements AutoCloseable {
 		}
 	}
 
-	public Integer match(String adflat, String adbuild, String adbno, String adepth, String adstreet, String adeploc, String adloc, String adpost, String adf2, String adb2, String indrec, String indprec, String orginal, Integer adplural) throws SQLException
+	public Integer match(String adflat, String adbuild, String adbno, String adepth, String adstreet, String adeploc, String adloc, String adpost, String adf2, String adb2, String indrec, String indprec, String orginal, Integer adplural, String adpstreet, String adpbuild) throws SQLException
 	{
 		// ;Match algorithms
 
@@ -386,9 +421,174 @@ public class runAlgorithm implements AutoCloseable {
 		// ;Try concatenated fields
 
 		// 1
-		Integer matched = matchall(indrec, adplural, indprec);
+		Integer matches = matchall(indrec, adplural, indprec);
+		if (matches.equals(1)) return 1;
 
-		return matched;
+		// ** TO DO
+		// s matches=$$matchall($g(address("original")))
+
+		// Exact field match single and plural and correction
+		// 10
+		String ALG="10-";
+		String matchrec="Pe,Se";
+		matches = match1(adpost, adstreet, adbno, adbuild, adflat, matchrec, ALG);
+		if (matches.equals(1)) return 1;
+
+		if (adplural.equals(1)) {
+			matches = match1(adpost, adpstreet, adbno, adpbuild, adflat, matchrec, ALG);
+		}
+		if (matches.equals(1)) return 1;
+
+		String corstr = correct(adstreet, repository);
+		if (!corstr.equals(adstreet)) {
+			matches = match1(adpost, corstr, adbno, adbuild, adflat, matchrec, ALG);
+		}
+		if (matches.equals(1)) return 1;
+
+		// ;Full match on dependent street
+		if (!adepth.isEmpty()) {
+			// 20 (20-match1 does not exist in patient_address_match)
+			ALG = "20-";
+			matches = match1(adpost, adepth + " " + adstreet, adbno, adbuild, adflat, matchrec, ALG);
+			if (matches.equals(1)) return 1;
+			if (adplural.equals(1)) {
+				matches = match1(adpost, adepth + " " + adpstreet, adbno, adpbuild, adflat, matchrec, ALG);
+				if (matches.equals(1)) return 1;
+			}
+			// flat 3, Quarles Park Road, Watermark Court, Chadwell Heath, Romford, RM64DJ
+			// import needs fixing (or investigating) - "flat 3" recorded in covering indexes rather than just 3
+			ALG = "30-";
+			matches = match1(adpost, adepth, adbno, adbuild, adflat, matchrec, ALG);
+			if (matches.equals(1)) return 1;
+			if (adplural.equals(1)) {
+				matches = match1(adpost, adepth, adbno, adpbuild, adflat, matchrec, ALG);
+				if (matches.equals(1)) return 1;
+			}
+		}
+
+		// 35 ;Flat in number
+		// ?1n.n1l
+		if (RegEx(adbno, "^[0-9]+[a-z]$").equals(1) && adflat.isEmpty() && adbuild.isEmpty()) {
+			ALG = "35-";
+			String zadbno = extractNumber(adbno);
+			matches = match1(adpost, adstreet, zadbno, adbuild, Piece(adbno,zadbno,2,2), matchrec, ALG);
+			if (matches.equals(1)) return 1;
+		}
+
+		// 36 Building in flat
+		// ?1n.n.l1" "1l.e
+		if (RegEx(adflat, "^[0-9]+|[0-9]+[a-z]( )[a-z]\\w+").equals(1)) {
+			ALG = "36-";
+			// 26 Nash House, Walthamstow, Prospect Hill, E17 3EW
+			matches = match1(adpost, adstreet, adbno, Piece(adflat," ",2,10), Piece(adflat," ",1,1), matchrec, ALG);
+			if (matches.equals(1)) return 1;
+		}
+
+		// 37 ;Flat contains number and suffix. Street and building
+		// 1n.n1l
+		if (RegEx(adflat, "^[0-9]+[a-z]$").equals(1)) {
+			ALG="37-";
+			// 23B Park Road,Leyton,,,Waltham Forest,E107DB
+			String zadflat = extractNumber(adflat);
+			matches = match1(adpost, adbuild, zadflat, "", Piece(adflat, zadflat,2,2), matchrec, ALG);
+			if (matches.equals(1)) return 1;
+		}
+
+		// 40 ;Full match Swap building flat with number and street
+		ALG = "40-";
+		// 22B Sutherland Road,3 St Claude House,,,Walthamstow,E176BH
+		matches = match1(adpost, adbuild, adflat, adstreet, adbno, matchrec, ALG);
+		if (matches.equals(1)) return 1;
+		matches = match1(adpost, adbuild, adbno, adstreet, adflat, matchrec, ALG);
+		if (matches.equals(1)) return 1;
+		if (adplural.equals(1)) {
+			matches=match1(adpost, adpbuild, adflat, adstreet, adbno, matchrec, ALG);
+			if (matches.equals(1)) return 1;
+		}
+
+		// 50
+		//;Full match locality swap for street
+		if (matches.equals(0) && !adloc.isEmpty()) {
+			ALG="50-";
+			// 1 Kebbel Terrace,Claremont Road,Forest Gate,,London,E70QP
+			matchrec="Pe,Se";
+			matches = match1(adpost, adloc, adbno, adpbuild, adflat, matchrec, ALG);
+			if (matches.equals(1)) return 1;
+			if (adplural.equals(1)) {
+				matches = match1(adpost, adloc, adbno, adpbuild, adflat, matchrec, ALG);
+				if (matches.equals(1)) return 1;
+			}
+		}
+
+		// 60
+		// 226-228,Oaks Court, Cann Hall Road,,,Leytonstone,E113NF
+		if (matches.equals(0)) {
+			ALG="60-";
+			matches = match4(adpost, adstreet, adbno, adbuild, adflat, matchrec, ALG);
+			if (matches.equals(1)) return 1;
+			if (adplural.equals(1)) {
+				matches = match4(adpost, adpstreet, adbno, adpbuild, adflat, matchrec, ALG);
+			}
+		}
+		if (matches.equals(1)) return 1;
+
+		// 65 ;Flat is number, partial building
+		// Flat 6 Treehaven Court,Skeltons Lane,,,Leyton,E105BX
+		if (adbno.isEmpty()) {
+			ALG = "65-";
+			matches = match33(adpost, adstreet, adbno, adbuild, adflat, matchrec, ALG);
+		}
+		if (matchrec.equals(1)) return 1;
+
+		return matches;
+	}
+
+	public Integer match33(String tpost, String tstreet, String tbno, String tbuild, String tflat, String matchrec, String ALG) throws SQLException
+	{
+		Integer matches = 0;
+
+		if (repository.X5$D1(tpost, tstreet, tflat).equals(0)) return 0;
+		if (tflat.isEmpty()) return 0;
+
+
+
+		return matches;
+	}
+
+	//  ;Try swapping flat and building
+	public Integer match4(String tpost, String tstreet, String tbno, String tbuild, String tflat, String matchrec, String ALG) throws SQLException
+	{
+		// only swap if flat does not exist
+		Integer matches = 0;
+		if (repository.X3$Data(tbuild, tflat).equals(1)) return 0;
+		matches = match1(tpost, tstreet, tflat, tbuild, tbno, matchrec, ALG);
+		if (matches.equals(1)) return 1;
+		// ?1n.n.l1" "1l.e
+		if (RegEx(tbuild, "^[0-9]+|[0-9]+[a-z]( )[a-z]\\w+").equals(1) && !tbuild.isEmpty() && !tflat.isEmpty()) {
+			matches = match1(tpost, tstreet, tbno, Piece(tbuild," ",2,10), Piece(tbuild," ",1,1)+" "+tflat,matchrec,ALG);
+			if (matches.equals(1)) return 1;
+		}
+		matches = match1(tpost, tstreet, tflat, tbuild, tbno, matchrec, ALG);
+		return matches;
+	}
+
+	// ;Match algorithms on a post code and street
+	public Integer match1(String tpost, String tstreet, String tbno, String tbuild, String tflat, String matchrec, String ALG) throws SQLException
+	{
+		Integer matches = 0;
+		// ;Full 5 field match
+		if (repository.X5(tpost, tstreet, tbno, tbuild, tflat).equals(1)) {
+			matchrec = Piece(matchrec,",",1,2)+",Ne,Be,Fe";
+			ALG=ALG+"match1";
+			String q = "SELECT * FROM uprn_v2.uprn_main where node='X5' and post='"+tpost+"' ";
+			q = q + "and street='"+tstreet+"' ";
+			q = q + "and bno='"+tbno+"' ";
+			q = q + "and build='"+tbuild+"' ";
+			q = q + "and flat='"+tflat+"'";
+			matches = setuprns("X5","","","","","",q,ALG,matchrec);
+		}
+
+		return matches;
 	}
 
 	public Integer matchall(String indrec, Integer adplural, String indprec) throws SQLException
@@ -401,6 +601,7 @@ public class runAlgorithm implements AutoCloseable {
 		Integer matched = 0;
 		String q = "";
 
+		// 1
 		if (repository.X(indrec).equals(1)) {
 			ALG = "1-match";
 			q = "select * from uprn_v2.uprn_main where indrec ='"+indrec+"' and node='X';";
@@ -412,6 +613,7 @@ public class runAlgorithm implements AutoCloseable {
 		if (adplural.equals(1)) {
             if (repository.X(indprec).equals(1)) {
                 ALG = "2-match";
+				q = "select * from uprn_v2.uprn_main where indrec ='"+indprec+"' and node='X';";
                 matched  = setuprns("X",indprec,"","","","",q,ALG,matchrec);
             }
         }

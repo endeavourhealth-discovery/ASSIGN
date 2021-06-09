@@ -81,6 +81,30 @@ public class uprnCommon {
 		return z;
 	}
 
+	public static String extract(String str, Integer from, Integer to) {
+
+		if (from>to) return "";
+
+		from = from-1;
+		if (to>str.length()) return "";
+
+		str = str.substring(from, to);
+		return str;
+	}
+
+	// ;Swaps drops and levenshtein
+	public static Integer equiv(String test, String tomatch, String min, String force)
+	{
+		// i $D(^UPRNW("SFIX",tomatch,test)) q 1 <= ^UPRNW is not populated
+		String otest = test;
+		String otomatch = tomatch;
+
+		if (Piece(test.replace(" ",""),"(",1,1).equals(Piece(tomatch.replace(" ",""),"(",1,1))) return 1;
+
+
+		return 0;
+	}
+
 	public static Integer CountPieces(String str, String del)
 	{
 		String[] split = str.split(del);
@@ -103,7 +127,7 @@ public class uprnCommon {
 		return znew;
 	}
 
-	private static String correct(String text, Repository repository) throws SQLException
+	public static String correct(String text, Repository repository) throws SQLException
 	{
 
 		if (text.isEmpty()) return text;
@@ -449,7 +473,7 @@ public class uprnCommon {
 				// f42
 				// ?1n.n.l1" "1l.e
 				// ^[0-9]+[a-z]( )[a-z]\w+
-				if (RegEx(adbuild, "[0-9]+[a-z]( )[a-z]\\w+").equals(0)) {
+				if (RegEx(adbuild, "^[0-9]+|[0-9]+[a-z]( )[a-z]\\w+").equals(0)) {
 					if (repository.floor(Piece(adbuild, " ", 1, 1)).equals(1)) {
 						adflat = adflat + " " + Piece(adbuild, " ", 1, 1);
 						adbuild = Piece(adbuild, " ", 2, 10);
@@ -1214,7 +1238,7 @@ public class uprnCommon {
 		hAddress.put("original", orig);
 
 		String ret = f17(adeploc, adstreet, adbuild, adepth, repository);
-		adeploc = Piece(ret,"~",1,1); adstreet = Piece(ret,"~",2,2); adbuild = Piece(ret,"~",3,3); adepth=Piece(ret,"~",5,5);
+		adeploc = Piece(ret,"~",1,1); adstreet = Piece(ret,"~",2,2); adbuild = Piece(ret,"~",3,3); adepth=Piece(ret,"~",4,4);
 
 		// Location is street, street is building
 		ret = f23(adloc, adstreet, adbuild, adflat, repository);
@@ -1224,7 +1248,7 @@ public class uprnCommon {
 		//Location is actually number and street
 		//?1n.n.l1" "1l.e
 		//f30
-		if (RegEx(adloc,"^[0-9]+[a-z]( )[a-z]").equals(1)) {
+		if (RegEx(adloc,"^[0-9]+|[0-9]+[a-z]( )[a-z]\\w+").equals(1)) {
 			if (RegEx(adstreet, "^[0-9]+[a-z]( )").equals(0)) {
 				adbuild = adbuild +" "+adstreet;
 				adstreet = adloc;
@@ -1338,7 +1362,7 @@ public class uprnCommon {
                         }
                         // f90
                         // ?1n.n.l1" "1l.e
-                        if (RegEx(adbuild, "^[0-9][a-z]( )[a-z]\\w").equals(1)) {
+                        if (RegEx(adbuild, "^[0-9]+|[0-9]+[a-z]( )[a-z]\\w+").equals(1)) {
                             adbno = Piece(adbuild, " ", 1, 1);
                             adstreet = Piece(adbuild, " ", 2, 10);
                             adbuild = "";
@@ -2025,6 +2049,20 @@ public class uprnCommon {
 			}
 		}
 		return text;
+	}
+
+	public static String Ini(String Str) {
+		if (Str.isEmpty()) return "";
+
+		Str = Str.toLowerCase();
+		String[] arr = Str.split(" ",-1);
+		StringBuffer sb = new StringBuffer();
+
+		for (int i = 0; i < arr.length; i++) {
+			sb.append(Character.toUpperCase(arr[i].charAt(0)))
+					.append(arr[i].substring(1)).append(" ");
+		}
+		return sb.toString().trim();
 	}
 
 	public static Integer inpost(Repository repository, String area, String qpost) throws SQLException {

@@ -315,6 +315,62 @@ public class Repository {
         return text;
     }
 
+    public Integer X5$D1(String tpost, String tstreet, String tflat) throws SQLException
+    {
+        Integer in = 0;
+        String q ="select * from uprn_v2.uprn_main where node='X5' and post='"+tpost+"' ";
+        q = q + "and street='"+tstreet+"' ";
+        q = q + "and flat = '"+tflat+"'";
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) { in = 1; }
+        preparedStatement.close();
+        return in;
+    }
+
+
+    // $D(^UPRNX("X3",tbuild,tflat))
+    public Integer X3$Data(String tbuild, String tflat) throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "SELECT * FROM uprn_v2.uprn_main where node='X3' and build='"+tbuild+"' and flat='"+tflat+"'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            in = 1;
+        }
+
+        preparedStatement.close();
+
+        return in;
+    }
+
+    // $d(^UPRNX("X5",tpost,tstreet,tbno,tbuild,tflat))
+    public Integer X5(String tpost, String tstreet, String tbno, String tbuild, String tflat) throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "SELECT * FROM uprn_v2.uprn_main where node='X5' and post='"+tpost+"' ";
+        q = q + "and street='"+tstreet+"' ";
+        q = q + "and bno='"+tbno+"' ";
+        q = q + "and build='"+tbuild+"' ";
+        q = q + "and flat='"+tflat+"'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) {
+            in = 1;
+        }
+
+        preparedStatement.close();
+
+        return in;
+    }
+
     // X $D(^UPRNX("X",indrec))
     public Integer X(String indrec) throws SQLException
     {
