@@ -339,8 +339,15 @@ public class runAlgorithm implements AutoCloseable {
 	{
 		Hashtable<String, String> hashTable = new Hashtable<String, String>();
 
+		/*
 		System.out.println(extract("abc",2,3));
 		System.out.println(Ini("aaaa bbbb"));
+
+		Integer t = min(10,2,5);
+
+		Integer levensh = levensh("treehavencourt","takeleycourt",10,0);
+		 */
+
 
 		adrec = adrec.toLowerCase();
 
@@ -550,9 +557,44 @@ public class runAlgorithm implements AutoCloseable {
 		if (repository.X5$D1(tpost, tstreet, tflat).equals(0)) return 0;
 		if (tflat.isEmpty()) return 0;
 
+		// get all the buildings for tpost, tstreet, tflat
+		// for  s build=$O(^UPRNX("X5",tpost,tstreet,tflat,build))
+		// select * from uprn_v2.uprn_main where node = 'X5' and post=tpost and street=tstreet and flat=tflat
 
+		List<List<String>> buildings = repository.match33(tpost, tstreet, tflat);
+
+		for(List<String> rec : buildings)
+		{
+			System.out.println(rec.get(0)); // build
+			String build = rec.get(0);
+			if (equiv(tbuild,build,"","",repository).equals(0)) {
+				matches = match33a(tbuild, build, tpost, tstreet, tflat);
+				if (matches.equals(1)) return 1;
+				continue;
+			}
+			if (partial(tbuild, build, repository).equals(1)) {
+				matches = match33a(tbuild, build, tpost, tstreet, tflat);
+				if (matches.equals(1)) return 1;
+				continue;
+			}
+		}
 
 		return matches;
+	}
+
+	public Integer match33a(String tbuild, String build, String tpost, String tstreet, String tflat)
+	{
+		Integer matched = 0;
+		// select * from uprn_v2.uprn_main where node = 'X5' and and post=tpost and street=tstreet and flat=flat and bno=flat
+		// 65-match33a
+		// ds33a
+		if (tflat.isEmpty()) {
+
+		}
+
+		// i '$d(^UPRNX("X5",tpost,tstreet,tflat,build,"")) q
+
+		return matched;
 	}
 
 	//  ;Try swapping flat and building

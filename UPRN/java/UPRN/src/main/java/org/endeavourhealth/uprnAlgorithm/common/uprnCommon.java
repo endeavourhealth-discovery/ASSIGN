@@ -20,13 +20,11 @@ import org.endeavourhealth.uprnAlgorithm.repository.Repository;
 
 public class uprnCommon {
 
-	public static void TestCommon()
-	{
+	public static void TestCommon() {
 		System.out.println("test");
 	}
 
-	public static Integer validp(String post)
-	{
+	public static Integer validp(String post) {
 		//String regex = "^[a-z]{1,2}[0-9R][0-9a-z][0-9][abd-hjlnp-uw-z]{2}$";
 
 		String regex = "^[a-z]{1,2}[0-9]{1,2}[a-z]?([0-9][a-z]{1,2})?$";
@@ -43,7 +41,7 @@ public class uprnCommon {
 
 	public static String area(String post) {
 		Integer z = post.length();
-		for (Integer i=0; i <z; i++) {
+		for (Integer i = 0; i < z; i++) {
 			if (Character.isDigit(post.charAt(i))) {
 				return post.substring(0, i);
 			}
@@ -51,31 +49,38 @@ public class uprnCommon {
 		return "";
 	}
 
-	public static boolean indexInBound(String[] data, int index){
+	public static boolean indexInBound(String[] data, int index) {
 		return data != null && index >= 0 && index < data.length;
 	}
 
-	public static String Piece(String str, String del, Integer from, Integer to)
-	{
+	public static String Piece(String str, String del, Integer from, Integer to) {
 		Integer i;
-		String p[] = str.split(del,-1);
+
+		if (!str.contains(del)) {return str;}
+
+		String p[] = str.split(del, -1);
 		String z = "";
 
-		from = from -1; to = to -1;
+		from = from - 1;
+		to = to - 1;
 
 		Integer zdel = 0;
-		if (to > from) {zdel = 1;}
+		if (to > from) {
+			zdel = 1;
+		}
 
 		for (i = from; i <= to; i++) {
 			if (indexInBound(p, i)) {
 				z = z + p[i];
-				if (zdel.equals(1)) {z =z + del;}
+				if (zdel.equals(1)) {
+					z = z + del;
+				}
 			}
 		}
 
 		if (zdel.equals((1)) && !z.isEmpty()) {
 			// remove delimeter
-			z = z.substring(0, z.length()-del.length());
+			z = z.substring(0, z.length() - del.length());
 		}
 
 		return z;
@@ -83,17 +88,196 @@ public class uprnCommon {
 
 	public static String extract(String str, Integer from, Integer to) {
 
-		if (from>to) return "";
+		if (from > to) return "";
 
-		from = from-1;
-		if (to>str.length()) return "";
+		from = from - 1;
+		if (to > str.length()) to = str.length();
 
 		str = str.substring(from, to);
 		return str;
 	}
 
+	public static String swap(String test, String tomatch, Repository repository) throws SQLException
+	{
+		// return a string list of word swaps
+		List<List<String>> swaps = repository.Swaps();
+
+		for(List<String> rec : swaps)
+		{
+			String word = rec.get(0);
+			String swapto = rec.get(1);
+
+			if ((" "+test+" ").contains(" "+word+" ")) {
+				test = Piece(test,word,1,1)+swapto+Piece(test,word,2,20);
+			}
+
+			if (tomatch.isEmpty()) continue;
+
+			if ((" "+tomatch+" ").contains(" "+word+" ")) {
+				tomatch = Piece(tomatch,word,1,1)+swapto+Piece(tomatch,word,2,20);
+			}
+
+			System.out.println(word);
+		}
+
+		return test+"~"+tomatch;
+	}
+
+	// ;Dropset a first or middle word
+	public static String drop(String test, String tomatch, Repository repository) throws SQLException
+	{
+
+		List<List<String>> drops = repository.Drops();
+
+		for(List<String> rec : drops) {
+			String word = rec.get(0);
+			if (test.contains(word)) {
+				test = Piece(test,word,1,1)+Piece(tomatch,word,2,20);
+			}
+		}
+
+		return test;
+	}
+
+	public static String welsh(String test, String tomatch)
+	{
+		if (test.contains("clos ") && tomatch.contains(" close")) {
+			test = Piece(test, " ", 2, 10).replace(" ","");
+			tomatch = Piece(tomatch," ",1,CountPieces(tomatch," ")-1).replace(" ","");
+		}
+		return test+"~"+tomatch;
+	}
+
+	public static Integer levensh(String s, String t, int min, int force)
+	{
+		Integer matched = 0;
+
+		int[][] d = new int[20][20];
+
+		s = extract(s, 1, 20);
+		t = extract(t, 1, 20);
+
+		int m = s.length();
+		int n = t.length();
+
+		if (min == 0) min=4;
+
+		if (m < min) {
+			if (s.equals(t)) {matched = 1;}
+			return matched;
+		}
+
+		int i; int j;
+
+		for (i = 0; i <= m; i++) {
+			for (j = 0; j <= n; j++) {
+				d[i][j]=0;
+			}
+		}
+
+		for (i = 1; i <= m; i++) {
+			d[i][0]=i;
+		}
+
+		for (j = 1; j <= n; j++) {
+			d[0][j]=j;
+		}
+
+		int cost = 0;
+		for (j = 1; j <= n; j++) {
+			for (i = 1; i <= m; i++) {
+				if (extract(s,i,i).equals(extract(t,j,j)))
+				{
+					cost=0;
+				}
+				else {
+					cost = 1;
+				}
+				d[i][j] = min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1]+cost);
+			}
+		}
+
+		int result = d[m][n];
+
+		if (result == 0) return 1;
+		if (force>0 && result>force) return 0;
+		if (force>0 && (result-1)<force) return 1;
+
+		if (result == 1) return 1;
+
+		if (result == 2) {
+			if (m < 10) return 0;
+			if (m < min) return 0;
+			return result;
+		}
+
+		if (result==3 && m>9) return 1;
+		return 0;
+	}
+
+	public static Integer min(Integer one, Integer two, Integer three)
+	{
+		Integer n = 0;
+
+		int a[] = {one,two,three};
+
+		int temp;
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = i + 1; j < 3; j++)
+			{
+				if (a[i] > a[j])
+				{
+					temp = a[i];
+					a[i] = a[j];
+					a[j] = temp;
+				}
+			}
+		}
+
+		return a[0];
+	}
+
+	public static Integer eqlev(String test, String tomatch, String otest, String otomatch)
+	{
+		if (test.replace(" ","").equals(tomatch.replace(" ",""))) return 1;
+		if (RegEx(extract(test,1,1),"[0-9]").equals(1) && RegEx(extract(tomatch,1,1),"[a-z]").equals(1)) return 0;
+		if (RegEx(extract(tomatch,1,1),"[0-9]").equals(1) && RegEx(extract(test,1,1),"[a-z]").equals(1)) return 0;
+
+		if (levensh(test.replace(" ",""), tomatch.replace(" ",""), 10, 0).equals(1)) return 1;
+
+		test = otest; tomatch = otomatch;
+		if (!test.contains("ow")) return 0;
+		test = test.replace("ow","a");
+
+		if (levensh(test.replace(" ",""), tomatch.replace(" ",""), 10, 0).equals(1)) return 1;
+
+		return 0;
+	}
+
+	// ;Partial multiword
+	public static Integer partial(String test, String tomatch, Repository repository) throws SQLException
+	{
+		Integer matched = 0;
+
+		String ret = swap(test, tomatch, repository);
+		test = Piece(ret,"~",1,1); tomatch = Piece(ret,"~",2,2);
+
+		test = drop(test, tomatch, repository);
+
+		if (CountPieces(test," ")>1) {
+			if (CountPieces(tomatch," ")>CountPieces(test," ")) {
+				if (Piece(tomatch," ",1,CountPieces(test," ")).equals(test)) {
+					matched = 1;
+				}
+			}
+		}
+
+		return matched;
+	}
+
 	// ;Swaps drops and levenshtein
-	public static Integer equiv(String test, String tomatch, String min, String force)
+	public static Integer equiv(String test, String tomatch, String min, String force, Repository repository) throws SQLException
 	{
 		// i $D(^UPRNW("SFIX",tomatch,test)) q 1 <= ^UPRNW is not populated
 		String otest = test;
@@ -101,8 +285,67 @@ public class uprnCommon {
 
 		if (Piece(test.replace(" ",""),"(",1,1).equals(Piece(tomatch.replace(" ",""),"(",1,1))) return 1;
 
+		// cwm
+		if (test.length()>7) {
+			String ztest = test.replace(" ","");
+			String ztomatch = tomatch.replace(" ","");
+			if (extract(ztest,1,ztest.length()-1).equals(extract(ztomatch,1,ztomatch.length()-1))) return 1;
+		}
+
+		String ret = swap(test, tomatch, repository);
+		test = Piece(ret,"~",1,1); tomatch = Piece(ret,"~",2,2);
+
+		test = drop(test, tomatch, repository);
+
+		ret = welsh(test, tomatch);
+		test = Piece(ret,"~",1,1); tomatch = Piece(ret,"~",2,2);
+
+		tomatch = tomatch.replace("eaux", "eux");
+
+		if (test.replace(" ","").equals(tomatch.replace(" ",""))) return 1;
+
+		test.replace("ei","ie");
+		tomatch.replace("ei","ie");
+
+		// i $$eqlev(test,tomatch) q 1
+		if (eqlev(test, tomatch, otest, otomatch).equals(1)) return 1;
+
+		otest = test; otomatch = tomatch;
+		test = dupl(test);
+		tomatch = dupl(tomatch);
+
+		if (!test.equals(otest) || !otomatch.equals(tomatch)) {
+			if (eqlev(test, tomatch, otest, otomatch).equals(1)) {
+				return 1;
+			}
+		}
 
 		return 0;
+	}
+
+	public static String dupl(String text)
+	{
+		Hashtable<String, String> wordlist = new Hashtable<String, String>();
+
+		int i;
+		for (i=1; i <= CountPieces(text," "); i++) {
+			String word = Piece(text," ",i,i);
+			if (word.isEmpty()) continue;
+			if (extract(word, word.length(), word.length()).equals("s")) {
+				word = extract(word,1,word.length()-1);
+				if (word.isEmpty()) continue;
+				text = setSingle$Piece(text," ",word,i);
+			}
+
+			if (wordlist.containsKey(word)) {
+				text = Piece(text," ",1,(i-1)) + " " + Piece(text, " ",i+1,20);
+				continue;
+			}
+
+			wordlist.put(word,"");
+		}
+
+		return text;
 	}
 
 	public static Integer CountPieces(String str, String del)

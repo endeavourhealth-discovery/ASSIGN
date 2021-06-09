@@ -484,6 +484,69 @@ public class Repository {
         return "{}";
     }
 
+    public List<List<String>> match33(String tpost, String tstreet, String tflat) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        // select * from uprn_v2.uprn_main where node = 'X5' and post=tpost and street=tstreet and flat=flat
+        // flat is number
+        String q = "select * from uprn_v2.uprn_main where node = 'X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tflat+"'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            String build = rs.getString("build");
+            List<String> row = new ArrayList<>();
+            row.add(build);
+            result.add(row);
+        }
+
+        return result;
+    }
+
+    public List<List<String>> Drops() throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "SELECT * FROM uprn_v2.uprn_dictionary where n1='DROP'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            String n2 = rs.getString("n2");
+            List<String> row = new ArrayList<>();
+            row.add(n2);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
+    public List<List<String>> Swaps() throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "SELECT * FROM uprn_v2.uprn_dictionary where n1='SWAP'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            String n2 = rs.getString("n2");
+            String data = rs.getString("data");
+            List<String> row = new ArrayList<>();
+            row.add(n2);
+            row.add(data);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
     public List<List<String>> RunUprnMainQuery(String q, String ALG, String matchrec) throws SQLException {
         List<List<String>> result = new ArrayList<>();
 
