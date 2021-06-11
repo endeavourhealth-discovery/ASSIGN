@@ -20,6 +20,12 @@ public class runAlgorithm implements AutoCloseable {
 	public List<List<String>> TUPRN;
 	public Hashtable<String, String> TUPRNV;
 
+	private String ALG = "";
+	private String matchrec = "";
+	private String adflatbl = "";
+	private String adf2 = "";
+	private String adb2 = "";
+
 	public runAlgorithm(final Properties properties) throws Exception {
 		this(properties, new Repository(properties));
 	}
@@ -49,6 +55,7 @@ public class runAlgorithm implements AutoCloseable {
 		post = post.replaceAll("\\s", "");
 
 		MATCHONE(adrec, post, qpost, orgpost, oadrec);
+
 		if (TUPRNV.get("OUTOFAREA") != null) {
 			//return "OUTOFAREA";
 		}
@@ -346,8 +353,9 @@ public class runAlgorithm implements AutoCloseable {
 		Integer t = min(10,2,5);
 
 		Integer levensh = levensh("treehavencourt","takeleycourt",10,0);
-		 */
 
+		System.out.println(eqflat("test1","test2",repository));
+		 */
 
 		adrec = adrec.toLowerCase();
 
@@ -377,14 +385,14 @@ public class runAlgorithm implements AutoCloseable {
 
 		String adpstreet = plural(adstreet);
 		String adpbuild = plural(adbuild);
-		String adflatbl = flat(adbuild+" ", repository);
+		adflatbl = flat(adbuild+" ", repository);
 
 		Integer adplural = 0;
 		if (!adpstreet.equals(adstreet)) adplural=1;
 		if (!adpbuild.equals(adbuild)) adplural=1;
 
-		String adb2="";
-		String adf2 = "";
+		adb2="";
+		adf2 = "";
 
 		// adflat?1n.n1" "1l.l <= test this in mumps
 		if (!adbuild.isEmpty() && RegEx(adflat, "^(\\d+( )[a-z]+)$").equals(1)) {
@@ -436,19 +444,19 @@ public class runAlgorithm implements AutoCloseable {
 
 		// Exact field match single and plural and correction
 		// 10
-		String ALG="10-";
-		String matchrec="Pe,Se";
-		matches = match1(adpost, adstreet, adbno, adbuild, adflat, matchrec, ALG);
+		ALG="10-";
+		matchrec="Pe,Se";
+		matches = match1(adpost, adstreet, adbno, adbuild, adflat);
 		if (matches.equals(1)) return 1;
 
 		if (adplural.equals(1)) {
-			matches = match1(adpost, adpstreet, adbno, adpbuild, adflat, matchrec, ALG);
+			matches = match1(adpost, adpstreet, adbno, adpbuild, adflat);
 		}
 		if (matches.equals(1)) return 1;
 
 		String corstr = correct(adstreet, repository);
 		if (!corstr.equals(adstreet)) {
-			matches = match1(adpost, corstr, adbno, adbuild, adflat, matchrec, ALG);
+			matches = match1(adpost, corstr, adbno, adbuild, adflat);
 		}
 		if (matches.equals(1)) return 1;
 
@@ -456,19 +464,19 @@ public class runAlgorithm implements AutoCloseable {
 		if (!adepth.isEmpty()) {
 			// 20 (20-match1 does not exist in patient_address_match)
 			ALG = "20-";
-			matches = match1(adpost, adepth + " " + adstreet, adbno, adbuild, adflat, matchrec, ALG);
+			matches = match1(adpost, adepth + " " + adstreet, adbno, adbuild, adflat);
 			if (matches.equals(1)) return 1;
 			if (adplural.equals(1)) {
-				matches = match1(adpost, adepth + " " + adpstreet, adbno, adpbuild, adflat, matchrec, ALG);
+				matches = match1(adpost, adepth + " " + adpstreet, adbno, adpbuild, adflat);
 				if (matches.equals(1)) return 1;
 			}
 			// flat 3, Quarles Park Road, Watermark Court, Chadwell Heath, Romford, RM64DJ
 			// import needs fixing (or investigating) - "flat 3" recorded in covering indexes rather than just 3
 			ALG = "30-";
-			matches = match1(adpost, adepth, adbno, adbuild, adflat, matchrec, ALG);
+			matches = match1(adpost, adepth, adbno, adbuild, adflat);
 			if (matches.equals(1)) return 1;
 			if (adplural.equals(1)) {
-				matches = match1(adpost, adepth, adbno, adpbuild, adflat, matchrec, ALG);
+				matches = match1(adpost, adepth, adbno, adpbuild, adflat);
 				if (matches.equals(1)) return 1;
 			}
 		}
@@ -478,7 +486,7 @@ public class runAlgorithm implements AutoCloseable {
 		if (RegEx(adbno, "^[0-9]+[a-z]$").equals(1) && adflat.isEmpty() && adbuild.isEmpty()) {
 			ALG = "35-";
 			String zadbno = extractNumber(adbno);
-			matches = match1(adpost, adstreet, zadbno, adbuild, Piece(adbno,zadbno,2,2), matchrec, ALG);
+			matches = match1(adpost, adstreet, zadbno, adbuild, Piece(adbno,zadbno,2,2));
 			if (matches.equals(1)) return 1;
 		}
 
@@ -487,7 +495,7 @@ public class runAlgorithm implements AutoCloseable {
 		if (RegEx(adflat, "^[0-9]+|[0-9]+[a-z]( )[a-z]\\w+").equals(1)) {
 			ALG = "36-";
 			// 26 Nash House, Walthamstow, Prospect Hill, E17 3EW
-			matches = match1(adpost, adstreet, adbno, Piece(adflat," ",2,10), Piece(adflat," ",1,1), matchrec, ALG);
+			matches = match1(adpost, adstreet, adbno, Piece(adflat," ",2,10), Piece(adflat," ",1,1));
 			if (matches.equals(1)) return 1;
 		}
 
@@ -497,19 +505,19 @@ public class runAlgorithm implements AutoCloseable {
 			ALG="37-";
 			// 23B Park Road,Leyton,,,Waltham Forest,E107DB
 			String zadflat = extractNumber(adflat);
-			matches = match1(adpost, adbuild, zadflat, "", Piece(adflat, zadflat,2,2), matchrec, ALG);
+			matches = match1(adpost, adbuild, zadflat, "", Piece(adflat, zadflat,2,2));
 			if (matches.equals(1)) return 1;
 		}
 
 		// 40 ;Full match Swap building flat with number and street
 		ALG = "40-";
 		// 22B Sutherland Road,3 St Claude House,,,Walthamstow,E176BH
-		matches = match1(adpost, adbuild, adflat, adstreet, adbno, matchrec, ALG);
+		matches = match1(adpost, adbuild, adflat, adstreet, adbno);
 		if (matches.equals(1)) return 1;
-		matches = match1(adpost, adbuild, adbno, adstreet, adflat, matchrec, ALG);
+		matches = match1(adpost, adbuild, adbno, adstreet, adflat);
 		if (matches.equals(1)) return 1;
 		if (adplural.equals(1)) {
-			matches=match1(adpost, adpbuild, adflat, adstreet, adbno, matchrec, ALG);
+			matches=match1(adpost, adpbuild, adflat, adstreet, adbno);
 			if (matches.equals(1)) return 1;
 		}
 
@@ -519,10 +527,10 @@ public class runAlgorithm implements AutoCloseable {
 			ALG="50-";
 			// 1 Kebbel Terrace,Claremont Road,Forest Gate,,London,E70QP
 			matchrec="Pe,Se";
-			matches = match1(adpost, adloc, adbno, adpbuild, adflat, matchrec, ALG);
+			matches = match1(adpost, adloc, adbno, adpbuild, adflat);
 			if (matches.equals(1)) return 1;
 			if (adplural.equals(1)) {
-				matches = match1(adpost, adloc, adbno, adpbuild, adflat, matchrec, ALG);
+				matches = match1(adpost, adloc, adbno, adpbuild, adflat);
 				if (matches.equals(1)) return 1;
 			}
 		}
@@ -531,10 +539,10 @@ public class runAlgorithm implements AutoCloseable {
 		// 226-228,Oaks Court, Cann Hall Road,,,Leytonstone,E113NF
 		if (matches.equals(0)) {
 			ALG="60-";
-			matches = match4(adpost, adstreet, adbno, adbuild, adflat, matchrec, ALG);
+			matches = match4(adpost, adstreet, adbno, adbuild, adflat);
 			if (matches.equals(1)) return 1;
 			if (adplural.equals(1)) {
-				matches = match4(adpost, adpstreet, adbno, adpbuild, adflat, matchrec, ALG);
+				matches = match4(adpost, adpstreet, adbno, adpbuild, adflat);
 			}
 		}
 		if (matches.equals(1)) return 1;
@@ -543,15 +551,44 @@ public class runAlgorithm implements AutoCloseable {
 		// Flat 6 Treehaven Court,Skeltons Lane,,,Leyton,E105BX
 		if (adbno.isEmpty()) {
 			ALG = "65-";
-			matches = match33(adpost, adstreet, adbno, adbuild, adflat, matchrec, ALG);
+			matches = match33(adpost, adstreet, adbno, adbuild, adflat);
 		}
-		if (matchrec.equals(1)) return 1;
+		if (matches.equals(1)) return 1;
+
+		// 70 ;Special flat in building
+		if (!adflatbl.equals(adbuild+" ") && !adflat.isEmpty()) {
+			ALG = "70-";
+			matches = match1(adpost, adstreet, adbno, "", adflatbl+adflat);
+		}
+		if (matches.equals(1)) return 1;
+
+		// 80 ;Part building in flat
+		if (!adf2.isEmpty()) {
+			ALG = "80-";
+			matches = match1(adpost, adstreet, adbno, adb2, adf2);
+		}
+		if (matches.equals(1)) return 1;
+
+		// 85 ;Match with flat equivalent, may or may not be post code
+		ALG = "85-";
+
 
 		return matches;
 	}
 
-	public Integer match33(String tpost, String tstreet, String tbno, String tbuild, String tflat, String matchrec, String ALG) throws SQLException
+	public Integer match48(String tpost, String tstreet, String tbno, String tbuild, String tflat)
 	{
+		// ;Try post code flat match first
+		if (tbuild.isEmpty()) return 0;
+		matchrec = setSingle$Piece(matchrec,",","Pe",1);
+		String xflat = tflat;
+
+		return 1;
+	}
+
+	public Integer match33(String tpost, String tstreet, String tbno, String tbuild, String tflat) throws SQLException
+	{
+		// ;Flat is number, partical building
 		Integer matches = 0;
 
 		if (repository.X5$D1(tpost, tstreet, tflat).equals(0)) return 0;
@@ -559,7 +596,7 @@ public class runAlgorithm implements AutoCloseable {
 
 		// get all the buildings for tpost, tstreet, tflat
 		// for  s build=$O(^UPRNX("X5",tpost,tstreet,tflat,build))
-		// select * from uprn_v2.uprn_main where node = 'X5' and post=tpost and street=tstreet and flat=tflat
+		// select * from uprn_v2.uprn_main where node = 'X5' and post=tpost and street=tstreet and bno=tflat
 
 		List<List<String>> buildings = repository.match33(tpost, tstreet, tflat);
 
@@ -582,40 +619,72 @@ public class runAlgorithm implements AutoCloseable {
 		return matches;
 	}
 
-	public Integer match33a(String tbuild, String build, String tpost, String tstreet, String tflat)
+	public Integer match33a(String tbuild, String build, String tpost, String tstreet, String tflat) throws SQLException
 	{
-		Integer matched = 0;
+
 		// select * from uprn_v2.uprn_main where node = 'X5' and and post=tpost and street=tstreet and flat=flat and bno=flat
 		// 65-match33a
 		// ds33a
-		if (tflat.isEmpty()) {
 
+		int matches = 0;
+
+		if (tflat.isEmpty()) {
+			String rest = tbuild.replace(build,"");
+			// get flats for building
+			List<List<String>> flats =  repository.match33a(tpost, tstreet, tflat, build);
+
+			for(List<String> rec : flats) {
+				if (matches == 1) break;
+				String flat = rec.get(0);
+				if (eqflat(rest, flat, repository).equals(1)) {
+					matchrec="Pe,Se,Ne,Bp,Fp";
+					// s ALG=ALG_"match33a" ???
+					ALG="match33a";
+					String q = "SELECT * FROM uprn_v2.uprn_main where node='X5' and post='"+tpost+"' ";
+					q = q + "and street='"+tstreet+"' ";
+					q = q + "and bno='"+tflat+"' ";
+					q = q + "and build='"+tbuild+"' ";
+					q = q + "and flat='"+tflat+"'";
+					// ds33ax
+					matches = setuprns("X5","","","","","",q,ALG,matchrec);
+				}
+			}
 		}
 
 		// i '$d(^UPRNX("X5",tpost,tstreet,tflat,build,"")) q
+		if (repository.X5(tpost, tstreet, tflat, build, "").equals(1)) {
+			matchrec="Pe,Se,Ne,Bp,Fe";
+			ALG = "match33";
+			String q = "SELECT * FROM uprn_v2.uprn_main where node='X5' and post='"+tpost+"' ";
+			q = q + "and street='"+tstreet+"' ";
+			q = q + "and bno='"+tflat+"' ";
+			q = q + "and build='"+build+"' ";
+			q = q + "and flat=''";
+			matches = setuprns("X5","","","","","",q,ALG,matchrec);
+		}
 
-		return matched;
+		return matches;
 	}
 
 	//  ;Try swapping flat and building
-	public Integer match4(String tpost, String tstreet, String tbno, String tbuild, String tflat, String matchrec, String ALG) throws SQLException
+	public Integer match4(String tpost, String tstreet, String tbno, String tbuild, String tflat) throws SQLException
 	{
 		// only swap if flat does not exist
 		Integer matches = 0;
 		if (repository.X3$Data(tbuild, tflat).equals(1)) return 0;
-		matches = match1(tpost, tstreet, tflat, tbuild, tbno, matchrec, ALG);
+		matches = match1(tpost, tstreet, tflat, tbuild, tbno);
 		if (matches.equals(1)) return 1;
 		// ?1n.n.l1" "1l.e
 		if (RegEx(tbuild, "^[0-9]+|[0-9]+[a-z]( )[a-z]\\w+").equals(1) && !tbuild.isEmpty() && !tflat.isEmpty()) {
-			matches = match1(tpost, tstreet, tbno, Piece(tbuild," ",2,10), Piece(tbuild," ",1,1)+" "+tflat,matchrec,ALG);
+			matches = match1(tpost, tstreet, tbno, Piece(tbuild," ",2,10), Piece(tbuild," ",1,1)+" "+tflat);
 			if (matches.equals(1)) return 1;
 		}
-		matches = match1(tpost, tstreet, tflat, tbuild, tbno, matchrec, ALG);
+		matches = match1(tpost, tstreet, tflat, tbuild, tbno);
 		return matches;
 	}
 
 	// ;Match algorithms on a post code and street
-	public Integer match1(String tpost, String tstreet, String tbno, String tbuild, String tflat, String matchrec, String ALG) throws SQLException
+	public Integer match1(String tpost, String tstreet, String tbno, String tbuild, String tflat) throws SQLException
 	{
 		Integer matches = 0;
 		// ;Full 5 field match
@@ -635,8 +704,8 @@ public class runAlgorithm implements AutoCloseable {
 
 	public Integer matchall(String indrec, Integer adplural, String indprec) throws SQLException
 	{
-		String matchrec = "Pe,Ne,Be,Fe";
-		String ALG = "1-match";
+		matchrec = "Pe,Ne,Be,Fe";
+		ALG = "1-match";
 
 		System.out.println(indrec);
 
@@ -659,6 +728,35 @@ public class runAlgorithm implements AutoCloseable {
                 matched  = setuprns("X",indprec,"","","","",q,ALG,matchrec);
             }
         }
+
+		return matched;
+	}
+
+	public Integer mflat4(String flat, String tflat)
+	{
+		// ;Weird flat match
+		Integer matched = 0;
+
+		// flat?1l1" ".e
+
+		if (RegEx(flat,"^([a-z]( )\\w+|[a-z]( ))").equals(1)) {
+			String suffix = Piece(flat," ",1,1);
+			String num = Piece(flat," ",CountPieces(flat," "),CountPieces(flat, " "));
+			// num?1n.n
+			if (RegEx(num, "^[0-9]+$").equals(1)) {
+				if ((" "+tflat+" ").contains(" "+num+suffix+" ") || (" "+tflat+" ").contains(" "+suffix+num+" ")) {
+					matched = 1;
+				}
+
+				if (extract(tflat,1,(suffix+num).length()).equals((suffix+num)) && RegEx(Piece(tflat,suffix+num,2,2),"^[a-z]$").equals(1)) {
+					matched = 1;
+				}
+
+				if (extractNumber(tflat).equals(num) && extract(tflat,tflat.length(),tflat.length()).equals(suffix)) {
+					matched = 1;
+				}
+			}
+		}
 
 		return matched;
 	}

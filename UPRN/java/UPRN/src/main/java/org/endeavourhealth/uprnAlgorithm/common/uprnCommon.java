@@ -86,6 +86,66 @@ public class uprnCommon {
 		return z;
 	}
 
+	public static Integer fword(String text, String word)
+	{
+		Integer pos = 0;
+		for (int i=1; i<=CountPieces(text, " "); i++) {
+			if (Piece(text, " ", i, i).equals(word)) pos = i;
+		}
+		return pos;
+	}
+
+	public static Integer eqflat(String tflat, String flat, Repository repository) throws SQLException
+	{
+		String a[] = {tflat,flat};
+
+		for(int i=0; i<a.length ;i++) {
+			String var = a[i].replace("&","and");
+			if (Piece(var," ",CountPieces(var," "),CountPieces(var, " ")).contains("floor")) {
+				a[i] = Piece(var, " ",1,CountPieces(var, " ")-1);
+			}
+		}
+
+		tflat = a[0]; flat = a[1];
+
+		if (tflat.equals(flat)) return 1;
+
+		// ?1l.l.e
+		if (tflat.contains("flat") && RegEx(Piece(tflat,"flat",1,1), "^[a-z]+\\w$").equals(1) && Piece(tflat, "flat ",2,2).equals(flat)) return 1;
+
+		// ?1"g"1n.n
+		if (RegEx(tflat,"^(g)[0-9]+$").equals(1) && extract(tflat, 2, 20).equals(flat)) return 1;
+
+		String ret = swap(tflat, flat, repository);
+		tflat = Piece(ret, "~", 1, 1); flat = Piece(ret, "~", 2, 2);
+		ret = drop(tflat, flat, repository);
+		tflat = Piece(ret, "~", 1, 1);
+
+		if (tflat.equals(flat)) return 1;
+
+		int count=0; int wcount = CountPieces(tflat, " ");
+		for (int i=0; i<=CountPieces(tflat," "); i++) {
+			if ((" "+flat+" ").contains(" "+Piece(flat," ",i,i))) {count++;}
+		}
+		if (count == wcount) return 1;
+
+		//;The block problem
+		int equiv = 0;
+		for(int i=0; i<a.length ;i++) {
+			String var1 = a[i];
+			if (a[i].contains("block")) {
+				int wpos = fword(a[i], "block");
+				if (wpos>0) {
+					if (RegEx(Piece(a[i], " ",wpos+1,wpos+1),"^[a-z]$").equals(1)) {
+						if (Piece(a[i]," ",CountPieces(a[1]," "), CountPieces(a[1]," ")).equals(var1)) { equiv=1;}
+					}
+				}
+			}
+		}
+
+		return equiv;
+	}
+
 	public static String extract(String str, Integer from, Integer to) {
 
 		if (from > to) return "";

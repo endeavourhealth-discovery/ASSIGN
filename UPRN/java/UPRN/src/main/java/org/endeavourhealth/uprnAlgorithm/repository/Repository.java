@@ -484,11 +484,30 @@ public class Repository {
         return "{}";
     }
 
+    public List<List<String>> match33a(String tpost, String tstreet, String tflat, String build) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "select * from uprn_v2.uprn_main where node = 'X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tflat+"' and build='"+build+"'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            String flat = rs.getString("flat");
+            List<String> row = new ArrayList<>();
+            row.add(flat);
+            result.add(row);
+        }
+
+        return result;
+    }
+
     public List<List<String>> match33(String tpost, String tstreet, String tflat) throws SQLException
     {
         List<List<String>> result = new ArrayList<>();
 
-        // select * from uprn_v2.uprn_main where node = 'X5' and post=tpost and street=tstreet and flat=flat
+        // select * from uprn_v2.uprn_main where node = 'X5' and post=tpost and street=tstreet and bno=flat
         // flat is number
         String q = "select * from uprn_v2.uprn_main where node = 'X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tflat+"'";
 
