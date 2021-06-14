@@ -357,6 +357,8 @@ public class runAlgorithm implements AutoCloseable {
 		System.out.println(eqflat("test1","test2",repository));
 		 */
 
+		// System.out.println(sector(post,""));
+
 		adrec = adrec.toLowerCase();
 
 		if (!post.isEmpty()) {
@@ -571,19 +573,81 @@ public class runAlgorithm implements AutoCloseable {
 
 		// 85 ;Match with flat equivalent, may or may not be post code
 		ALG = "85-";
+		matches = match48(adpost, adstreet, adbno, adbuild, adflat);
+		if (matches.equals(1)) return 1;
+
+		// ^UPRNW does not exist in the M implementation, so not converting
+		// 90 - 125
+
 
 
 		return matches;
 	}
 
-	public Integer match48(String tpost, String tstreet, String tbno, String tbuild, String tflat)
+	public Integer match48(String tpost, String tstreet, String tbno, String tbuild, String tflat) throws SQLException
 	{
 		// ;Try post code flat match first
 		if (tbuild.isEmpty()) return 0;
 		matchrec = setSingle$Piece(matchrec,",","Pe",1);
 		String xflat = tflat;
 
-		return 1;
+		// Example: D1801e Woodward Buildings,1 Victoria Road,London,W36FA
+		// get a list of buildings
+		// select * from uprn_v2.uprn_main where node='X5' and post='w36fa' and street='victoria road' and bno='1'
+		List<List<String>> buildings =  repository.match48Rs1(tpost,tstreet,tbuild,tbno,tflat);
+
+		// loop down buildings
+		int flag = 0;
+		for(List<String> rec1 : buildings)
+		{
+
+			String build = rec1.get(0);
+			tflat = rec1.get(1);
+			List<List<String>> flats = repository.match48Rs2(tpost,tstreet,tbno,build);
+			for(List<String> rec2 : flats)
+			{
+				if (flag == 1) break;
+				String flat = rec2.get(0);
+				if (mflat4(flat,tflat).equals(1)) {
+					Integer matches = match48a(tpost,tstreet,tbno,build,flat);
+					if (matches.equals(1)) {flag = 1; break;}
+				}
+			}
+			tflat = xflat;
+		}
+
+		if (flag==1) return flag;
+
+		List<List<String>> posts = repository.match48Rs3(tstreet, tbno, tpost);
+		for(List<String> rec : posts)
+		{
+
+		}
+
+		return flag;
+	}
+
+	public Integer match48a(String post, String street, String bno, String build, String flat) throws SQLException
+	{
+		Integer matched = 0;
+		String s="";
+		for (int i=1; i<=CountPieces(matchrec,","); i++) {
+			if (i>1 && i <6) {
+				if (i==2) s ="Se";
+				if (i==3) s="Ne";
+				if (i==4) s="Be";
+				if (i==5) s="Fe";
+				matchrec = setSingle$Piece(matchrec, ",", s, i);
+			}
+		}
+		ALG = ALG+"match48";
+		String q = "SELECT * FROM uprn_v2.uprn_main where node='X5' and post='"+post+"' ";
+		q = q + "and street='"+street+"' ";
+		q = q + "and bno='"+flat+"' ";
+		q = q + "and build='"+build+"' ";
+		q = q + "and flat='"+flat+"'";
+		matched = setuprns("X5","","","","","",q,ALG,matchrec);
+		return matched;
 	}
 
 	public Integer match33(String tpost, String tstreet, String tbno, String tbuild, String tflat) throws SQLException
@@ -638,8 +702,7 @@ public class runAlgorithm implements AutoCloseable {
 				String flat = rec.get(0);
 				if (eqflat(rest, flat, repository).equals(1)) {
 					matchrec="Pe,Se,Ne,Bp,Fp";
-					// s ALG=ALG_"match33a" ???
-					ALG="match33a";
+					ALG=ALG+"match33a";
 					String q = "SELECT * FROM uprn_v2.uprn_main where node='X5' and post='"+tpost+"' ";
 					q = q + "and street='"+tstreet+"' ";
 					q = q + "and bno='"+tflat+"' ";

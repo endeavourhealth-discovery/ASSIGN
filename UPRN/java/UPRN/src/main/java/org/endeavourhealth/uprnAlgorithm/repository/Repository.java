@@ -334,7 +334,7 @@ public class Repository {
     {
         Integer in = 0;
 
-        String q = "SELECT * FROM uprn_v2.uprn_main where node='X3' and build='"+tbuild+"' and flat='"+tflat+"'";
+        String q = "SELECT * FROM uprn_v2.uprn_main where node='X3' and build='"+tbuild+"' and flat='"+tflat+"' limit 1";
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -484,6 +484,77 @@ public class Repository {
         return "{}";
     }
 
+    public List<List<String>> match48Rs1(String tpost, String tstreet, String tbuild, String tbno, String tflat) throws SQLException
+    {
+        // use a hash table instead of an array (or try distinct)
+        List<List<String>> result = new ArrayList<>();
+
+        String q ="select distinct street, bno, build from uprn_v2.uprn_main where node = 'X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tbno+"'";
+        System.out.println(q);
+
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            String build = rs.getString("build");
+            if (!tbuild.contains(build)) continue;
+            if (tflat.isEmpty()) tflat = Piece(tbuild," "+build,1,1);
+            List<String> row = new ArrayList<>();
+            row.add(build);
+            row.add(tflat);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
+    public List<List<String>> match48Rs2(String tpost, String tstreet, String tbno, String build) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "select distinct post, street, bno, build, flat from uprn_v2.uprn_main where node = 'X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tbno+"' and build='"+build+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            List<String> row = new ArrayList<>();
+            String flat = rs.getString("flat");
+            row.add(flat);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
+    public List<List<String>> match48Rs3(String tstreet, String tbno, String tpost) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "select distinct post, street, bno from uprn_v2.uprn_main where node = 'X3' and bno='"+tbno+"' and street='"+tstreet+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            List<String> row = new ArrayList<>();
+            String post = rs.getString("post");
+            if (post.equals(tpost)) continue;
+            row.add(post);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
     public List<List<String>> match33a(String tpost, String tstreet, String tflat, String build) throws SQLException
     {
         List<List<String>> result = new ArrayList<>();
@@ -499,6 +570,8 @@ public class Repository {
             row.add(flat);
             result.add(row);
         }
+
+        preparedStatement.close();
 
         return result;
     }
@@ -521,6 +594,7 @@ public class Repository {
             result.add(row);
         }
 
+        preparedStatement.close();
         return result;
     }
 

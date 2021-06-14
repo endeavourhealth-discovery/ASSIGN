@@ -95,6 +95,64 @@ public class uprnCommon {
 		return pos;
 	}
 
+	public static String sector(String post, String rest)
+	{
+		String sector =""; rest = "";
+
+		int i;
+		for (i= post.length(); i>0; i--) {
+			System.out.println("debug");
+			if (RegEx(extract(post, i, i), "^[0-9]$").equals(1)) {
+				sector = extract(post, 1, i); rest=extract(post,i+1,post.length());
+			}
+			if (!sector.isEmpty()) break;
+		}
+
+		return sector+"~"+rest;
+	}
+
+	// qpost is passed into the algorithm
+	public static String nearpost(String post, String adpost, Integer hownear, String qpost, Repository repository) throws SQLException
+	{
+		String near = "";
+		if (adpost.isEmpty()) return "";
+		if (inpost(repository,adpost,qpost).equals(0)) return "";
+
+		String ret = sector(post,"");
+		String s1=Piece(ret,"~",1,1); String r1=Piece(ret,"~",2,2);
+		ret = sector(adpost, "");
+		String s2=Piece(ret,"~",1,1); String r2=Piece(ret,"~",2,2);
+
+		if (hownear.equals(1)) {
+			if (s1.equals(s2)) {
+				if (levensh(r1, r2, 2, 0)<2) {
+					near = "Pl";
+					return near;
+				}
+			}
+		}
+
+		if (hownear.equals(2)) {
+			if (s1.equals(s2)) {
+				if (levensh(r1,r2, 2, 2)<2) {
+					near = "Pl";
+					return near;
+				}
+			}
+		}
+
+		if (levensh(post,adpost, 5, 0)>0) {
+			near = "Pl";
+			return near;
+		}
+
+		if (area(post).equals(area(adpost))) {
+			return "Pp";
+		}
+
+		return "";
+	}
+
 	public static Integer eqflat(String tflat, String flat, Repository repository) throws SQLException
 	{
 		String a[] = {tflat,flat};
