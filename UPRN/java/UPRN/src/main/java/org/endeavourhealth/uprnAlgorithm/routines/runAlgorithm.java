@@ -54,7 +54,9 @@ public class runAlgorithm implements AutoCloseable {
 		String post = data[length - 1];
 		post = post.replaceAll("\\s", "");
 
+		// ********** MATCHONE **********
 		MATCHONE(adrec, post, qpost, orgpost, oadrec);
+		// ******************************
 
 		if (TUPRNV.get("OUTOFAREA") != null) {
 			//return "OUTOFAREA";
@@ -359,6 +361,13 @@ public class runAlgorithm implements AutoCloseable {
 
 		// System.out.println(sector(post,""));
 
+		//System.out.println(repository.processId);
+
+		//System.out.println(district("ls175eh"));
+		//System.out.println("pause");
+
+		//Double z = mcount("15 russel court","15 russell court");
+
 		adrec = adrec.toLowerCase();
 
 		if (!post.isEmpty()) {
@@ -372,7 +381,7 @@ public class runAlgorithm implements AutoCloseable {
 			}
 		}
 
-		// format^UPRNA
+		// **** format^UPRNA ****
 		String ret = uprnCommon.format(repository, adrec, oadrec);
 
 		String adflat = Piece(ret,"~",1,1);
@@ -579,9 +588,84 @@ public class runAlgorithm implements AutoCloseable {
 		// ^UPRNW does not exist in the M implementation, so not converting
 		// 90 - 125
 
+		// 128 ;Match on range number
+		ALG = "128-";
+		matches = match101(adpost, adstreet, adbno, adbuild, adflat);
+		if (matches.equals(1)) return 1;
 
+		// 129 ;flat,building, number, street, very close post code
+		ALG = "129-";
+		matches = match102(adpost, adstreet, adbno, adbuild, adflat);
+		if (matches.equals(1)) return 1;
+
+		// 130 ; ;Matches post code street and number, try fuzzy building/ flat
+		ALG = "130-";
+		matches = match2(adpost, adstreet, adbno, adbuild, adflat, "");
+		if (matches.equals(1)) return 1;
 
 		return matches;
+	}
+
+	public Integer match2(String tpost, String tstreet, String tbno, String tbuild, String tflat, String tloc) throws SQLException
+	{
+		// ;Assumes a match on the number and approx on other things
+
+		return 0;
+	}
+
+	public Integer match102(String tpost, String tstreet, String tbno, String tbuild, String tflat) throws SQLException
+	{
+		// ;Post code very close
+		Integer matched = 0;
+		// ;First try street and number with null flat and building
+		if (tbuild.isEmpty() || tflat.isEmpty() || tbno.isEmpty() || tstreet.isEmpty()) return 0;
+
+		if (repository.X3$Data(tbuild, tflat).equals(1)) {
+			List<List<String>> posts = repository.match48Rs3(tstreet, tbno, tpost);
+			for(List<String> rec : posts)
+			{
+				if (matched.equals(1)) break;
+				String post = rec.get(0);
+				if (post.equals(tpost)) continue;
+				String near = nearpost(post, tpost, 1, "", repository);
+				if (near.isEmpty()) continue;
+				if (repository.X5(post, tstreet, tbno, tbuild, tflat).equals(1)) {
+					ALG = ALG+"match1d";
+					matchrec = near+",Se,Ne,Be,Fe";
+					String q = "SELECT * FROM uprn_v2.uprn_main where node='X5' and post='"+post+"' and street='"+tstreet+"' and bno='"+tbno+"' ";
+					q = q + "and build='"+tbuild+"' and flat='"+tflat+"'";
+					matched = setuprns("X5","","","","","",q,ALG,matchrec);
+				}
+			}
+		}
+		return matched;
+	}
+
+	public Integer match101(String tpost, String tstreet, String tbno, String tbuild, String tflat) throws SQLException
+	{
+		// ;Match algorithms on a post code and street number range
+		if (!tbno.contains("-")) return 0;
+		if (tflat.isEmpty()) return 0;
+
+		Integer in = repository.X5$D2(tpost, tstreet);
+		if (in.equals(0)) return 0;
+
+		Integer i = Integer.parseInt(Piece(tbno,"-",1,1));
+		Integer z = Integer.parseInt(Piece(tbno,"-",2,2));
+
+		Integer matched = 0;
+		for (i=i; i<=z; i++) {
+			if (matched.equals(1)) break;
+			if (repository.X5$D3(tpost, tstreet, i.toString(), tbuild, tflat).equals(1)) {
+				ALG = ALG + "match1c";
+				matchrec = "Pe,Se,Ns,Be,Fe";
+				String q = "select * from uprn_v2.uprn_main where node='X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+i+"' ";
+				q = q + "and build='"+tbuild+"' and flat='"+tflat+"'";
+				matched = setuprns("X5","","","","","",q,ALG,matchrec);
+			}
+		}
+
+		return matched;
 	}
 
 	public Integer match48(String tpost, String tstreet, String tbno, String tbuild, String tflat) throws SQLException

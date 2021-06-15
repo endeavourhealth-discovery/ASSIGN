@@ -15,6 +15,7 @@ public class Repository {
 
     public String adrec;
     public String commercials;
+    public String processId;
 
     public Repository(Properties properties) throws SQLException {
         init( properties );
@@ -29,6 +30,7 @@ public class Repository {
         String pass = props.getProperty("password");
 
         commercials= props.getProperty("commercials");
+        processId = props.getProperty("process_id");
 
         dataSource = new MysqlDataSource();
 
@@ -55,6 +57,8 @@ public class Repository {
 
         String q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = '"+node+"' and n2='" + word + "'";
 
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -77,6 +81,8 @@ public class Repository {
         // select post from uprn_v2.uprn_main WHERE post = 'ig110rf'
         String q = "SELECT "+column+" FROM uprn_v2.uprn_main WHERE "+column+" = '" +data+ "'";
 
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -92,6 +98,9 @@ public class Repository {
         floor = floor.replace("'", "''");
 
         String q ="SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLOOR' and n2 = '"+floor+"'";
+
+        System.out.println(q);
+
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
         ResultSet rs = preparedStmt.executeQuery();
@@ -108,6 +117,9 @@ public class Repository {
         text = text.replace("'", "''");
 
         String q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'ROAD' and n2='"+text+"'";
+
+        System.out.println(q);
+
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
         ResultSet rs = preparedStmt.executeQuery();
@@ -125,6 +137,8 @@ public class Repository {
 
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'TOWN' and data='"+data+"'";
 
+        System.out.println(q);
+
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
         ResultSet rs = preparedStmt.executeQuery();
@@ -141,6 +155,8 @@ public class Repository {
         Integer n = 0;
 
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT' and n2='"+text+"'";
+
+        System.out.println(q);
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
@@ -161,6 +177,8 @@ public class Repository {
 
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'VERTICALS' and n2='"+text+"'";
 
+        System.out.println(q);
+
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
         ResultSet rs = preparedStmt.executeQuery();
@@ -177,6 +195,8 @@ public class Repository {
         Integer n = 0;
 
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'COURT' and n2='"+text+"'";
+
+        System.out.println(q);
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
@@ -195,6 +215,8 @@ public class Repository {
 
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'BUILDING' and n2='"+text+"'";
 
+        System.out.println(q);
+
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
         ResultSet rs = preparedStmt.executeQuery();
@@ -210,6 +232,8 @@ public class Repository {
     public Integer hasflat(String text) throws SQLException {
         Integer hasflat = 0;
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` WHERE n1='FLAT'";
+
+        System.out.println(q);
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
@@ -234,6 +258,8 @@ public class Repository {
 
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT'";
 
+        System.out.println(q);
+
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
         ResultSet rs = preparedStmt.executeQuery();
@@ -252,6 +278,8 @@ public class Repository {
     public Integer QueryFlat(String text) throws SQLException {
         Integer n = 0;
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT' and n2='"+text+"'";
+
+        System.out.println(q);
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
@@ -273,6 +301,9 @@ public class Repository {
 
     public String flat(String text) throws SQLException {
         String q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT'";
+
+        System.out.println(q);
+
         PreparedStatement preparedStmt = connection.prepareStatement(q);
 
         ResultSet rs = preparedStmt.executeQuery();
@@ -301,6 +332,9 @@ public class Repository {
             String flat = p[p.length-1];
             // flat exist in uprn-s?
             q= "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'FLAT' and n2='"+flat+"'";
+
+            System.out.println(q);
+
             preparedStmt = connection.prepareStatement(q);
             rs = preparedStmt.executeQuery();
             // flat at end
@@ -315,12 +349,14 @@ public class Repository {
         return text;
     }
 
-    public Integer X5$D1(String tpost, String tstreet, String tflat) throws SQLException
+    public Integer X1$D1(String tpost) throws SQLException
     {
         Integer in = 0;
-        String q ="select * from uprn_v2.uprn_main where node='X5' and post='"+tpost+"' ";
-        q = q + "and street='"+tstreet+"' ";
-        q = q + "and flat = '"+tflat+"'";
+
+        String q = "select * from uprn_v2.uprn_main where node='X1' and post='"+tpost+"'";
+
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
         if (rs.next()) { in = 1; }
@@ -328,6 +364,127 @@ public class Repository {
         return in;
     }
 
+    public Integer X5$D1(String tpost, String tstreet, String tflat) throws SQLException
+    {
+        Integer in = 0;
+        String q ="select * from uprn_v2.uprn_main where node='X5' and post='"+tpost+"' ";
+        q = q + "and street='"+tstreet+"' ";
+        q = q + "and flat = '"+tflat+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) { in = 1; }
+        preparedStatement.close();
+        return in;
+    }
+
+    public Integer X5$D2(String tpost, String tstreet) throws SQLException
+    {
+        Integer in = 0;
+        String q ="select * from uprn_v2.uprn_main where node='X5' and post='"+tpost+"' and street='"+tstreet+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) { in = 1; }
+        preparedStatement.close();
+
+        return in;
+    }
+
+    public Integer X5$D3(String tpost, String tstreet, String i, String tbuild, String tflat) throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "select * from uprn_v2.uprn_main where node='X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+i+"' ";
+        q = q + "and build='"+tbuild+"' and flat='"+tflat+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) { in = 1; }
+        preparedStatement.close();
+
+        return in;
+    }
+
+    public Integer X5$D4(String tpost, String tstreet, String tbno) throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "select * from uprn_v2.uprn_main where node='X5' and post='"+tpost+" and street='"+tstreet+"' and bno='"+tbno+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) { in = 1; }
+        preparedStatement.close();
+
+        return in;
+    }
+
+    public Integer X5$D5(String tpost, String tstreet, String tbno) throws SQLException
+    {
+        Integer in = 0;
+
+        // builing and flat is null check
+        String q = "select * from uprn_v2.uprn_main where node='X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tbno+"' ";
+        q = q+"and build='' and flat=''";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) { in = 1; }
+        preparedStatement.close();
+
+        return in;
+    }
+
+    public Integer TBEST$D1() throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "select * from uprnv2_tbest where job='"+this.processId+"'";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+        ResultSet rs = preparedStmt.executeQuery();
+        if (rs.next()) { in = 1; }
+        preparedStmt.close();
+
+        return in;
+    }
+
+    public void TBEST$Kill() throws SQLException
+    {
+        String job = getProcessId();
+        String q = "delete from uprn_v2.tbest where job = ?";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+        preparedStmt.setString(1,job);
+        preparedStmt.execute();
+
+        preparedStmt.close();
+    }
+
+    public void TBEST$Set(String matchrec, String tbno, String tbuild, String tflat, String post) throws SQLException
+    {
+        String job = getProcessId();
+        String q = "insert into uprn_v2.tbest (matchrec, bno, build, flat) values(?,?,?,?)";
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        preparedStmt.setString(1, matchrec);
+        preparedStmt.setString(2, tbno);
+        preparedStmt.setString(3, tbuild);
+        preparedStmt.setString(4, tflat);
+
+        preparedStmt.execute();
+        preparedStmt.close();
+    }
 
     // $D(^UPRNX("X3",tbuild,tflat))
     public Integer X3$Data(String tbuild, String tflat) throws SQLException
@@ -335,6 +492,8 @@ public class Repository {
         Integer in = 0;
 
         String q = "SELECT * FROM uprn_v2.uprn_main where node='X3' and build='"+tbuild+"' and flat='"+tflat+"' limit 1";
+
+        System.out.println(q);
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -348,16 +507,67 @@ public class Repository {
         return in;
     }
 
+    public Integer X3$D1(String post, String tstreet, String tbno, String tbuild, String tflat) throws SQLException
+    {
+        Integer in = 0;
+
+        String q ="select * from uprn_v2.uprn_main where node='X3' and post='"+post+"' and street='"+tstreet+"' and bno='"+tbno+"' ";
+        q = q + "and build='"+tbuild+"' and flat='"+tflat+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) { in = 1;}
+
+        preparedStatement.close();
+
+        return in;
+    }
+
+    public Integer X3$D2(String tstreet, String tbno) throws SQLException
+    {
+        Integer in = 0;
+
+        String q ="select * from uprn_v2.uprn_main where node='X3' and street='"+tstreet+"' and bno='"+tbno+"'";
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) { in = 1;}
+
+        preparedStatement.close();
+
+        return in;
+    }
+
+    public Integer X3$D3(String tstreet) throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "select * from uprn_v2.uprn_main where node='X3' and street='"+tstreet+"'";
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) { in = 1;}
+        preparedStatement.close();
+
+        return in;
+    }
+
     // $d(^UPRNX("X5",tpost,tstreet,tbno,tbuild,tflat))
     public Integer X5(String tpost, String tstreet, String tbno, String tbuild, String tflat) throws SQLException
     {
         Integer in = 0;
 
         String q = "SELECT * FROM uprn_v2.uprn_main where node='X5' and post='"+tpost+"' ";
-        q = q + "and street='"+tstreet+"' ";
-        q = q + "and bno='"+tbno+"' ";
-        q = q + "and build='"+tbuild+"' ";
+        q = q + "and street='"+tstreet+"' and bno='"+tbno+"' and build='"+tbuild+"' ";
         q = q + "and flat='"+tflat+"'";
+
+        System.out.println(q);
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -377,6 +587,8 @@ public class Repository {
         Integer in = 0;
 
         String q = "SELECT * FROM uprn_v2.uprn_main where node='X' and indrec='"+indrec+"' limit 1";
+
+        System.out.println(q);
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -404,6 +616,8 @@ public class Repository {
         building = building.replace("'", "''");
 
         String q ="SELECT street from uprn_v2.uprn_main where build "+e+" '" + building +p + "'"+limit;
+
+        System.out.println(q);
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -440,6 +654,9 @@ public class Repository {
         street = street.replace("'", "''");
 
         String q ="SELECT street from uprn_v2.uprn_main where street "+e+" '" + street +p+"' "+limit;
+
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -461,6 +678,8 @@ public class Repository {
             q = "SELECT * FROM uprn_v2.uprn_dictionary where n1 = 'AREAS' and `data` = '"+qpost+"'";
         }
 
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
         if (rs.next()) {in = 1;}
@@ -472,6 +691,9 @@ public class Repository {
     public String GetUPRN() throws SQLException {
         // test that we can connect to the mysql database?
         String preparedSql = "SELECT * FROM uprn_v2.`uprn_dictionary` limit 10";
+
+        System.out.println(preparedSql);
+
         PreparedStatement preparedStatement = connection.prepareStatement( preparedSql );
 
         ResultSet rs = preparedStatement.executeQuery();
@@ -490,6 +712,7 @@ public class Repository {
         List<List<String>> result = new ArrayList<>();
 
         String q ="select distinct street, bno, build from uprn_v2.uprn_main where node = 'X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tbno+"'";
+
         System.out.println(q);
 
 
@@ -532,6 +755,77 @@ public class Repository {
         return result;
     }
 
+    // called from bestfitn
+    public List<List<String>> bestfitn(String tbuild, String tflat, String tpost) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "select dictinct post from uprn_v2.uprn_main where node = 'X3' and build='"+tbuild+"' and flat='"+tflat+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            List<String> row = new ArrayList<>();
+            String post = rs.getString("post");
+            if (post.equals(tpost)) continue;
+            row.add(post);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
+    public List<List<String>> X3farpost(String tstreet) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "select * from uprn_v2.uprn_main where node='X3' and street='"+tstreet+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            List<String> row = new ArrayList<>();
+            String bno = rs.getString("bno");
+            String post = rs.getString("post");
+            row.add(bno);
+            row.add(post);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
+    // *** POSSIBLY REDUNDANT ***
+    public List<List<String>> X3$O1(String tstreet) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "select distinct bno from uprn_v2.uprn_main where node = 'X3' and street='"+tstreet+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            List<String> row = new ArrayList<>();
+            String bno = rs.getString("bno");
+            row.add(bno);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
     public List<List<String>> match48Rs3(String tstreet, String tbno, String tpost) throws SQLException
     {
         List<List<String>> result = new ArrayList<>();
@@ -561,6 +855,8 @@ public class Repository {
 
         String q = "select * from uprn_v2.uprn_main where node = 'X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tflat+"' and build='"+build+"'";
 
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -584,6 +880,8 @@ public class Repository {
         // flat is number
         String q = "select * from uprn_v2.uprn_main where node = 'X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tflat+"'";
 
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -603,6 +901,8 @@ public class Repository {
         List<List<String>> result = new ArrayList<>();
 
         String q = "SELECT * FROM uprn_v2.uprn_dictionary where n1='DROP'";
+
+        System.out.println(q);
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -624,6 +924,8 @@ public class Repository {
 
         String q = "SELECT * FROM uprn_v2.uprn_dictionary where n1='SWAP'";
 
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -643,6 +945,8 @@ public class Repository {
     public List<List<String>> RunUprnMainQuery(String q, String ALG, String matchrec) throws SQLException {
         List<List<String>> result = new ArrayList<>();
 
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -657,6 +961,9 @@ public class Repository {
         }
 
         q = "select distinct `table`, `key` FROM uprn_v2.uprn_main where uprn = '"+uprn+"'";
+
+        System.out.println(q);
+
         preparedStatement = connection.prepareStatement(q);
         rs = preparedStatement.executeQuery();
 
@@ -725,6 +1032,9 @@ public class Repository {
         String classterm = "";
 
         String q = "select * FROM uprn_v2.uprn_classification where code = '"+classcode+"'";
+
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -742,6 +1052,8 @@ public class Repository {
 
         String q = "SELECT * FROM uprn_v2.uprn_class where uprn = '"+uprn+"'";
 
+        System.out.println(q);
+
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
 
@@ -755,6 +1067,8 @@ public class Repository {
 
     public Integer classQuery(String uprn) throws SQLException {
         String q = "select * from uprn_v2.uprn_class where uprn = '"+uprn+"'";
+
+        System.out.println(q);
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();

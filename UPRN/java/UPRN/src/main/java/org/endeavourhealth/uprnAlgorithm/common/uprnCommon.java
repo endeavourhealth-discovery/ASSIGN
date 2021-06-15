@@ -2,6 +2,7 @@ package org.endeavourhealth.uprnAlgorithm.common;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,6 +14,7 @@ import com.mysql.cj.util.StringUtils;
 import com.mysql.cj.xdevapi.PreparableStatement;
 import com.sun.corba.se.impl.orbutil.RepositoryIdStrings;
 import com.sun.deploy.security.SelectableSecurityManager;
+import com.sun.javaws.progress.PreloaderPostEventListener;
 import com.sun.org.apache.regexp.internal.REProgram;
 import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import javafx.scene.input.PickResult;
@@ -93,6 +95,18 @@ public class uprnCommon {
 			if (Piece(text, " ", i, i).equals(word)) pos = i;
 		}
 		return pos;
+	}
+
+	public static String district(String post) {
+		String outward = extract(post, 1, post.length()-3);
+		String area="";
+		for (int i=1; i<=outward.length(); i++) {
+			String z = extract(outward, i, i);
+			if (RegEx(z,"^[0-9]$").equals(1)) break;
+			area = area+z;
+		}
+		String district = area+Piece(outward,area,2,10);
+		return district;
 	}
 
 	public static String sector(String post, String rest)
@@ -646,6 +660,176 @@ public class uprnCommon {
         if (RegEx(word, "^[0-9]+[a-z](-)[0-9]+[a-z]").equals(1)) return 1;
 
 		return 0;
+	}
+
+	public static String getProcessId()
+	{
+		// https://shekhargulati.com/2015/11/16/how-to-programmatically-get-process-id-of-a-java-process/
+		// will it work on linux?
+		String vmName = ManagementFactory.getRuntimeMXBean().getName();
+		String pid = Piece(vmName, "@",1,1);
+		return pid;
+	}
+
+	// farpost^UPRNB
+	public static void farpost(String tpost, String tstreet, String tbuild, String tbno, String tflat, Repository repository) throws SQLException
+	{
+		// ;No post code match
+		Integer matched = 0;
+		String matchrec = "";
+		String tdist = district(tpost);
+		if (repository.X3$D2(tstreet, tbno).equals(1)) {
+			if (!tflat.isEmpty() || !tbuild.isEmpty()) {
+				List<List<String>> posts =  repository.match48Rs3(tstreet, tbno, tpost);
+				for(List<String> postrec : posts) {
+					String post = postrec.get(0);
+					if (!district(post).equals(tdist)) continue;
+					if (repository.X5$D3(post, tstreet, tbno, tbuild, tflat).equals(1)) {
+						matchrec = "Pi,Se,Ne,Be,Fe";
+						repository.TBEST$Set(matchrec, tbno, tbuild, tflat, post);
+						break;
+					}
+					if (!tbuild.isEmpty() && !tflat.isEmpty()) {
+						if (repository.X5$D3(post, tstreet, tbno, "", tflat).equals(1)) {
+							matchrec="Pi,Se,Ne,Bd,Fe";
+							repository.TBEST$Set(matchrec, tbno, tbuild, tflat, post);
+						}
+						continue;
+					}
+					if (tpost.isEmpty() && !tbno.isEmpty() && !tstreet.isEmpty() && !tflat.isEmpty()) {
+						List<List<String>> flats =  repository.match48Rs2(tpost, tstreet, tbno, tbuild);
+						for (List<String> flatrec : flats) {
+							String flat = flatrec.get(0);
+							if (eqflat(tflat, flat, repository).equals(1)) {
+								matchrec = "Pi,Se,Ne,Be,Fe";
+								repository.TBEST$Set(matchrec, tbno, tbuild, tflat, post);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (repository.TBEST$D1().equals(1)) return;
+		if (!tflat.isEmpty() & !tbuild.isEmpty()) {
+			if (repository.X3$D3(tstreet).equals(1)) {
+				// get all the building numbers and postcodes for street
+				// select * from uprn_v2.uprn_main where node = 'X3' street = tstreet
+				List<List<String>> fat = repository.X3farpost(tstreet);
+				for(List<String> rec : fat) {
+					String bno = rec.get(0);
+					String post = rec.get(1);
+					List<List<String>> match33 = repository.match33(post, tstreet, bno);
+					for(List<String> rec33 : fat) {
+						String build = rec33.get(0);
+						if (repository.X5(post,tstreet,bno,build,tflat).equals(1)) {
+							if (equiv(build,tbuild,"","",repository).equals(1)) {
+								if (extract(post,1,2).equals(extract(tpost,1,2))) {
+									if (levensh(post,tpost,5,1).equals(1)) {
+										matchrec = "Pl,Se,Ni,Bl,Fe";
+										repository.TBEST$Set(matchrec,bno,build,tflat,post);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// bestfitn^UPRNB
+	public static void bestfitn(String tpost, String tstreet, String tbuild, String tflat, String tbno, Repository repository) throws SQLException
+	{
+		// ;Fits with no building
+		// ;but may be an exact match on building and close post code
+		// ;but also there may be no number and
+		String matchrec = "";
+		if (!tbuild.isEmpty() && tflat.isEmpty() && !tbno.isEmpty()) {
+			if (repository.X5$D5(tpost, tstreet, tbno).equals(1)) {
+				matchrec = "Pe,Se,Ne,Bd,Fe";
+				repository.TBEST$Set(matchrec, tbno, "", "", "");
+			}
+			List<List<String>> posts = repository.bestfitn(tbuild, tflat, tpost);
+			for(List<String> rec : posts) {
+				String post = rec.get(0);
+				String np = nearpost(post, tpost, 1, "", repository);
+				if (np.equals("Pl")) {
+					if (repository.X3$D1(post, tstreet, tbno, tbuild, tflat).equals(1)) {
+						matchrec = np+",Se,Ne,Be,Fe";
+						repository.TBEST$Set(matchrec, tbno, tbuild, tflat, post);
+					}
+				}
+			}
+		}
+	}
+
+	public static Integer whichno(String matchrec, String tpost, String tstreet, String tbno, String tbuild, String tflat)
+	{
+		return 0;
+	}
+
+	public static Double mcount(String build, String tbuild)
+	{
+		double count = 0;
+
+		if (build.equals(tbuild)) return 100.0;
+
+		build = plural(build);
+		tbuild = plural(tbuild);
+		String var[] = {"", build, tbuild};
+
+		if (CountPieces(tbuild," ")>CountPieces(build, " ")) {
+			var[1] = tbuild;
+			var[2] = build;
+		}
+
+		for (int i=1; i<=CountPieces(var[1], " "); i++) {
+			String word = Piece(var[1], " ", i ,i);
+			if ((" "+var[2]+" ").contains(" "+word+" ")) {
+				count++;
+			}
+			else {
+				if (word.length()<3) continue;
+				if ((" "+var[2]+" ").contains(" "+extract(word,1,3))) {
+					count = count+0.5;
+				}
+			}
+		}
+		return count;
+	}
+
+	public static void choose()
+	{
+
+	}
+
+	public static Integer bestfit(String tpost, String tstreet, String tbno, String tbuild, String tflat, String tloc, Repository repository) throws SQLException
+	{
+		Integer matched = 0;
+
+		repository.TBEST$Kill();
+
+		tstreet = plural(tstreet);
+		tbuild = plural(tbuild);
+
+		if (tpost.isEmpty() || repository.X1$D1(tpost).equals(1)) {
+			bestfitn(tpost, tstreet, tbuild, tflat, tbno, repository);
+			farpost(tpost, tstreet, tbuild, tbno, tflat, repository);
+			choose();
+		}
+
+		return matched;
+	}
+
+	public static Integer mno(String tpost, String tstreet, String tbno, String bno, Repository repository) throws SQLException
+	{
+		Integer matched = 0;
+
+		if (repository.X5$D4(tpost, tstreet, tbno).equals(1)) {
+
+		}
+
+		return matched;
 	}
 
 	// Strips off care of

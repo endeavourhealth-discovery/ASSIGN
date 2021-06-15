@@ -8,12 +8,14 @@ import java.util.Scanner;
 
 import org.endeavourhealth.uprnAlgorithm.routines.*;
 
-import static org.endeavourhealth.uprnAlgorithm.common.uprnCommon.Piece;
+import static org.endeavourhealth.uprnAlgorithm.common.uprnCommon.*;
 
 public class uprnAlgorithm {
 	public static void main(String... args) throws IOException, SQLException {
 	
 		Properties properties = loadProperties( args );
+
+        properties.setProperty("process_id", getProcessId());
 
         for (String s: args) {
             String ss = Piece(s,":",1,1);
