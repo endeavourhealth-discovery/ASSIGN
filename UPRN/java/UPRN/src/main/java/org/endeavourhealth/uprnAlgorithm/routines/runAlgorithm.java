@@ -609,7 +609,7 @@ public class runAlgorithm implements AutoCloseable {
 	public Integer match2(String tpost, String tstreet, String tbno, String tbuild, String tflat, String tloc) throws SQLException
 	{
 		// ;Assumes a match on the number and approx on other things
-
+        TUPRN = bestfit(tpost, tstreet, tbno, tbuild, tflat, tloc, repository, ALG);
 		return 0;
 	}
 

@@ -444,11 +444,25 @@ public class Repository {
         return in;
     }
 
+    public Integer FLATEXTRA$D(String text) throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "select * from uprn_v2.uprn_dictionary where n1='FLATEXTRA' and n2='"+text+"'";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) { in = 1; }
+        preparedStatement.close();
+
+        return in;
+    }
+
     public Integer TBEST$D1() throws SQLException
     {
         Integer in = 0;
 
-        String q = "select * from uprnv2_tbest where job='"+this.processId+"'";
+        String q = "select * from uprn_v2.tbest where job='"+this.processId+"'";
 
         PreparedStatement preparedStmt = connection.prepareStatement(q);
         ResultSet rs = preparedStmt.executeQuery();
@@ -456,6 +470,37 @@ public class Repository {
         preparedStmt.close();
 
         return in;
+    }
+
+    public Integer TBEST$D2(String matchrec) throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "SELECT * FROM uprn_v2.tbest where data='"+matchrec+"' and job="+this.processId;
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+        ResultSet rs = preparedStmt.executeQuery();
+        if (rs.next()) { in = 1; }
+        preparedStmt.close();
+
+        return in;
+    }
+
+    public String TBEST$GET(String matchrec) throws SQLException
+    {
+        String ret = "";
+
+        String q = "SELECT * FROM uprn_v2.tbest where data='"+matchrec+"' and job="+this.processId;
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+        ResultSet rs = preparedStmt.executeQuery();
+
+        if (rs.next()) {
+            ret = rs.getString("id")+"~"+rs.getString("matchrec")+"~"+rs.getString("bno")+"~"+rs.getString("build")+"~"+rs.getString("flat")+"~"+rs.getString("post");
+        }
+
+        preparedStmt.close();
+        return ret;
     }
 
     public void TBEST$Kill() throws SQLException
@@ -472,6 +517,7 @@ public class Repository {
 
     public void TBEST$Set(String matchrec, String tbno, String tbuild, String tflat, String post) throws SQLException
     {
+        // this might need to be an upsert
         String job = getProcessId();
         String q = "insert into uprn_v2.tbest (matchrec, bno, build, flat) values(?,?,?,?)";
 
@@ -706,6 +752,131 @@ public class Repository {
         return "{}";
     }
 
+    public List<List<String>> BESTFIT() throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "SELECT * FROM uprn_v2.uprn_dictionary";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            String matchrec = rs.getString("data");
+            String id = rs.getString("n2");
+            List<String> row = new ArrayList<>();
+            row.add(matchrec);
+            row.add(id);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
+    public Integer FLOOR(String vertical) throws SQLException {
+        Integer in = 0;
+
+        String q = "select * from uprn_v2.uprn_dictionary where n2='"+vertical+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) in = 1;
+
+        preparedStatement.close();
+        return in;
+    }
+
+    public Integer VERTICALSX(String flat, String tflat) throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "select * from uprn_v2.uprn_dictionary where n1='VERTICALSX' and n2='"+flat+"' and n3='"+tflat+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) in = 1;
+
+        preparedStatement.close();
+        return in;
+    }
+
+    public List<List<String>> List$Flats(String tpost, String tstreet, String tbno, String tbuild) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "select distinct flat from uprn_v2.uprn_main where node='X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tbno+"' and build='"+tbuild+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            List<String> row = new ArrayList<>();
+            String build = rs.getString("build");
+            row.add(build);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+
+        return result;
+    }
+
+    public List<List<String>> List$Buildings(String tpost, String tstreet, String tbno) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "select distinct build from uprn_v2.uprn_main where node='X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tbno+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            List<String> row = new ArrayList<>();
+            String build = rs.getString("build");
+            row.add(build);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
+    public List<List<String>> List$BuildingNumbers(String tpost, String tstreet) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        String q = "select distinct bno from uprn_v2.uprn_main where node='X5' and post='"+tpost+"' and street='"+tstreet+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            List<String> row = new ArrayList<>();
+            String bno = rs.getString("bno");
+            row.add(bno);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+
+        return result;
+    }
+
     public List<List<String>> match48Rs1(String tpost, String tstreet, String tbuild, String tbno, String tflat) throws SQLException
     {
         // use a hash table instead of an array (or try distinct)
@@ -714,7 +885,6 @@ public class Repository {
         String q ="select distinct street, bno, build from uprn_v2.uprn_main where node = 'X5' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tbno+"'";
 
         System.out.println(q);
-
 
         PreparedStatement preparedStatement = connection.prepareStatement(q);
         ResultSet rs = preparedStatement.executeQuery();
@@ -911,6 +1081,30 @@ public class Repository {
             String n2 = rs.getString("n2");
             List<String> row = new ArrayList<>();
             row.add(n2);
+            result.add(row);
+        }
+
+        preparedStatement.close();
+        return result;
+    }
+
+    public List<List<String>> X5$part(String part, String tpost, String tstreet, String tbno) throws SQLException
+    {
+        List<List<String>> result = new ArrayList<>();
+
+        //select * from uprn_v2.uprn_main where build like part% and post = tpost and street=tstreet and bno=tbno
+        String q = "select * from uprn_v2.uprn_main where node='X5' and build like '"+part+"%' and post='"+tpost+"' and street='"+tstreet+"' and bno='"+tbno+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        String build = "";
+        while (rs.next()) {
+            build = rs.getString("build");
+            List<String> row = new ArrayList<>();
+            row.add(build);
             result.add(row);
         }
 
