@@ -270,9 +270,12 @@ public class uprnCommon {
 			if (test.contains(word)) {
 				test = Piece(test,word,1,1)+Piece(tomatch,word,2,20);
 			}
+			if (tomatch.contains(word)) {
+				tomatch = Piece(tomatch,word,1,1)+Piece(tomatch,word,2,20);
+			}
 		}
 
-		return test;
+		return test+"~"+tomatch;
 	}
 
 	public static String welsh(String test, String tomatch)
@@ -870,7 +873,324 @@ public class uprnCommon {
 
         matched = bestfitd(tpost, tstreet, tbno, tbuild, tflat, repository);
 
+		matched = bestfito(tpost, tstreet, tbno, tbuild, tflat, repository);
+
+		matched = bestfitf(tpost, tstreet, tbno, tbuild, tflat, repository);
+
 		return TUPRN;
+	}
+
+	public static int ascii(char character)
+	{
+		int ascii;
+		try {
+			ascii = (int) character;
+		}
+		catch (Exception e)
+		{
+			ascii = 0;
+		}
+		return ascii;
+	}
+
+	public static Integer bestfitf(String tpost, String tstreet, String tbno, String tbuild, String tflat, Repository repository) throws SQLException
+	{
+		// ;Judge between a flat building match and a number street match
+		Integer matched = 0;
+		String matchrec = "";
+
+		if (!tbuild.isEmpty() && !tflat.isEmpty()) {
+			if (repository.X5$D3(tpost, tstreet, "", tbuild, tflat).equals(1)) {
+				matchrec = "Pe,Se,Nd,Be,Fe";
+				repository.TBEST$Set(matchrec, "",tbuild, tflat,"");
+			}
+		}
+
+		if (tbuild.isEmpty() && tflat.isEmpty() && !tbno.isEmpty()) {
+			List<List<String>> flats = repository.List$Flats(tpost, tstreet, tbno, "");
+			for(List<String> f : flats) {
+				String flat = f.get(0);
+				if (repository.VERTICALS(flat).equals(1)) {
+					matchrec = "Pe,Se,Ne,Be,Fp";
+					repository.TBEST$Set(matchrec,tbno,"",flat,"");
+				}
+			}
+		}
+
+		String bno = tbno;
+		if (!tbno.isEmpty()) {
+			String ret = mno(tpost,tstreet,tbno,bno,repository);
+			matched = Integer.parseInt(Piece(ret,"~",1,1)); bno = Piece(ret,"~",2,2);
+			if (matched.equals(0)) return 0;
+		}
+
+		String nummatch = "";
+
+		if (tbno.equals(bno)) { nummatch = "Ne"; }
+		else if (tbno.isEmpty()) { nummatch = "Ni"; }
+		else if (bno.isEmpty()) { nummatch = "Ni"; }
+		else if (bno.isEmpty()) {nummatch = "Nd"; }
+		else {nummatch="Ni";}
+
+		if (!tbuild.isEmpty()) {
+			List<List<String>> flats = repository.List$Flats(tpost, tstreet, tbno, "");
+			for(List<String> f : flats) {
+				String flat = f.get(0);
+				if (eqflat(tflat,flat, repository).equals(1)) {
+					matchrec = "Pe,Se,"+nummatch+",Be,Fe";
+					repository.TBEST$Set(matchrec, tbno, tbuild, tflat, "");
+				}
+			}
+		}
+
+		// ;Drop building match flat
+
+		return matched;
+	}
+
+	public static Integer bestfito(String tpost, String tstreet, String tbno, String tbuild, String tflat, Repository repository) throws SQLException
+	{
+		// ;Block number flat number alternative
+		// ;First Drops building
+		// ;Then goes for fuzzy building
+		Integer matched = 0;
+		String suffix = ""; String number = ""; String matchrec = "";
+		if (tbno.isEmpty()) {
+			if (RegEx(Piece(tflat," ",2,2),"^[0-9]+$").equals(1)) {
+				if (RegEx(Piece(tflat," ",3,3),"^[a-z]$").equals(1)) {
+					suffix = Piece(tflat," ",3,3);
+					number = Piece(tflat, " ",2,2);
+					if (repository.X5$D3(tpost, tstreet, (number+suffix),"","").equals(1)) {
+						matchrec = "Pe,Se,Nf,Bd,Fp>N";
+						repository.TBEST$Set(matchrec,number+suffix,"","","");
+						matched = 1;
+					}
+				}
+			}
+		}
+
+		if (matched.equals(1)) return 1;
+
+		//String name = "aa";
+		//char character = name.charAt(0);
+
+		if (RegEx(tbno, "^[0-9]+[a-z]$").equals(1)) {
+			String ztbno = extractNumber(tbno);
+			char csuffix = Piece(tbno, ztbno, 2, 2).charAt(0);
+			int fnum = ascii(csuffix)-96;
+			if (repository.X5$D4(tpost, tstreet, tbno).equals(0)) {
+                String var[] = {suffix, String.valueOf(fnum)};
+                matched = 0;
+                for(int i=0; i<var.length ;i++) {
+                    if (matched.equals(1)) break;
+                    String zbno = extractNumber(tbno);
+                    if (repository.X5(tpost, tstreet, zbno, tbuild, var[i]).equals(1)) {
+                        matchrec = "Pe,Se,Nf,Be,Fp>N";
+                        repository.TBEST$Set(matchrec, zbno, tbuild, var[i], "");
+                        matched = 1;
+                        continue;
+                    }
+                    if (repository.X5$D3(tpost, tstreet, zbno, tbuild, tbno).equals(1)) {
+                        matchrec="Pe,Se,Np,Be,F=N";
+                        repository.TBEST$Set(matchrec,zbno,tbuild,tbno,"");
+                        matched = 1;
+                        continue;
+                    }
+                }
+            }
+
+			if (matched.equals(0) && tflat.isEmpty()) {
+				String zbno = extractNumber(tbno);
+				List<List<String>> flats = repository.List$Flats(tpost, tstreet, ztbno, tbuild);
+				for(List<String> f : flats) {
+					String flat = f.get(0);
+					if (flat.equals(suffix)) {
+						matchrec="Pe,Se,N>Ff,Be,Ff";
+						repository.TBEST$Set(matchrec, ztbno, tbuild, flat, "");
+					}
+					if (repository.$Dfla4$suffix(flat,suffix).equals(1)) {
+						matchrec="Pe,Se,N>Ff,Be,Ff";
+						repository.TBEST$Set(matchrec, zbno, tbuild, flat,"");
+					}
+				}
+			}
+		}
+
+		if (matched.equals(1)) return 1;
+
+		// ;Best of the fuzzy building matches
+		// ;Unit stratford / unite building
+		// ;If build the same find nearest flat
+		// ;If building partial flat must match
+		matchrec = "Pe,Se";
+		if (!tflat.isEmpty() && !tbuild.isEmpty()) {
+			List<List<String>> buildings = repository.List$Buildings(tpost, tstreet, tbno);
+			for(List<String> b : buildings) {
+				String build = b.get(0);
+				List<List<String>> flats = repository.List$Flats(tpost, tstreet, tbno, build);
+				for(List<String> f : flats) {
+					String flat = f.get(0);
+					if (eqfb(tflat, tbuild, build, flat, repository).equals(1)) {
+						matchrec = "Pe,Se,Ne,Bf,Ff";
+						repository.TBEST$Set(matchrec, tbno, build, flat, "");
+					}
+				}
+			}
+		}
+
+		List<List<String>> buildings = repository.List$Buildings(tpost, tstreet, tbno);
+		for(List<String> b : buildings) {
+			String build = b.get(0);
+			if (repository.X5$D3(tpost, tstreet, tbno, build, tflat).equals(1)) {
+				if (equiv(build, tbuild, "", "", repository).equals(1)) {
+					matchrec = "Pe,Se,Ne,Be,Fe";
+					repository.TBEST$Set(matchrec, tbno, build, tflat, "");
+					continue;
+				}
+				if (MPART(build, tbuild, 1, repository).equals(1)) {
+					matchrec = "Pe,Se,Ne,Bp,Fe";
+					repository.TBEST$Set(matchrec, tbno, build, tflat, "");
+					continue;
+				}
+			}
+			if (tflat.isEmpty()) {
+				List<List<String>> flats = repository.List$Flats(tpost, tstreet, tbno, build);
+				for(List<String> f : flats) {
+					String flat = f.get(0);
+					if ((flat+build).equals(tbuild)) {
+						matchrec = "Pe,Se,Ne,B>F,Fe";
+						repository.TBEST$Set(matchrec, tbno, build, flat, "");
+					}
+					// flat?1l.l.e
+					if (tbuild.equals(build) && RegEx(flat,"^[a-z]+\\w$").equals(1) && flat.contains("house")) {
+						matchrec = "Pe,Se,Ne,Bp,Fe";
+						repository.TBEST$Set(matchrec, tbno, tbuild, flat,"");
+					}
+					if (equiv(tbuild,flat+" "+build,"","",repository).equals(1)) {
+						matchrec = "Pe,Se,Ne,B>F,Fe";
+						repository.TBEST$Set(matchrec, tbno, build, flat, "");
+					}
+				}
+			}
+			if (!tflat.isEmpty()) {
+				List<List<String>> flats = repository.List$Flats(tpost, tstreet, tbno, build);
+				for(List<String> f : flats) {
+					String flat = f.get(0);
+					fuzzy(tbno, tbuild, tflat, build, flat, repository);
+				}
+			}
+		}
+
+		return matched;
+	}
+
+	public static Integer MPART(String test, String tomatch, Integer mincount, Repository repository) throws SQLException
+	{
+		// ;One word match only
+		String stest = test.replace(" ","");
+		String stomatch = tomatch.replace(" ","");
+
+		if (stest.length()>6) {
+			if (extract(stomatch,1,stest.length()).equals(stest)) return 1;
+		}
+
+		if (stomatch.length()>6) {
+			if (extract(stest,1,stomatch.length()).equals(stomatch)) return 1;
+		}
+
+		if (CountPieces(test, " ")-CountPieces(tomatch," ")>5) return 0;
+
+		String ret = swap(test, tomatch, repository);
+		test = Piece(ret,"~",1,1); tomatch = Piece(tomatch,"~",2,2);
+
+		ret = drop(test, tomatch, repository);
+		test = Piece(ret,"~",1,1); tomatch=Piece(ret,"~",2,2);
+
+		test = dupl(test);
+		tomatch = dupl(tomatch);
+
+		test = test.replace("ei","ie");
+		tomatch = tomatch.replace("ei","ie");
+
+		Integer matched = 0;
+		Integer ltest = CountPieces(test," ");
+		Integer lto = CountPieces(tomatch," ");
+
+		Hashtable<String, String> var = new Hashtable<String, String>();
+
+		var.put("test",test);
+		var.put("tomatch",tomatch);
+
+		String from = "tomatch";
+		if (lto>ltest) {from = "test";}
+
+		String to = "test";
+		if (from.equals("test")) {
+			to = "tomatch";
+		}
+
+		var.put("from",var.get(from));
+		var.put("to",var.get(to));
+
+		Integer maxlen = CountPieces(var.get(to)," ");
+		if (mincount.equals(0)) {mincount = maxlen -1;}
+
+		Integer count = 0;
+
+		for (int i=1; i<=CountPieces(var.get("from")," "); i++) {
+			String word = Piece(var.get("from"), " ", i, i);
+			if (!word.isEmpty()) {
+				if (repository.ROAD(word).equals(1) || repository.BUILDING(word).equals(1)) continue;
+				for (int j=1; j<=CountPieces(var.get("to")," ");j++) {
+					String tword = Piece(var.get("to")," ",j,j);
+					if (!tword.isEmpty()) {
+						if (repository.ROAD(tword).equals(1) || repository.BUILDING(tword).equals(1)) continue;
+						if (levensh(word, tword, 0, 0).equals(1)) {count++;}
+					}
+				}
+			}
+		}
+		if (count>mincount) return 1;
+		return matched;
+	}
+
+	public static Integer eqfb(String tbuild, String tflat, String build, String flat, Repository repository) throws SQLException
+	{
+		// ;Apparently equivalent flats and buildings
+		String test = tflat+" "+tbuild;
+		String test1 = flat+" "+build;
+
+		Integer matched = 0; Integer quit = 0;
+
+		Integer tlen = test.length();
+		Integer t1len = test1.length();
+		Integer i2 = t1len;
+
+		Integer il;
+		for (il = tlen; il<1; il--) {
+			if (quit.equals(1)) break;
+			if (extract(test, il, tlen).equals(extract(test1, i2, t1len))) {
+				i2 = i2 -1;
+				continue;
+			}
+			quit =1;
+		}
+
+		if (il.equals(tlen)) return 0;
+
+		String tbld = extract(test, il+1, tlen);
+		String bld = extract(test1, i2+1, t1len);
+		String tfl = extract(test,1,il);
+		String fl=extract(test1,1,i2);
+
+		tfl = correct(tfl, repository);
+		fl = correct(fl, repository);
+
+		if (eqflat(tfl, fl, repository).equals(1)) {
+			matched = 1;
+		}
+
+		return matched;
 	}
 
 	public static Integer bestfitd(String tpost, String tstreet, String tbno, String tbuild, String tflat, Repository repository) throws SQLException
@@ -1106,15 +1426,27 @@ public class uprnCommon {
         return TUPRN;
     }
 
-	public static Integer mno(String tpost, String tstreet, String tbno, String bno, Repository repository) throws SQLException
+	public static String mno(String tpost, String tstreet, String tbno, String bno, Repository repository) throws SQLException
 	{
 		Integer matched = 0;
 
 		if (repository.X5$D4(tpost, tstreet, tbno).equals(1)) {
-
+			return "1~"+tbno;
 		}
 
-		return matched;
+		tbno = tbno.replace("/","-");
+
+		Integer t = Integer.parseInt(Piece(tbno,"-",2,2));
+
+		if (tbno.contains("-")) {
+			for(Integer f = Integer.parseInt(Piece(tbno,"-",1,1)); f<=t; f++) {
+				if (repository.X5$D5(tpost, tstreet, f.toString()).equals(1)) {
+					bno = f.toString();
+				}
+			}
+		}
+
+		return matched+"~"+bno;
 	}
 
 	// Strips off care of

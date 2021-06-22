@@ -368,6 +368,9 @@ public class runAlgorithm implements AutoCloseable {
 
 		//Double z = mcount("15 russel court","15 russell court");
 
+		System.out.println(ascii('a'));
+		System.out.println("pause");
+
 		adrec = adrec.toLowerCase();
 
 		if (!post.isEmpty()) {

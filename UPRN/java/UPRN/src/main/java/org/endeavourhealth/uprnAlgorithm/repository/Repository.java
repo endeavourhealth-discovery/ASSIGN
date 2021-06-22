@@ -229,6 +229,25 @@ public class Repository {
         return n;
     }
 
+    public Integer ROAD(String text) throws SQLException {
+        Integer n = 0;
+
+        String q = "SELECT * FROM uprn_v2.`uprn_dictionary` where n1 = 'ROAD' and n2='"+text+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStmt = connection.prepareStatement(q);
+
+        ResultSet rs = preparedStmt.executeQuery();
+        if (rs.next()) {
+            n = 1;
+        }
+
+        preparedStmt.close();
+
+        return n;
+    }
+
     public Integer hasflat(String text) throws SQLException {
         Integer hasflat = 0;
         String q = "SELECT * FROM uprn_v2.`uprn_dictionary` WHERE n1='FLAT'";
@@ -780,6 +799,23 @@ public class Repository {
         Integer in = 0;
 
         String q = "select * from uprn_v2.uprn_dictionary where n2='"+vertical+"'";
+
+        System.out.println(q);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(q);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next()) in = 1;
+
+        preparedStatement.close();
+        return in;
+    }
+
+    public Integer $Dfla4$suffix(String flat, String suffix) throws SQLException
+    {
+        Integer in = 0;
+
+        String q = "select * from uprn_v2.uprn_dictionary where n1='FLOOR' and n2='"+flat+"' and n3='"+suffix+"'";
 
         System.out.println(q);
 
