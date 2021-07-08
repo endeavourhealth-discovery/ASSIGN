@@ -1,8 +1,8 @@
-QA5 ; ; 7/8/21 8:07am
+QA5 ; ; 7/8/21 2:15pm
  K ^MERGE
  S C=1
  F I=1:1:4 DO
- .S F="/tmp/QAREPORT("_I_").txt"
+ .S F="/tmp/NQAREPORT("_I_").txt"
  .C F
  .O F:(readonly)
  .F  U F R STR Q:$ZEOF  DO

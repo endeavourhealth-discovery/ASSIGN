@@ -1,4 +1,4 @@
-QA ; ; 7/8/21 9:11am
+QA ; ; 7/8/21 12:56pm
  ;
  set ^%W(17.6001,"B","POST","api2/postit","POST^QA",248)=""
  set ^%W(17.6001,248,0)="POST"
@@ -142,8 +142,7 @@ CURL(ADR) ;
  S ADR=$$TR^LIB(ADR," ","%20")
  S ADR=$$TR^LIB(ADR,"'","%27")
  U 0 W !,ADR
- S BASEURL=^ICONFIG("BASE")
- S URL="https://"_BASEURL_":8443/api2/getinfo?adrec="_ADR_" > /tmp/curl.txt"
+ S URL="https://"_^ICONFIG("BASE")_":8443/api2/getinfo?adrec="_ADR_" > /tmp/curl.txt"
  S CMD="curl -s -u "_^U_":"_^P_" "_URL
  zsystem CMD
  S J=""
@@ -180,7 +179,7 @@ STEP6(Q) ; UPDATE SYSTEM TO EPOCH 76 (DONE)
  S COUNT=1
  S D=$C(9)
  
- S F2="/tmp/QAREPORT("_Q_").txt"
+ S F2="/tmp/NQAREPORT("_Q_").txt"
  CLOSE F2
  O F2:(newversion)
  
@@ -212,9 +211,9 @@ STEP6(Q) ; UPDATE SYSTEM TO EPOCH 76 (DONE)
  ...S NUPRN=$GET(B("UPRN")),NMATCHRULE=$GET(B("Algorithm")),NQUAL=$GET(B("Qualifier"))
  ...S NCLASSCODE=$GET(B("Classification")),NSTARTDATE="",NPOSTCODE=$GET(B("ABPAddress","Postcode"))
  ...; Flag if new UPRN exists on existing Epoch (Y/N)
- ...S FINEE=$$FLAG(UPRN76,75)
+ ...S FINEE=$$FLAG(UPRN76,XEPOCH) ; 75
  ...; Flag if new UPRN exists on new Epoch (Y/N)
- ...S FINEN=$$FLAG(UPRN76,76)
+ ...S FINEN=$$FLAG(UPRN76,NEPOCH) ; 76
  ...USE F2
  ...W COUNT,D,PATADRID,D,ID,D,ADR,D,XEPOCH,D,XALG,D,XUPRN,D,XMATCHRULE,D,XQUAL,D,XCLASSCODE,D,XSTARTDATE,D,XPOSTCODE,D
  ...W NEPOCH,D,NALG,D,NUPRN,D,NMATCHRULE,D,NQUAL,D,NCLASSCODE,D,NSTARTDATE,D,NPOSTCODE,D,FINEE,D,FINEN

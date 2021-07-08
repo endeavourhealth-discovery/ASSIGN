@@ -1,8 +1,11 @@
-QARUN ; ; 7/8/21 10:52am
+QARUN ; ; 7/8/21 12:44pm
  ;
  
- I $$10^ZOS("/tmp/nel_reg.txt")>1 W !,"reg extract does not exist" quit
- I $$10^ZOS("/tmp/nel_addresses.txt")>1 W !,"address extract does not exist" quit
+ S REG2="/tmp/TEMP/reg2.txt"
+ S CEGADR="/tmp/TEMP/ceg-adr.txt"
+ 
+ I $$10^ZOS(REG2)>1 W !,"reg extract does not exist" quit
+ I $$10^ZOS(CEGADR)>1 W !,"address extract does not exist" quit
  
  S EPOCH=^ICONFIG("EPOCH")
  S ALGVERSION=^ICONFIG("ALG-VERSION")
@@ -47,22 +50,36 @@ YN W !,"Continue (Y/N):"
  ; EXTRACTS FROM INTERNAL DATABASES ARE DELIMTED BY $C(9)
  
  ;W !,"include full path to file"
+ ; /tmp/TEMP/ceg-patient-address-match.txt
 PAM W !,"patient address match file (/tmp/pam.txt, . to quit): "
  R pam
  
  I pam="." quit
  
- I $$10^ZOS(pam)>1 W !,"file not found" G PAM
+ I $$10^ZOS(pam)>1 W !,"pam file not found" G PAM
  
- D REG2^QA("/tmp/nel_reg.txt","~")
- ;D STEP2^QA("/tmp/pam.txt","~")
+ U 0 W !,"CALLING REG2^QA"
+ D REG2^QA(REG2,"~")
+ 
+ U 0 W !,"CALLING STEP2^QA"
  D STEP2^QA(pam,"~")
- I '$D(^OS) D STEP3^QA
+ 
+ I '$D(^OS) U 0 W !,"CALLING STEP3^QA" D STEP3^QA
+ 
+ U 0 W !,"CALLING STEP4^QA"
  D STEP4^QA
- D STEP5^QA("/tmp/nel_addresses.txt","~")
+ 
+ U 0 W !,"CALLING STEP5^QA"
+ D STEP5^QA(CEGADR,"~")
+ 
  ;D STEP5A^QA("/tmp/pam.txt","~")
+ U 0 W !,"CALLING STEP5A^QA"
  D STEP5A^QA(pam,"~")
+ 
+ U 0 W !,"CALLING STEP5C^QA"
  D STEP5C^QA
+ QUIT
+ 
  F I=1:1:4 D STEP6^QA(I) ; should job
  D STEP7A^QA
  D DISTINCT^QA
