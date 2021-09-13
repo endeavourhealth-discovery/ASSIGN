@@ -22,7 +22,7 @@ GETCSV(result,arguments) ;
  set del=$Get(arguments("delim"))
  set ids=$Get(arguments("ids"))
  i $g(del)="" s del=","
- S ^TEST=adrec
+ S ^TEST=adrec_"~"_$g(ids)
  
  I ids["org`" S ^TPARAMS($J,"commercials")=1
  I ids["odsload`" S ^TPARAMS($J,"commercials")=1
@@ -43,7 +43,10 @@ GETCSV(result,arguments) ;
  D STT^SOURCE(ids,UPRN)
  
  ;S ^PS($O(^PS(""),-1)+1)=UPRN_"~"_ids_"~"_adrec
- S ^AUDIT(zID)=UPRN_"|"_ids_"|"_adrec_"|"_$HOROLOG
+ ; STOP AUDITING 1/3/2021
+ ; STARTED AUDITING AGAIN 22/3/2021
+ ; STOP AUDITING 29/03/21
+ I $GET(^ICONFIG("START-AUDIT"))'="" S ^AUDIT(zID)=UPRN_"|"_ids_"|"_adrec_"|"_$HOROLOG
  ;do META(.b)
  set ALG=$get(b("Algorithm"))
  set QUAL=$get(b("Qualifier"))
@@ -68,6 +71,8 @@ GETCSV(result,arguments) ;
  S POSTCODE=$g(b("ABPAddress","Postcode"))
  S STREET=$g(b("ABPAddress","Street"))
  S TOWN=$g(b("ABPAddress","Town"))
+ ; 13/09/2021 nul ABP address data
+ S (LOCALITY,NUMBER,ORG,POSTCODE,STREET,TOWN)=""
  s csv=LOCALITY_del_NUMBER_del_ORG_del_POSTCODE_del_STREET_del_TOWN
  set csv=csv_del_ALG_del_QUAL_del_MATPATBUILD_del_MATPATFLAT_del
  s csv=csv_MATPATNUMBER_del_MATPATPSTCDE_del_MATPATSTRT_del
