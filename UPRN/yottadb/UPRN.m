@@ -1130,7 +1130,7 @@ match37(tpost,tstreet,tbno,tbuild,tflat)  ;Either Number contains flat equivalen
  s bno=""
  for  s bno=$O(^UPRNX("X5",tpost,tstreet,bno)) q:bno=""  d
  .s build=$p(tbuild," ")_" "
- .for  s build=$O(^UPRNX("X5",tpost,tstreet,bno,build)) q:($p(build," ")'=$p(tbuild," "))  d  q:$G(^TUPRN($J,"MATCHED"))
+ .for  s build=$O(^UPRNX("X5",tpost,tstreet,bno,build)) q:($p(build," ")'=$p(tbuild," ")!(build=""))  d  q:$G(^TUPRN($J,"MATCHED"))
  ..i '$D(^UPRNX("X5",tpost,tstreet,bno,build,tbno)) q
  ..s $p(matchrec,",",1,5)="Pe,Se,Ni,Bp,Fi"
  ..s ALG=ALG_"match37"
