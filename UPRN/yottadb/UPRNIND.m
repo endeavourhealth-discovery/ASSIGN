@@ -1,4 +1,4 @@
-UPRNIND ;Rebuilds all the UPRN indexes [ 06/19/2020  6:48 AM ]
+UPRNIND ;Rebuilds all the UPRN indexes [ 06/19/2020  6:48 AM ] ; 11/9/22 12:29pm
  n
  S ^STATS("START")=$H
  s d="~"
@@ -61,6 +61,17 @@ REENT for  s uprn=$O(^UPRN("U",uprn)) q:uprn=""  d
  q
  
 setind ;Sets indexes
+ d setind1
+ i flat["/"!(bno["/") d
+ .s xflat=flat,xbno=bno
+ .s flat=$tr(flat,"/","-")
+ .s bno=$tr(bno,"/","-")
+ .d setind1
+ .s flat=xflat,bno=xbno
+ .quit
+ quit
+ 
+setind1 ;Sets indexes
  n i
  i town'="" S ^UPRNS("TOWN",town)=""
  i loc'="" S ^UPRNS("TOWN",loc)=""
