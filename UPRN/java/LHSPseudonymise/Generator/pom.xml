@@ -2,11 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <parent>
         <artifactId>LHSPseudonymise</artifactId>
-        <groupId>LHSPseudonymise</groupId>
+        <groupId>org.endeavour.tools</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>Generator</artifactId>
@@ -39,8 +41,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>7</source>
+                    <target>7</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -90,6 +92,12 @@
     </repositories>
     -->
 
+    <properties>
+        <bouncycastle.version>1.60</bouncycastle.version>
+        <lingala.zip4j.version>2.2.6</lingala.zip4j.version>
+        <jsch.version>0.1.55</jsch.version>
+    </properties>
+
     <dependencies>
     <dependency>
         <groupId>mysql</groupId>
@@ -120,6 +128,7 @@
         -->
 
         <!--open pseudonomiser -->
+        <!--open pseudonomiser -->
         <dependency>
             <groupId>org.openpseudonymiser</groupId>
             <artifactId>cryptolib</artifactId>
@@ -131,6 +140,19 @@
             <artifactId>org.json</artifactId>
             <version>chargebee-1.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -18,8 +18,9 @@ public class RalfRunner {
             String pathToSalt = args[1];
             // d:\\temp\\ralf_$j.txt
             String outFile = args[2];
+            String base64Salt = args[3];
 
-            RalfExporter.GetRalfs(pathToCsv, pathToSalt, outFile);
+            RalfExporter.GetRalfs(pathToCsv, pathToSalt, outFile, base64Salt);
 
         } catch (Exception e) {
             System.out.println(e);
