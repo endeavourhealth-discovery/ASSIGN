@@ -1,4 +1,4 @@
-POUR2 ; ; 11/2/22 8:53am
+POUR2 ; ; 11/21/22 12:51pm
  quit
  
 SETUP ;
@@ -43,6 +43,9 @@ UPLOAD(arguments,body,result) ;
  .use file w rec
  .quit
  
+ set salt=$$VAR^POUR(file,"salt")
+ set ^salty=salt
+ 
  kill ^U2(un)
  set ^U2(un)=$Horolog
  set count=1
@@ -59,7 +62,7 @@ UPLOAD(arguments,body,result) ;
  .s count=$i(count)
  .quit
  close file ; :delete
- job RUN^POUR(un):(out="/dev/null")
+ job RUN^POUR(un,salt):(out="/dev/null")
  
  ;S ^TMP($J,1)="<a href=""/por2/download"" a download=""por.txt"">Download the output from your last upload</a>"
  S ^TMP($J,1)="Success!"
@@ -69,11 +72,17 @@ UPLOAD(arguments,body,result) ;
  quit 1
  
 STT(result,arguments) ;
- new i
+ new i,salt
+ 
  k ^TMP($J)
+ 
+ set salt=$get(arguments("salt"))
+ 
  for i=1:1 q:$text(JS+i)["*** end ***"  do
  .;w $piece($t(JS+i),";",2,999),!
- .s ^TMP($j,i)=$piece($t(JS+i),";",2,999)_$char(13,10)
+ .set text=$piece($t(JS+i),";",2,999)
+ .if text["@salt@" s text=$$TR^LIB(text,"@salt@",salt)
+ .s ^TMP($j,i)=text_$char(13,10)
  .quit
  ;zwr ^TMP($J,*)
  set result("mime")="text/html"
@@ -91,6 +100,7 @@ JS ;
  ;   var file = _("image").files[0];
  ;   var formdata = new FormData();
  ;   formdata.append("image", file);
+ ;   formdata.append("salt", "@salt@");
  ;   var ajax = new XMLHttpRequest();
  ;   ajax.upload.addEventListener("progress", progressHandler, false);
  ;   ajax.addEventListener("load", completeHandler, false);
@@ -122,7 +132,9 @@ JS ;
  ;
  ;</script>
  ;<html>
- ;<p>PoR utility v0.2</p><br>
+ ;<h1 style="background-color:DodgerBlue;">PoR utility v0.3</h1>
+ ;<p><a href="/salt/stt">Back</a></p>
+ ;<p><h2>Salt: @salt@</h2></p>
  ;<form method="post" enctype="multipart/form-data">
  ;    <input type="file" name="image" id="image" onchange="upload()"><br>
  ;    <progress id="progressBar" value="0" max="100" style="width:500px;"></progress>
@@ -131,5 +143,7 @@ JS ;
  ;</form>
  ;<br>
  ;<a href="/por2/download" a download="por.txt">Download the output from your last upload</a>
+ ;
+ ;<p><input type="hidden" name="salt" value=@salt@></p>
  ;</html>
  ;*** end ***

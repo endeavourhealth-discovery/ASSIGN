@@ -1,4 +1,4 @@
-POUR ; ; 10/31/22 2:06pm
+POUR ; ; 11/21/22 12:22pm
  quit
  
 SETUP ;
@@ -76,7 +76,9 @@ VAR(file,var) ;
  set qvar=""
  f  u file r str q:$zeof  do  q:qvar'=""
  .set str=$$TR^LIB(str,$c(13),"")
- .i str["name="""_var_"""" do
+ .;?
+ .i str[("name="""_var_"""") do
+ ..;?
  ..use file r crlf
  ..read qvar
  ..quit
@@ -143,11 +145,23 @@ DOWNLOAD(result,arguments) ;
  set result=$na(^TMP($J))
  quit
  
-NORS(pseudo,nors) 
- new nor
+NORS(pseudo,nors,salt) 
+ new nor,saltid
+ set ^salty(2)=salt
+ set saltid=$$SALTID(salt)
+ set ^salty(3)=saltid
  s nor=""
- f  s nor=$o(^SPIT(pseudo,nor)) q:nor=""  set nors(nor)=""
+ f  s nor=$o(^SPIT(saltid,pseudo,nor)) q:nor=""  set nors(nor)=""
  quit
+ 
+SALTID(salt) ;
+ new saltid,name,qf
+ set saltid="",qf=0
+ for  s saltid=$order(^SALTS("pseudo_salts",saltid)) q:saltid=""  do  q:qf
+ .set name=^SALTS("pseudo_salts",saltid,"saltKeyName")
+ .if name=salt s qf=1
+ .quit
+ quit saltid
  
 CLASS ;
  K ^RESCODE
@@ -162,7 +176,7 @@ CLASS ;
  close f
  quit
  
-RUN(user) ;
+RUN(user,salt) ;
  new c,pour,nor,eventdate,nors,propclass,propdesc,ralf00
  s c="",zc=1
  
@@ -172,7 +186,7 @@ RUN(user) ;
  .s rec=^U2(user,c)
  .s pseudo=$p(rec,$c(9),1),eventdate=$p(rec,$char(9),2)
  .kill nors
- .D NORS(pseudo,.nors)
+ .D NORS(pseudo,.nors,salt)
  .;W !,pseudo
  .;w !
  .;zwr nors

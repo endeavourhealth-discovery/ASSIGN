@@ -1,4 +1,4 @@
-SKID ; ; 10/31/22 10:40am
+SKID ; ; 11/21/22 12:04pm
  ; a background job that runs every night that converts nhs_numbers
  ; into pseudo nhs_numbers
  quit
@@ -50,9 +50,9 @@ TEST ;
  zsystem cmd
  quit
  
-SPIT ;
+SPIT(skid) ;
  new f,str
- K ^SPIT
+ K ^SPIT(skid)
  s f="/tmp/uprnrtns/nhs_number_spit.txt"
  close f
  o f:(readonly)
@@ -60,9 +60,14 @@ SPIT ;
  .;use 0 w !,str r *y
  .set nor=$p(str,$c(9),1)
  .set pseudo=$p(str,$c(9),2)
- .set ^SPIT(pseudo,nor)=""
+ .set ^SPIT(skid,pseudo,nor)=""
  .quit
  close f
+ quit
+ 
+SKIDS ;
+ new i
+ for i=1:1:5 D RUNJAR(i)
  quit
  
 RUNJAR(skid) ;
@@ -71,6 +76,7 @@ RUNJAR(skid) ;
  set cmd="/tmp/ralfs.sh /tmp/uprnrtns/patients.txt notused /tmp/uprnrtns/nhs_number_spit.txt "_salt
  w !,cmd
  zsystem cmd
+ D SPIT(skid)
  quit
  
 COLLECT() ;
