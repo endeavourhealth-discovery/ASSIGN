@@ -64,6 +64,7 @@ SAVE(arguments,body,result)
  do SALTS(.s)
  
  S ^S=salt
+ if salt="" D REFRESH("please enter a salt")
  if salt'="",'$data(s(salt)) D REFRESH("salt does not exist")
  
  if $data(s(salt)) do
