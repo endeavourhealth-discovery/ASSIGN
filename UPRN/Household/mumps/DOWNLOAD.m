@@ -1,4 +1,4 @@
-DOWNLOAD ; ; 12/19/22 12:15pm
+DOWNLOAD ; ; 1/11/23 12:16pm
  S QF=0
  ;K ^MATCH
  ;K ^ADR
@@ -131,16 +131,24 @@ COLLADR() ;
  u f r str,str
  f  u f r str q:$zeof!(str="")  do
  .s id=$p(str,"~",1)
- .s nor=$p(str,"~",3)
- .S start=$p(str,"~",12)
- .s end=$p(str,"~",13)
- .s person=$p(str,"~",4)
- .s org=$p(str,"~",2)
- .S use=$p(str,"~",11)
+ .;s nor=$p(str,"~",3)
+ .s nor=$p(str,"~",2)
+ .;S start=$p(str,"~",12)
+ .S start=$p(str,"~",3)
+ .;s end=$p(str,"~",13)
+ .s end=$p(str,"~",4)
+ .;s person=$p(str,"~",4)
+ .s person=$p(str,"~",5)
+ .;s org=$p(str,"~",2)
+ .s org=$p(str,"~",6)
+ .;S use=$p(str,"~",11)
+ .S use=$p(str,"~",7)
  .i start="NULL" s start=""
  .i end="NULL" S end=""
- .set lsoa=$p(str,"~",15) ; 2011
- .set msoa=$p(str,"~",17) ; 2011
+ .;set lsoa=$p(str,"~",15) ; 2011
+ .set lsoa=$p(str,"~",8)
+ .;set msoa=$p(str,"~",17) ; 2011
+ .set msoa=$p(str,"~",9)
  .s ^ADR(nor,id)=person_"~"_start_"~"_end_"~"_org_"~"_use_"~"_lsoa_"~"_msoa
  .quit
  close f

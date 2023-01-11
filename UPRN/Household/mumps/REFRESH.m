@@ -1,4 +1,4 @@
-REFRESH ; ; 1/9/23 10:12am
+REFRESH ; ; 1/11/23 12:13pm
  quit
  
 ALL ;
@@ -29,7 +29,10 @@ STT(table) ;
  
  F I=0:1000000 DO  Q:QF=1
  .S sql="select * from [compass_gp].[dbo].["_table_"] ORDER BY id OFFSET "_I_" ROWS FETCH NEXT 1000000 ROWS ONLY;"
+ .;
  .if table="patient" set sql="select id, date_of_death, person_id, ethnic_code_concept_id, date_of_birth, gender_concept_id, organization_id from [compass_gp].[dbo].[patient] ORDER BY id OFFSET "_I_" ROWS FETCH NEXT 1000000 ROWS ONLY;"
+ .;
+ .if table="patient_address" set sql="select id, patient_id, start_date, end_date, person_id, organization_id, use_concept_id, lsoa_2011_code, msoa_2011_code from [compass_gp].[dbo].[patient_address] ORDER BY id OFFSET "_I_" ROWS FETCH NEXT 1000000 ROWS ONLY;"
  .w !,sql
  .DO RUN^DOWNLOAD(sql)
  .S QF=1
