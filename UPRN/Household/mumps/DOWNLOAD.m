@@ -1,4 +1,4 @@
-DOWNLOAD ; ; 10/31/22 12:51pm
+DOWNLOAD ; ; 12/19/22 12:15pm
  S QF=0
  ;K ^MATCH
  ;K ^ADR
@@ -38,7 +38,8 @@ MATCH ;
  .f  s id=$o(^ADR(nor,id)) q:id=""  do
  ..i c#1000=0  do
  ...s in=$e(in,1,$l(in)-1)
- ...s sql="select * from [test01].[dbo].[patient_address_match] where patient_address_id in ("_in_")"
+ ...; test01/compass_gp
+ ...s sql="select * from [compass_gp].[dbo].[patient_address_match] where patient_address_id in ("_in_")"
  ...;w !,sql r *y
  ...D RUN(sql)
  ...s e=$$COLLMATCH()
@@ -50,7 +51,7 @@ MATCH ;
  ..quit
  I in'="" do
  .s in=$e(in,1,$l(in)-1)
- .s sql="select * from [test01].[dbo].[patient_address_match] where patient_address_id in ("_in_")"
+ .s sql="select * from [compass_gp].[dbo].[patient_address_match] where patient_address_id in ("_in_")"
  .D RUN(sql)
  .s e=$$COLLMATCH()
  .quit
@@ -70,6 +71,7 @@ COLLMATCH() ;
  .s adrid=$p(str,"~",2)
  .;;;s $p(str,"~",4)=""
  .S ^MATCH(adrid,id)=$p(str,"~",3,99)
+ .;;S ^MATCH(adrid,id,"S")=$P(str,"~",1,2)
  .quit
  close f
  quit 0
@@ -82,14 +84,20 @@ COLLASUM() ; dead patient only
  f  u f r str q:$zeof!(str="")  do
  .s dod=$p(str,"~",2)
  .s id=$p(str,"~",1)
+ .;
  .s personid=$p(str,"~",3)
  .s ethnic=$p(str,"~",4)
  .s dob=$p(str,"~",5)
+ .s gender=$p(str,"~",6)
+ .s org=$p(str,"~",7)
  .;i dod="NULL" quit
  .;I dod="NULL" s ^ASUM(id)="" quit
+ .;k ^ASUM(id)
  .s:dod'="NULL" ^ASUM(id,"dod")=dod
  .s:ethnic'="NULL" ^ASUM(id,"ethnic")=ethnic
  .s:dob'="NULL" ^ASUM(id,"dob")=dob
+ .s:gender'="NULL" ^ASUM(id,"g")=$get(^GENDER(gender))
+ .s:org'="" ^ASUM(id,"o")=org
  .S ^ASUM(id)=personid
  .quit
  close f
@@ -162,5 +170,5 @@ RUN(sql) ;
  
  S CMD="/opt/mssql-tools/bin/sqlcmd -W -S "_H_" -U '"_U_"' -P '"_P_"' -d compass_gp -Q "_sql_" -s ""~"" -W -o /tmp/uprnrtns/download.txt"
  zsystem CMD
- 
+ i $zsystem'=0 w !,"something went wrong" r *y
  quit

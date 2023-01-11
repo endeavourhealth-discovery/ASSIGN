@@ -1,4 +1,4 @@
-FXLOG ; ; 11/7/22 6:48pm
+FXLOG ; ; 12/21/22 2:42pm
  quit
  
 SETUP ;
@@ -7,9 +7,10 @@ SETUP ;
  quit
  
 STT(result,arguments) ;
- new eventdate,nor,val,ret,line
+ new eventdate,nor,val,ret,line,ignoregms
  
  s eventdate=$get(arguments("event_date"))
+ s ignoregms=+$get(arguments("ignoregms"))
  set val=eventdate
  S ^bob=eventdate
  i eventdate["-" s val=$$F^FX(eventdate)
@@ -23,7 +24,7 @@ STT(result,arguments) ;
  I '$data(^ASUM(nor)) S ^TMP($J,1)="patient does not exist" goto OUT
  
  ;S ret=$$PLACEATEVT^FX(nor,eventdate,1)
- S ret=$$PLACEATEVT^FX2(nor,eventdate,1)
+ S ret=$$PLACEATEVT^FX2(nor,eventdate,1,ignoregms)
  ;merge ^TMP($job)=^TLOG($job)
  set line=""
  f  s line=$o(^TLOG($J,line)) q:line=""  s ^TMP($J,line)=^(line)_"<br>"

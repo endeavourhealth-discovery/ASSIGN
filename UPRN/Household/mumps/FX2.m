@@ -1,4 +1,4 @@
-FX2 ; ; 10/31/22 1:03pm
+FX2 ; ; 12/19/22 3:35pm
  ;
  quit
  
@@ -8,7 +8,7 @@ LOG(text) ;
  S ^TLOG($job,line)=text
  quit
  
-PLACEATEVT(nor,eventdate,debug) ;
+PLACEATEVT(nor,eventdate,debug,ignoregms) ;
  new gms,id,adrid,matchid,start,end,ret,lsoa,msoa
  
  if eventdate["-" s eventdate=$$F(eventdate)
@@ -23,7 +23,8 @@ PLACEATEVT(nor,eventdate,debug) ;
  
  ;W !,eventdate,!
  
- set gms=$$GMS(nor,eventdate)
+ set gms=1
+ set:'+$get(ignoregms) gms=$$GMS(nor,eventdate)
  
  ;W !,gms,!
  
@@ -60,10 +61,10 @@ PLACEATEVT(nor,eventdate,debug) ;
  .i matchid="" quit
  .s rec=^MATCH(adrid,matchid)
  .s classprop=$p(rec,"~",4)
- .i debug D LOG("Checking adrid: "_adrid_" class prop? "_classprop_" "_$S($D(^VPROP(classprop)):"true",1:"false"))
+ .i debug D LOG("Checking adrid: "_adrid_" class prop? "_classprop_" "_$GET(^RESCODE(classprop))_" "_$S($D(^VPROP(classprop)):"true",1:"false"))
  .if '$d(^VPROP(classprop)) quit
  .s qualifier=$p(rec,"~",9)
- .if debug D LOG("Checking adrid: "_adrid_" Best (residential) match?: "_qualifier)
+ .if debug D LOG("Checking adrid: "_adrid_" Best (residential) match?: "_qualifier_" "_$s(qualifier'="Best (residential) match":"false",1:"true"))
  .if qualifier'="Best (residential) match" quit
  .set ^TFX($job,start,matchid)=rec
  .s ^TFX($j,start,matchid,"e")=end
@@ -105,8 +106,13 @@ X(adrid) ; get latest match record for address id
 GMS(nor,eventdate) 
  new start,end,dates,b,dod
  kill dates
- s dod=+$get(^ASUM(nor,"dod"))
- i dod'=0,$$GQ($$DH^STDDATE($$F(dod)),eventdate) q 2
+ 
+ ;s dod=+$get(^ASUM(nor,"dod"))
+ ;i dod'=0,$$GQ($$DH^STDDATE($$F(dod)),eventdate) q 2
+ 
+ s dod=$get(^ASUM(nor,"dod"))
+ i dod'="",$$GQ(eventdate,$$DH^STDDATE($$F(dod))) q 2
+ 
  D DATES(nor,.dates)
  
  ;W !
