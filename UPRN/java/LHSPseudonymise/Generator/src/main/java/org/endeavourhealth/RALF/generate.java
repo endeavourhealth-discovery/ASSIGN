@@ -80,7 +80,28 @@ public class generate implements AutoCloseable {
                 String pseudoNhsNumber = crypto.GetDigest(nameValue);
                 csvWriter.append(sId + "\t" + pseudoNhsNumber);
                 csvWriter.append("\n");
-                System.out.println(pseudoNhsNumber);
+                //System.out.println(pseudoNhsNumber);
+            }
+        }
+
+        if (outFile.contains("pseudoralf")) {
+            String row = ""; String sId; String sUprn;
+
+            byte[] saltBytes = Base64.getDecoder().decode(base64Salt);
+
+            Crypto crypto = new Crypto();
+            crypto.SetEncryptedSalt(saltBytes);
+            TreeMap nameValue = new TreeMap();
+
+            while ((row = csvReader.readLine()) != null) {
+                if (row.isEmpty()) continue;
+                String[] data = row.split("\t");
+                sId = data[0]; sUprn = data[1];
+                nameValue.put("UPRN", "" + sUprn);
+                String pseudoUprn = crypto.GetDigest(nameValue);
+                csvWriter.append(sUprn + "\t" + pseudoUprn);
+                csvWriter.append("\n");
+                //System.out.println(pseudoNhsNumber);
             }
         }
 
