@@ -63,7 +63,7 @@ EOF() ;
  quit $s(str="":1,1:0)
  
 UPD2COLL ;
- new f,c,str
+ new f,c,str,nor
  I $$EOF() quit
  s f="/tmp/uprnrtns/patients.txt"
  c f
