@@ -1,4 +1,4 @@
-POURB ; ; 1/11/23 3:01pm
+POURB ; ; 1/24/23 11:26am
  quit
  
  ; job SERVICE^POURB:(out="/dev/null")
@@ -46,14 +46,17 @@ RUN(qid,i) ;
  W !,"WRITEMATCH"
  do WRITEMATCH^SKID
  
-REENT set zskid=""
+REENT ;set zskid=""
  ; nhs_numbers
- for  set zskid=$order(^SPIT("N",zskid)) quit:zskid=""  do
- .D AUDIT("SPIT",zskid)
- .W !,"DB^SKID: ",zskid
- .do DB^SKID(zskid)
- .;
- .quit
+ ;for  set zskid=$order(^SPIT("N",zskid)) quit:zskid=""  do
+ ;.D AUDIT("SPIT",zskid)
+ ;.W !,"DB^SKID: ",zskid
+ ;.do DB^SKID(zskid)
+ ;.;
+ ;.quit
+ 
+ do UPDATES^SKID
+ do UPD2^SKID
  
  ; ralfs
  set zskid=""
@@ -76,8 +79,8 @@ ZQZ ;
  new i
  ; run for the next 5 days
  kill ^ZQZ(1)
- set ^ZQZ(1)="mumps cache"
- f i=+$H:1:(+$Horolog+4) do
+ set ^ZQZ(1)="update mumps cache"
+ f i=(+$H+1):1:(+$Horolog+4) do
  .S ^ZQZ(1,i)=$$TH^STDDATE("00:05")
  .quit
  quit

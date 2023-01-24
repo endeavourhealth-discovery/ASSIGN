@@ -1,4 +1,4 @@
-FX2 ; ; 12/19/22 3:35pm
+FX2 ; ; 1/23/23 4:17pm
  ;
  quit
  
@@ -9,7 +9,7 @@ LOG(text) ;
  quit
  
 PLACEATEVT(nor,eventdate,debug,ignoregms) ;
- new gms,id,adrid,matchid,start,end,ret,lsoa,msoa
+ new gms,id,adrid,matchid,start,end,ret,lsoa,msoa,z
  
  if eventdate["-" s eventdate=$$F(eventdate)
  if '$data(^VPROP) do
@@ -92,7 +92,7 @@ PLACEATEVT(nor,eventdate,debug,ignoregms) ;
  ..if (($$LQ(start,eventdate)!(start=0))&($$GQ(end,eventdate)!(end=0))) S qf=s_rec_"|"_lsoa_"~"_msoa D LOG("going with: "_adrid) quit
  ..D LOG("skipping: "_adrid)
  ..quit
- if debug,qf'="" D LOG("Found RALF:"_$P(qf,"~",4)),LOG("SKID01: "_$get(^SKID(nor,$p(qf,"~",4))))
+ if debug,qf'="" D LOG("Found RALF:"_$P(qf,"~",4)),LOG("SKID01: "_$get(^SKID(nor,$p(qf,"~",4)))),LOG("uprn: "_$p(qf,"~",3))
  quit qf
  
 X(adrid) ; get latest match record for address id

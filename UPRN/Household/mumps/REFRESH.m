@@ -1,13 +1,25 @@
-REFRESH ; ; 1/11/23 12:13pm
+REFRESH ; ; 1/24/23 12:05pm
  quit
  
 ALL ;
  S ^REFRESH(1)=$$HT^STDDATE($P($H,",",2))
+ D ASUMB
  D STT("patient")
  D STT("patient_address")
  D STT("episode_of_care")
  ;D STT("patient_address_match")
  S ^REFRESH(2)=$$HT^STDDATE($P($H,",",2))
+ quit
+ 
+ASUMB ;
+ new nor,c
+ s nor=""
+ set c=1
+ f  s nor=$o(^ASUM(nor)) q:nor=""  do
+ .i c#10000=0 w !,c
+ .s c=c+1
+ .set ^ASUMB(nor)=""
+ .quit
  quit
  
 STT(table) ;
@@ -29,6 +41,8 @@ STT(table) ;
  
  F I=0:1000000 DO  Q:QF=1
  .S sql="select * from [compass_gp].[dbo].["_table_"] ORDER BY id OFFSET "_I_" ROWS FETCH NEXT 1000000 ROWS ONLY;"
+ .;
+ .if table="episode_of_care" set sql="select patient_id, id, person_id, registration_type_concept_id, date_registered, date_registered_end, organization_id from [compass_gp].[dbo].[episode_of_care] ORDER BY id OFFSET "_I_" ROWS FETCH NEXT 1000000 ROWS ONLY;"
  .;
  .if table="patient" set sql="select id, date_of_death, person_id, ethnic_code_concept_id, date_of_birth, gender_concept_id, organization_id from [compass_gp].[dbo].[patient] ORDER BY id OFFSET "_I_" ROWS FETCH NEXT 1000000 ROWS ONLY;"
  .;

@@ -1,4 +1,4 @@
-DOWNLOAD ; ; 1/11/23 12:16pm
+DOWNLOAD ; ; 1/24/23 12:08pm
  S QF=0
  ;K ^MATCH
  ;K ^ADR
@@ -77,10 +77,12 @@ COLLMATCH() ;
  quit 0
  
 COLLASUM() ; dead patient only
+ new c
  I $$EOF() q 1
  s f="/tmp/uprnrtns/download.txt"
  close f
  o f:(readonly)
+ ;
  f  u f r str q:$zeof!(str="")  do
  .s dod=$p(str,"~",2)
  .s id=$p(str,"~",1)
@@ -99,8 +101,11 @@ COLLASUM() ; dead patient only
  .s:gender'="NULL" ^ASUM(id,"g")=$get(^GENDER(gender))
  .s:org'="" ^ASUM(id,"o")=org
  .S ^ASUM(id)=personid
+ .set ^ASUM=$increment(^ASUM)
+ .;
  .quit
  close f
+ 
  quit 0
  
 COLLEOC() ;
@@ -109,12 +114,16 @@ COLLEOC() ;
  close f
  o f:(readonly)
  f  u f r str q:$zeof!(str="")  do
- .s nor=$p(str,"~",3),id=$p(str,"~",1)
- .s person=$p(str,"~",4),regtype=$p(str,"~",5)
- .s datereg=$p(str,"~",7),regend=$p(str,"~",8)
+ .;s nor=$p(str,"~",3),id=$p(str,"~",1)
+ .;s person=$p(str,"~",4),regtype=$p(str,"~",5)
+ .;s datereg=$p(str,"~",7),regend=$p(str,"~",8)
+ .S nor=$p(str,"~",1),id=$p(str,"~",2)
+ .s person=$p(str,"~",3),regtype=$p(str,"~",4)
+ .s datereg=$p(str,"~",5),regend=$p(str,"~",6)
+ .s org=$p(str,"~",7)
  .i datereg="NULL" s datereg=""
  .i regend="NULL" s regend=""
- .S org=$p(str,"~",2)
+ .;S org=$p(str,"~",2)
  .S ^EOC(nor,id)=person_"~"_regtype_"~"_datereg_"~"_regend_"~"_org
  .quit
  close f

@@ -1,4 +1,4 @@
-SKID ; ; 1/9/23 1:14pm
+SKID ; ; 1/24/23 11:09am
  ; a background job that runs every night that converts nhs_numbers
  ; into pseudo nhs_numbers
  quit
@@ -13,12 +13,95 @@ RALF(skid) ; ** REDUNDANT (takes to long to run)
  D RUN(sql)
  quit
  
+UPDATES ;
+ new nor,i,c
+ set nor="",c=1
+ K ^TUPDATE,^L
+ S ^S("TUPDATE",1)=$$HT^STDDATE($P($H,",",2))
+ f  s nor=$o(^ASUM(nor)) q:nor=""  do
+ .i c#1000=0 w !,c
+ .s c=c+1
+ .for i=1:1:30 i '$data(^SPIT("N",i,nor)) set ^TUPDATE(nor)="",^L=nor
+ .quit
+ S ^S("TUPDATE",2)=$$HT^STDDATE($P($H,",",2))
+ quit
+ 
+UPD2 ;
+ new nor,c,in,sql
+ s (nor,in)="",c=1
+ s sql="select patient_id, skid, salt_name from [compass_gp].[dbo].[patient_pseudo_id] where patient_id in ("
+ f  s nor=$o(^TUPDATE(nor)) q:nor=""  do
+ .i nor'?1n.n quit
+ .i c#2000=0 do
+ ..S in=$e(in,1,$l(in)-1)
+ ..s $p(sql,"(",2)=in_");"
+ ..;
+ ..D RUN(sql)
+ ..;w !,"done" r *y
+ ..D UPD2COLL
+ ..s in=""
+ ..quit
+ .s in=in_nor_","
+ .s c=c+1
+ .quit
+ 
+ if in'="" do
+ .S in=$e(in,1,$l(in)-1)
+ .s $p(sql,"(",2)=in_");"
+ .d RUN(sql)
+ .D UPD2COLL
+ .quit
+ quit
+ 
+EOF() ;
+ new f
+ s f="/tmp/uprnrtns/patients.txt"
+ c f
+ o f:(readonly)
+ u f r str,str,str
+ close f
+ quit $s(str="":1,1:0)
+ 
+UPD2COLL ;
+ new f,c,str
+ I $$EOF() quit
+ s f="/tmp/uprnrtns/patients.txt"
+ c f
+ o f:(readonly)
+ set c=0
+ u f r str,str
+ 
+ f  u f r str q:$zeof!(str="")  do
+ .;use 0 w !,str
+ .S nor=$p(str,"~",1)
+ .set pseudo=$p(str,"~",2)
+ .set salt=$p(str,"~",3)
+ .;W !,salt
+ .set skid=+$e(salt,$l(salt)-1,$l(salt))
+ .I $data(^SPIT("N",skid,nor)) quit
+ .use 0 w !,nor," ",pseudo," ",salt
+ .S ^SPIT("N",skid,nor)=pseudo
+ .quit
+ c f
+ ;w !,"rows: ",c r:c>4 *y
+ quit
+ 
+DBSKIP(skid) ;
+ set saltname="CompassSKID"_$tr($j(skid,2)," ",0)
+ W !,saltname
+ set select="patient_id, skid"
+ 
+ set sql="select "_select_" from [compass_gp].[dbo].[patient_pseudo_id] where salt_name='"_saltname_"' "
+ set sql=sql_"ORDER BY id OFFSET 0 ROWS FETCH NEXT 1000000 ROWS ONLY;"
+ w !,sql
+ quit
+ 
 DB(skid) ; nhs numbers
  new saltname
  
  ;k ^SPIT(skid)
  
- S ^S("DB",1)=$$HT^STDDATE($P($H,",",2))
+ S ^S("DB",skid,1)=$$HT^STDDATE($P($H,",",2))
  
  set saltname="CompassSKID"_$tr($j(skid,2)," ",0)
  W !,saltname
@@ -27,18 +110,18 @@ DB(skid) ; nhs numbers
  w !,sql
  d RUN(sql)
  
- S ^S("DB",2)=$$HT^STDDATE($P($H,",",2))
+ S ^S("DB",skid,2)=$$HT^STDDATE($P($H,",",2))
  
- S ^S("COLLDB",1)=$$HT^STDDATE($P($H,",",2))
+ S ^S("COLLDB",skid,1)=$$HT^STDDATE($P($H,",",2))
  D COLLECTDB(skid)
- S ^S("COLLDB",2)=$$HT^STDDATE($P($H,",",2))
+ S ^S("COLLDB",skid,2)=$$HT^STDDATE($P($H,",",2))
  quit
  
 COLLECTDB(skid) ;
  new f,nor,d,str,c
  
  K ^SPIT("N",skid)
- K ^SPIT("P",skid)
+ ;K ^SPIT("P",skid)
  
  s f="/tmp/uprnrtns/patients.txt"
  c f
@@ -54,10 +137,45 @@ COLLECTDB(skid) ;
  .s nor=$p(str,"~",1)
  .s pseudo=$p(str,"~",2) 
  .set ^SPIT("N",skid,nor)=pseudo
- .set ^SPIT("P",skid,pseudo)=$get(^SPIT("P",skid,pseudo))_nor_"~"
+ .;set ^SPIT("P",skid,pseudo)=$get(^SPIT("P",skid,pseudo))_nor_"~"
  .set c=c+1
  .quit
  close f
+ quit
+ 
+U3(user,skid) ;
+ new c
+ 
+ w !,"indexing skids"
+ 
+ set c=""
+ K ^TEMP($J)
+ f  s c=$o(^U3(user,c)) q:c=""  do
+ .set str=^U3(user,c)
+ .set pseudo=$p(str,$c(9),1)
+ .S ^TEMP($J,pseudo)=""
+ .quit
+ 
+ K ^SPIT("P",skid)
+ 
+ s nor=""
+ f  s nor=$o(^SPIT("N",skid,nor)) q:nor=""  do
+ .s pseudo=^SPIT("N",skid,nor)
+ .i $d(^TEMP($J,pseudo)) do
+ ..set ^SPIT("P",skid,pseudo)=$get(^SPIT("P",skid,pseudo))_nor_"~"
+ ..quit
+ .quit
+ 
+ K ^TEMP($J)
+ quit
+ 
+IDX(skid) ; *** REDUNDANT
+ new nor
+ set nor=""
+ f  s nor=$order(^SPIT("N",skid,nor)) q:nor=""  do
+ .set pseudo=^SPIT("N",skid,nor)
+ .set ^SPIT("P",skid,pseudo)=$get(^SPIT("P",skid,pseudo))_nor_"~"
+ .quit
  quit
  
 STT ;
@@ -158,10 +276,22 @@ SKIDS ;
  for i=1:1:5 D RUNJAR(i)
  quit
  
+ ; find base64 salt using salt key name (not id)
+FIND(skid) ;
+ new i,name,base64
+ set (i,base64)=""
+ f  s i=$order(^SALTS("ralf_salts",i)) q:i=""  do  quit:base64'=""
+ .set name=^SALTS("ralf_salts",i,"saltKeyName")
+ .set n=+$e(name,$l(name)-1,$l(name))
+ .I n=skid s base64=^SALTS("ralf_salts",i,"salt")
+ .quit
+ quit base64
+ 
 RUNRALF(skid) ;
  new cmd,salt
  S ^S("RUNRALF",1)=$$HT^STDDATE($P($H,",",2))
- set salt=^SALTS("ralf_salts",skid,"salt")
+ ;set salt=^SALTS("ralf_salts",skid,"salt")
+ set salt=$$FIND(skid)
  set cmd="/tmp/ralfs.sh /tmp/uprnrtns/uprns.txt notused /tmp/uprnrtns/pseudoralf.txt "_salt
  w !,cmd
  zsystem cmd
