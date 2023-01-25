@@ -1,4 +1,4 @@
-POURB ; ; 1/24/23 11:26am
+POURB ; ; 1/25/23 1:40pm
  quit
  
  ; job SERVICE^POURB:(out="/dev/null")
@@ -37,6 +37,8 @@ RUN(qid,i) ;
  if i>+$H quit
  if t1>$piece($horolog,",",2) quit
  
+ S ^S("POURB",1)=$$HT^STDDATE($P($H,",",2))
+ 
  W !,"ALL^REFRESH"
  do ALL^REFRESH
  
@@ -55,10 +57,12 @@ REENT ;set zskid=""
  ;.;
  ;.quit
  
+ W !,"UPDATES^SKID"
  do UPDATES^SKID
+ W !,"UPD2^SKID"
  do UPD2^SKID
  
- ; ralfs
+REENT2 ; ralfs
  set zskid=""
  f  s zskid=$order(^RALF(zskid)) q:zskid=""  do
  .D AUDIT("RALF",zskid)
@@ -66,7 +70,10 @@ REENT ;set zskid=""
  .D RUNRALF^SKID(zskid)
  .quit
  
+ S ^S("POURB",2)=$$HT^STDDATE($P($H,",",2))
  set ^ZQZ1(qid,i)=$Horolog
+ 
+ D SLACK^POURB("data refresh completed ok.  started: "_$get(^S("POURB",1))_" completed: "_$get(^S("POURB",2)))
  quit
  
 AUDIT(glob,zskid) 
@@ -83,6 +90,17 @@ ZQZ ;
  f i=(+$H+1):1:(+$Horolog+4) do
  .S ^ZQZ(1,i)=$$TH^STDDATE("00:05")
  .quit
+ quit
+ 
+SLACK(text) ;
+ new json,cmd,webhookurl
+ set webhookurl=$get(^ICONFIG("POURB","SLACK"))
+ if webhookurl="" quit
+ set json="{""text"":"""_text_"""}"
+ set cmd="curl -i -X POST -H ""Content-Type: application/json"" "
+ set cmd=cmd_"-d '"_json_"' "
+ set cmd=cmd_webhookurl
+ zsystem cmd
  quit
  
 JOBEXAM(%ZPOS) 

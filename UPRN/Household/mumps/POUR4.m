@@ -1,4 +1,4 @@
-POUR4 ; ; 1/23/23 4:38pm
+POUR4 ; ; 1/25/23 2:06pm
  ; next version of PoR utility
  ;
  
@@ -93,7 +93,7 @@ DOWNLOAD(result,arguments) ;
  
  set d=$char(9)
  set hdr="compass_skid"_d_"PoR"_d_"event_date"_d_"prop_class"_d_"prop_desc"_d_"lsoa"_d_"msoa"
- set hdr=hdr_d_"outside_adr_dates"_d_"invalid_class_prop"_d_"not_best"_d_"no_assign"_d_"not_registered"_$c(10)
+ set hdr=hdr_d_"outside_adr_dates"_d_"invalid_class_prop"_d_"not_best"_d_"no_assign"_d_"not_registered"_d_"temp_adr"_$c(10)
  s ^TMP($job,1)=hdr
  
  if all="" do
@@ -102,7 +102,7 @@ DOWNLOAD(result,arguments) ;
  ..set why=$get(^POUR("O",un,page,c,1))
  ..;set why=$$TR^LIB(why,"~",$c(9))
  ..s ^TMP($J,(c+1))=^POUR("O",un,page,c)
- ..f i=1:1:5 set $p(^TMP($J,(c+1)),$c(9),(i+7))=$piece(why,"~",i)
+ ..f i=1:1:6 set $p(^TMP($J,(c+1)),$c(9),(i+7))=$piece(why,"~",i)
  ..s ^TMP($J,(c+1))=^TMP($J,(c+1))_$C(10)
  ..quit
  .quit
@@ -112,7 +112,7 @@ DOWNLOAD(result,arguments) ;
  .f i=1:1:z do
  ..s c=""
  ..f  s c=$o(^POUR("O",un,z,c)) quit:c=""  do
- ...s ^TMP($j,c)=^(c)_$c(10)
+ ...s ^TMP($j,(c+1))=^(c)_$c(10)
  ...quit
  ..quit
  .quit
@@ -416,15 +416,34 @@ WRITE ;
  quit
  
 OUTPUT ;
+ new a,b,class
+ set a="Set output to X:where the event_date was outside the start/end dates of at least one the patients addresses"
+ 
+ set b="Set output to X:where the property classification of at least one of the patients addresses was invalid<br>"
+ set b=b_"The following property classifications are valid:<br>"
+ s (class,classlst)=""
+ f  set class=$order(^VPROP(class)) q:class=""  s classlst=classlst_$get(^RESCODE(class))_", "
+ set classlst=$e(classlst,1,$l(classlst)-2)
+ set b=b_classlst
+ 
+ set c="Set output to X:where at least one of the patients addresses was not a 'Best Residential match'"
+ 
+ set d="Set output to X:where Discovery has <b>not</b> matched an assign record to at least one of the patients addresses"
+ 
+ set e="Set output to X:where a patient was not GMS registered at event_date"
+ 
+ set f="Set output to X:where at least one of the patients addresses was a Temporary address"
+ 
  do H("<font size=""3"" face=""Courier New""><u><b>Outputs</b></u></p></font>")
- do H("<table border=1 width=""50%"">")
- do H("<td>CompassSKID</td><td>pseudo anonymised nhs_number</td><tr>")
- do H("<td>PoR</td><td>RALFSKID (anonymised UPRN)</td><tr>")
- do H("<td>event_date</td><td>event date used to find PoR</td><tr>")
- do H("<td>prop_class</td><td>property classification code</td><tr>")
- do H("<td>prop_desc</td><td>property classification description</td><tr>")
- do H("<td>lsoa</td><td>lower layer super output area (2011)</td><tr>")
- do H("<td>msoa</td><td>middle layer super output area (2011)</td><tr>")
+ do H("<table border=1 width=""60%"">")
+ do H("<td><b>column name</b></td><td><b>description</b></td><td><b>column name</b></td><td><b>description</b></td><tr>")
+ do H("<td>CompassSKID</td><td>pseudo anonymised nhs_number</td><td>outside_adr_dates</td><td>"_a_"</td><tr>")
+ do H("<td>PoR</td><td>pseudo anonymised UPRN</td><td>invalid_class_property</td><td>"_b_"</td><tr>")
+ do H("<td>event_date</td><td>event date used to find PoR</td><td>not_best</td><td>"_c_"</td><tr>")
+ do H("<td>prop_class</td><td>property classification code</td><td>no_assign</td><td>"_d_"</td><tr>")
+ do H("<td>prop_desc</td><td>property classification description</td><td>not_registered</td><td>"_e_"</td><tr>")
+ do H("<td>lsoa</td><td>lower layer super output area (2011)</td><td>temp_address</td><td>"_f_"</td><tr>")
+ do H("<td>msoa</td><td>middle layer super output area (2011)</td><td></td><td></td><tr>")
  do H("</table>")
  quit
  
@@ -445,8 +464,8 @@ COMBO1(id) ;
  .s name=^SALTS(id,i,"saltKeyName")
  .s n=+$e(name,$l(name)-1,$l(name))
  .set star=""
- .if id="pseudo_salts",$data(^SPIT("N",n)) set star="*"
- .if id="ralf_salts",$data(^RALF(n)) set star="*"
+ .;if id="pseudo_salts",$data(^SPIT("N",n)) set star="*"
+ .;if id="ralf_salts",$data(^RALF(n)) set star="*"
  .s html=html_"<option value="""_id_"_"_n_""">"_star_name_"</option>"_$c(10)
  .quit
  s html=html_"</select>"

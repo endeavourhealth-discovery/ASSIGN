@@ -1,4 +1,4 @@
-POPEXT ; ; 1/6/23 12:02pm
+POPEXT ; ; 1/25/23 10:03am
  ; Population extract for a fixed index date
  quit
  
@@ -219,6 +219,7 @@ WHY() ;
  .i r'["3~",str["Best (residential) match?",str["false" s r=r_"3~"
  .i r'["4~",str["ASSIGN" S r=r_"4~"
  .i str["not registered",r'["5~" s r=r_"5~"
+ .i str["temp address",r'["6~" s r=r_"6~"
  .quit
  quit $e(r,1,$l(r)-1)
  
