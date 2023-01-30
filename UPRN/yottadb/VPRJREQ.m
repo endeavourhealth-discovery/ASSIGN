@@ -53,6 +53,7 @@ START(TCPPORT,DEBUG,TLSCONFIG,NOGBL) ; set up listening for connections
  ;
  I $G(DEBUG) D DEBUG($G(TLSCONFIG))
  ;
+ N $ET S $ET="G FORK^VPRJREQ"
 LOOP ; wait for connection, spawn process to handle it. GOTO favorite.
  I '$G(NOGBL)&$E(^VPRHTTP(0,"listener"),1,4)="stop" C TCPIO S ^VPRHTTP(0,"listener")="stopped" Q
  ;
@@ -96,6 +97,11 @@ LOOP ; wait for connection, spawn process to handle it. GOTO favorite.
  . ; ---- END GT.M CODE ----
  ; 
  QUIT
+ 
+FORK ;
+ if $get(^FORK("STOP"))'="" quit
+ set ^FORK($O(^FORK(""),-1)+1)=$get(TCPIO)_"~"_$ZSTACK
+ G LOOP 
  ;
 DEBUG(TLSCONFIG) ; Debug continuation. We don't job off the request, rather run it now.
  ; Stop using Ctrl-C (duh!)
