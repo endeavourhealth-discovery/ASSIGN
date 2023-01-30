@@ -1,4 +1,4 @@
-DOWNLOAD ; ; 1/24/23 12:08pm
+DOWNLOAD ; ; 1/26/23 10:57am
  S QF=0
  ;K ^MATCH
  ;K ^ADR
@@ -92,6 +92,7 @@ COLLASUM() ; dead patient only
  .s dob=$p(str,"~",5)
  .s gender=$p(str,"~",6)
  .s org=$p(str,"~",7)
+ .s nhsnumber=$p(str,"~",8)
  .;i dod="NULL" quit
  .;I dod="NULL" s ^ASUM(id)="" quit
  .;k ^ASUM(id)
@@ -100,6 +101,7 @@ COLLASUM() ; dead patient only
  .s:dob'="NULL" ^ASUM(id,"dob")=dob
  .s:gender'="NULL" ^ASUM(id,"g")=$get(^GENDER(gender))
  .s:org'="" ^ASUM(id,"o")=org
+ .s:nhsnumber'="NULL" ^ASUM(id,"nhsno")="Y"
  .S ^ASUM(id)=personid
  .set ^ASUM=$increment(^ASUM)
  .;
@@ -187,5 +189,5 @@ RUN(sql) ;
  
  S CMD="/opt/mssql-tools/bin/sqlcmd -W -S "_H_" -U '"_U_"' -P '"_P_"' -d compass_gp -Q "_sql_" -s ""~"" -W -o /tmp/uprnrtns/download.txt"
  zsystem CMD
- i $zsystem'=0 w !,"something went wrong" r *y
+ i $zsystem'=0 set ^CMD(+$H,$piece($h,",",2))=sql
  quit
