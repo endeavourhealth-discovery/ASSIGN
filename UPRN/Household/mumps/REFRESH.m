@@ -1,4 +1,4 @@
-REFRESH ; ; 1/24/23 12:05pm
+REFRESH ; ; 1/26/23 10:24am
  quit
  
 ALL ;
@@ -44,7 +44,7 @@ STT(table) ;
  .;
  .if table="episode_of_care" set sql="select patient_id, id, person_id, registration_type_concept_id, date_registered, date_registered_end, organization_id from [compass_gp].[dbo].[episode_of_care] ORDER BY id OFFSET "_I_" ROWS FETCH NEXT 1000000 ROWS ONLY;"
  .;
- .if table="patient" set sql="select id, date_of_death, person_id, ethnic_code_concept_id, date_of_birth, gender_concept_id, organization_id from [compass_gp].[dbo].[patient] ORDER BY id OFFSET "_I_" ROWS FETCH NEXT 1000000 ROWS ONLY;"
+ .if table="patient" set sql="select id, date_of_death, person_id, ethnic_code_concept_id, date_of_birth, gender_concept_id, organization_id, nhs_number from [compass_gp].[dbo].[patient] ORDER BY id OFFSET "_I_" ROWS FETCH NEXT 1000000 ROWS ONLY;"
  .;
  .if table="patient_address" set sql="select id, patient_id, start_date, end_date, person_id, organization_id, use_concept_id, lsoa_2011_code, msoa_2011_code from [compass_gp].[dbo].[patient_address] ORDER BY id OFFSET "_I_" ROWS FETCH NEXT 1000000 ROWS ONLY;"
  .w !,sql

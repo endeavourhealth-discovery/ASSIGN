@@ -1,4 +1,4 @@
-POURB ; ; 1/25/23 1:40pm
+POURB ; ; 1/29/23 2:08pm
  quit
  
  ; job SERVICE^POURB:(out="/dev/null")
@@ -87,7 +87,7 @@ ZQZ ;
  ; run for the next 5 days
  kill ^ZQZ(1)
  set ^ZQZ(1)="update mumps cache"
- f i=(+$H+1):1:(+$Horolog+4) do
+ f i=(+$H+1):1:(+$Horolog+100) do
  .S ^ZQZ(1,i)=$$TH^STDDATE("00:05")
  .quit
  quit

@@ -1,4 +1,4 @@
-SKID ; ; 1/24/23 11:09am
+SKID ; ; 1/27/23 2:30pm
  ; a background job that runs every night that converts nhs_numbers
  ; into pseudo nhs_numbers
  quit
@@ -21,7 +21,11 @@ UPDATES ;
  f  s nor=$o(^ASUM(nor)) q:nor=""  do
  .i c#1000=0 w !,c
  .s c=c+1
- .for i=1:1:30 i '$data(^SPIT("N",i,nor)) set ^TUPDATE(nor)="",^L=nor
+ .; NULL NHS NUMBER?
+ .if $get(^ASUM(nor,"nhsno"))="" quit
+ .if $d(^SPIT("N",30,nor)) quit
+ .;for i=1:1:30 i '$data(^SPIT("N",i,nor)) set ^TUPDATE(nor)="",^L=nor
+ .set ^TUPDATE(nor)="",^L=nor
  .quit
  S ^S("TUPDATE",2)=$$HT^STDDATE($P($H,",",2))
  quit
@@ -63,7 +67,7 @@ EOF() ;
  quit $s(str="":1,1:0)
  
 UPD2COLL ;
- new f,c,str,nor
+ new f,c,str,nor,pseudo,salt,skid
  I $$EOF() quit
  s f="/tmp/uprnrtns/patients.txt"
  c f
@@ -146,6 +150,8 @@ COLLECTDB(skid) ;
 U3(user,skid) ;
  new c
  
+ set ^T(user,"SKID")="INDEXING SKIDS"
+ 
  w !,"indexing skids"
  
  set c=""
@@ -167,6 +173,7 @@ U3(user,skid) ;
  .quit
  
  K ^TEMP($J)
+ K ^T(user,"SKID")
  quit
  
 IDX(skid) ; *** REDUNDANT
@@ -350,4 +357,5 @@ RUN(sql) ;
  S cmd="/opt/mssql-tools/bin/sqlcmd -W -S "_h_" -U '"_u_"' -P '"_p_"' -d compass_gp -Q "_sql_" -s ""~"" -W -o /tmp/uprnrtns/patients.txt"
  w !,cmd
  zsystem cmd
+ i $zsystem'=0 set ^CMD(+$H,$piece($h,",",2))=sql
  quit

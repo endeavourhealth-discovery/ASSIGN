@@ -1,6 +1,18 @@
-POUR4 ; ; 1/25/23 2:06pm
+POUR4 ; ; 1/30/23 8:53am
  ; next version of PoR utility
  ;
+ 
+BUTTONBAR ;
+ do H("<table border=1 width=100%>")
+ do H("<td><button onclick=""ajaxSubmit()"">Run</button></td>")
+ do H("<td><button onclick=""ajaxStatus(1)"">Run Status</button></td>")
+ do H("<td><button onclick=""ajaxInfo()"">Information about last run</button></td>")
+ do H("<td><button onclick=""webDownload()"">Download</button></td>")
+ do H("<td><button onclick=""webHelp()"">Help</button></td>")
+ do H("</table>")
+ do H("<br>")
+ do H("<div id=""progress""></div>")
+ quit
  
 EXT ;
  new a,b
@@ -41,6 +53,9 @@ SETUP ;
  
  set ^%W(17.6001,"B","GET","por4/webdownload","WEBDOWN^POUR4",650401)=""
  set ^%W(17.6001,650401,"AUTH")=2
+ 
+ set ^%W(17.6001,"B","GET","por4/webhelp","WEBHELP^POUR5",650405)=""
+ set ^%W(17.6001,650405,"AUTH")=2
  quit
  
 FN(file) ;
@@ -417,26 +432,26 @@ WRITE ;
  
 OUTPUT ;
  new a,b,class
- set a="Set output to X:where the event_date was outside the start/end dates of at least one the patients addresses"
+ set a="Set column to X:where the event_date was outside the start/end dates of at least one the patients addresses"
  
- set b="Set output to X:where the property classification of at least one of the patients addresses was invalid<br>"
+ set b="Set column to X:where the property classification of at least one of the patients addresses was invalid<br>"
  set b=b_"The following property classifications are valid:<br>"
  s (class,classlst)=""
  f  set class=$order(^VPROP(class)) q:class=""  s classlst=classlst_$get(^RESCODE(class))_", "
  set classlst=$e(classlst,1,$l(classlst)-2)
  set b=b_classlst
  
- set c="Set output to X:where at least one of the patients addresses was not a 'Best Residential match'"
+ set c="Set column to X:where at least one of the patients addresses was not a 'Best Residential match'"
  
- set d="Set output to X:where Discovery has <b>not</b> matched an assign record to at least one of the patients addresses"
+ set d="Set column to X:where Discovery has <b>not</b> matched an assign record to at least one of the patients addresses"
  
- set e="Set output to X:where a patient was not GMS registered at event_date"
+ set e="Set column to X:where a patient was not GMS registered at event_date"
  
- set f="Set output to X:where at least one of the patients addresses was a Temporary address"
+ set f="Set column to X:where at least one of the patients addresses was a Temporary address"
  
  do H("<font size=""3"" face=""Courier New""><u><b>Outputs</b></u></p></font>")
  do H("<table border=1 width=""60%"">")
- do H("<td><b>column name</b></td><td><b>description</b></td><td><b>column name</b></td><td><b>description</b></td><tr>")
+ do H("<td><b>column name</b></td><td><b>description</b></td><td><b>column name</b></td><td><b>reasons why a PoR was not found</b></td><tr>")
  do H("<td>CompassSKID</td><td>pseudo anonymised nhs_number</td><td>outside_adr_dates</td><td>"_a_"</td><tr>")
  do H("<td>PoR</td><td>pseudo anonymised UPRN</td><td>invalid_class_property</td><td>"_b_"</td><tr>")
  do H("<td>event_date</td><td>event date used to find PoR</td><td>not_best</td><td>"_c_"</td><tr>")
@@ -564,6 +579,8 @@ STT(result,arguments)
  do H("    result.innerHTML = '<p>The servers response: ' + status + '</p>';")
  ;do H("    alert('test');")
  do H("    if (status != 'OK') {alert(status)};")
+ do H("    var div = document.getElementById('progress');")
+ do H("    if (status == 'OK') {div.innerHTML = 'All good - click Run Status for more info!'};")
  ;do H("    ")
     
  do H("  }")
@@ -572,7 +589,8 @@ STT(result,arguments)
  do H("function onprogressHandler(evt) {")
  do H("  var div = document.getElementById('progress');")
  do H("  var percent = evt.loaded/evt.total*100;")
- do H("  div.innerHTML = 'Progress: ' + percent + '%';")
+ ;do H("  div.innerHTML = 'Progress: ' + percent + '%';")
+ do H("  div.innerHTML = 'Uploading: ' + Math.trunc(percent) + '%';")
  do H("}")
  
  do H("function resetFile() {")
@@ -657,9 +675,27 @@ STT(result,arguments)
  do H("  window.open ('/por4/webdownload')")
  do H("}")
  
+ do H("")
+ do H("function webHelp() {")
+ do H("  window.open ('/por4/webhelp')")
+ do H("}")
  do H("</script>")
  
  do H("<h1 style=""background-color:DodgerBlue;"">PoR utility v0.4</h1>")
+ 
+ ; button bar
+ ;do H("<table border=1 width=100%>")
+ ;
+ ;do H("<td><button onclick=""ajaxSubmit()"">Run</button></td>")
+ ;
+ ;
+ ;do H("<td><button onclick=""ajaxStatus(1)"">Run Status</button></td>")
+ ;do H("<td><button onclick=""ajaxInfo()"">Info about last run</button></td>")
+ ;do H("<td><button onclick=""webDownload()"">Download</button></td>")
+ 
+ ;do H("</table>")
+ D BUTTONBAR
+ do H("<br>")
  
  do H("<font size=""3"" face=""Courier New""><u><b>Fixed date</b></u><br></font>")
  
@@ -667,6 +703,7 @@ STT(result,arguments)
  do H("<p>For all currently registered patients return place of residence (PoR) and associated meta data for date entered</p>")
  
  do H("<font size=""3"" face=""Courier New""><u><b>File</b></u><br></font>")
+ 
  ;do H("<p>Finds place of residence (PoR) for each CompassSKID and event_date in uploaded file ")
  do H("<p>For each CompassSKID and event_date in uploaded file return PoR and associated meta data</p>")
  
@@ -717,15 +754,16 @@ STT(result,arguments)
  do H("</font>")
  do H("</form>")
  
- do H("<table style=""width:20%"">")
+ ;do H("<table style=""width:20%"">")
  
- do H("<td><button onclick=""resetFile()"">reset file chosen</button></td>")
- 
- do H("<td><button onclick=""ajaxSubmit()"">Run</button></td>")
+ ;?
  ;do H("<td><button onclick=""resetFile()"">reset file chosen</button></td>")
  
- do H("</table>")
- do H("</p>")
+ ;do H("<td><button onclick=""ajaxSubmit()"">Run</button></td>")
+ ;do H("<td><button onclick=""resetFile()"">reset file chosen</button></td>")
+ 
+ ;do H("</table>")
+ ;do H("</p>")
  
  do OUTPUT
  
@@ -757,11 +795,12 @@ STT(result,arguments)
  
  ;do H("<button><a href=""/por4/download"" a download="""_un_".txt"">Download</a></button>")
  
- do H("<button onclick=""webDownload()"">Download</button>")
+ ;do H("<button onclick=""webDownload()"">Download</button>")
  
- do H("<button onclick=""ajaxStatus(1)"">Run Status</button>")
+ ;do H("<button onclick=""ajaxStatus(1)"">Run Status</button>")
  
- do H("<button onclick=""ajaxInfo()"">Info about last run</button>")
+ ;do H("<button onclick=""ajaxInfo()"">Info about last run</button>")
+ ;D BUTTONBAR
  
  do H("<p id=""upload-status""></p>")
  do H("<p id=""progress""></p>")
@@ -857,6 +896,7 @@ STATUS(result,arguments) ;
  .s text="total patients: "_$fn(t,",")
  .s text=text_"~total patients left to process: "_$fn(r,",")
  .s text=text_"~total patients processed since last click: "_$s(last>0:$fn((last-r),","),1:0)
+ .if $data(^T(un,"SKID")) set text="Creating indexes so that the software can lookup patient id's from pseudo nhs numbers"
  .s ^TMP($J,1)="{""upload"": { ""status"": """_text_"""}}"
  .quit
  set ^fred=$get(un)
