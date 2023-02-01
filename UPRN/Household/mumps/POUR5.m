@@ -1,10 +1,18 @@
-POUR5 ; ; 1/27/23 12:39pm
+POUR5 ; ; 1/31/23 11:30am
  quit
  
 H(h) ;
  new c
  s c=$order(^TMP($J,""),-1)+1
  s ^TMP($J,c)=h_$c(13,10)
+ quit
+ 
+STOP(result,arguments) ;
+ lock ^KRUNNING(un):0.5
+ if $t s ^TMP($J,1)="{""upload"": { ""status"": ""You have nothing running to stop""}}"
+ else  s ^TSTOP(un)="",^TMP($J,1)="{""upload"": { ""status"": ""Stop flag set - click on Run Status to see if the run has been successfully stopped""}}"
+ set result("mime")="text/html"
+ set result=$na(^TMP($J))
  quit
  
 WEBHELP(result,arguments) ;

@@ -1,4 +1,4 @@
-SKID ; ; 1/27/23 2:30pm
+SKID ; ; 1/31/23 11:39am
  ; a background job that runs every night that converts nhs_numbers
  ; into pseudo nhs_numbers
  quit
@@ -156,7 +156,7 @@ U3(user,skid) ;
  
  set c=""
  K ^TEMP($J)
- f  s c=$o(^U3(user,c)) q:c=""  do
+ f  s c=$o(^U3(user,c)) q:c=""!($data(^TSTOP(user)))  do
  .set str=^U3(user,c)
  .set pseudo=$p(str,$c(9),1)
  .S ^TEMP($J,pseudo)=""
@@ -165,7 +165,7 @@ U3(user,skid) ;
  K ^SPIT("P",skid)
  
  s nor=""
- f  s nor=$o(^SPIT("N",skid,nor)) q:nor=""  do
+ f  s nor=$o(^SPIT("N",skid,nor)) q:nor=""!($data(^TSTOP(user)))  do
  .s pseudo=^SPIT("N",skid,nor)
  .i $d(^TEMP($J,pseudo)) do
  ..set ^SPIT("P",skid,pseudo)=$get(^SPIT("P",skid,pseudo))_nor_"~"

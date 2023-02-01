@@ -1,10 +1,11 @@
-POUR4 ; ; 1/30/23 8:53am
+POUR4 ; ; 1/31/23 2:11pm
  ; next version of PoR utility
  ;
  
 BUTTONBAR ;
  do H("<table border=1 width=100%>")
- do H("<td><button onclick=""ajaxSubmit()"">Run</button></td>")
+ do H("<td><button onclick=""ajaxSubmit()"">RUN</button></td>")
+ do H("<td><button onclick=""ajaxStop()"">STOP</button></td>")
  do H("<td><button onclick=""ajaxStatus(1)"">Run Status</button></td>")
  do H("<td><button onclick=""ajaxInfo()"">Information about last run</button></td>")
  do H("<td><button onclick=""webDownload()"">Download</button></td>")
@@ -56,6 +57,9 @@ SETUP ;
  
  set ^%W(17.6001,"B","GET","por4/webhelp","WEBHELP^POUR5",650405)=""
  set ^%W(17.6001,650405,"AUTH")=2
+ 
+ set ^%W(17.6001,"B","GET","por4/stop","STOP^POUR5",650471)=""
+ set ^%W(17.6001,650471,"AUTH")=2
  quit
  
 FN(file) ;
@@ -160,7 +164,7 @@ RUN(arguments,body,result) ;
  ; test if already running?
  lock ^KRUNNING(un):0.5
  if '$t do  quit 1
- .s ^TMP($J,1)="{""upload"": { ""status"": ""you are already running a job""}}"
+ .s ^TMP($J,1)="{""upload"": { ""status"": ""You are already running a job""}}"
  .set result("mime")="text/html"
  .set result=$na(^TMP($J))
  .quit
@@ -265,6 +269,8 @@ JRUN(user) ;
  
  set $ET="G ERROR^POUR4"
  
+ kill ^TSTOP(user)
+ 
  lock ^KRUNNING(user):0
  
  k ^POUR("O",user)
@@ -310,8 +316,8 @@ FILE(pseudosalt,ralfsalt,user) ;
  D U3^SKID(user,spseudo)
  
  set count="",c=1,page=1
- f  set count=$o(^U3(user,count)) quit:count=""  do
- .s rec=^(count)
+ f  set count=$o(^U3(user,count)) quit:count=""!($data(^TSTOP(user)))  do
+ .s rec=^U3(user,count)
  .s pseudo=$piece(rec,$c(9),1)
  .s date=$p(rec,$c(9),2)
  .; get the patient ids
@@ -323,7 +329,7 @@ FILE(pseudosalt,ralfsalt,user) ;
  ..;w !,nor r *y
  ..S pour=$$PLACEATEVT^FX2(nor,date,1)
  ..;W !,pour r *y
- ..D SAVE(pour,c,page,nor)
+ ..D SAVE(pour,c,page,nor,date,"F")
  ..;set ^T(user)="processing "_count_" of "_total
  ..set ^T(user)=(total-count)_"~"_total
  ..;
@@ -356,7 +362,7 @@ FIXED(pseudosalt,fixeddate,ralfsalt,user)
  
  set page=1
  
- f  s nor=$order(^ASUM(nor)) quit:nor=""  do
+ f  s nor=$order(^ASUM(nor)) quit:nor=""!($data(^TSTOP(user)))  do
  .S pour=$$PLACEATEVT^FX2(nor,fixeddate,1)
  .;W !,pour r *y
  .;S why=$$WHY^POPEXT()
@@ -372,7 +378,7 @@ FIXED(pseudosalt,fixeddate,ralfsalt,user)
  .;;s ralf=$get(^RALF(sralf,uprn))
  .;S ^POUR("O",user,c)=pseudo_$c(9)_ralf_$c(9)_$c(9)_propclass_$c(9)_propdesc_$c(9)_lsoa_$c(9)_msoa
  .;;S ^POUR("O",user,c)=pseudo_"~"_ralf_"~"_propclass_"~"_lsoa_"~"_msoa
- .do SAVE(pour,c,page,nor)
+ .do SAVE(pour,c,page,nor,fixeddate,"X")
  .s c=c+1
  .i c#1000=0 w !,c
  .I c#300000=0 s page=page+1
@@ -383,11 +389,14 @@ FIXED(pseudosalt,fixeddate,ralfsalt,user)
  set ^T(user,2)=$Horolog
  quit
  
-SAVE(pour,c,page,nor) ;
+SAVE(pour,c,page,nor,eventdate,fixorfile) ;
  new propclass,propdesc,rec,lsoa,msoa,uprn,pseudo,ralf,d
  new reason
  
  ;I $L(pour,"~")=3 quit
+ 
+ if eventdate'="" s ^E(1)=eventdate
+ if fixorfile="X" set eventdate=""
  
  s propclass=$p(pour,"~",6)
  s propdesc=$get(^RESCODE(propclass))
@@ -398,7 +407,7 @@ SAVE(pour,c,page,nor) ;
  set pseudo=$get(^SPIT("N",spseudo,nor))
  s ralf=$get(^RALF(sralf,uprn))
  set d=$c(9)
- S ^POUR("O",user,page,c)=pseudo_d_ralf_d_propclass_d_lsoa_d_msoa
+ S ^POUR("O",user,page,c)=pseudo_d_ralf_d_eventdate_d_propclass_d_propdesc_d_lsoa_d_msoa
  
  ; reason
  ; outside_adr_dates, invalid_class_prop, not_best, no_assign, not_registered
@@ -432,33 +441,39 @@ WRITE ;
  
 OUTPUT ;
  new a,b,class
- set a="Set column to X:where the event_date was outside the start/end dates of at least one the patients addresses"
+ ;set a="Set column to X:where the event_date was outside the start/end dates of at least one the patients addresses"
+ set a="Set column to X: where the event date was outside the start/end dates of an address"
  
- set b="Set column to X:where the property classification of at least one of the patients addresses was invalid<br>"
+ ;set b="Set column to X:where the property classification of at least one of the patients addresses was invalid<br>"
+ set b="Set column to X: where an address was not a valid property classification<br>"
+ 
  set b=b_"The following property classifications are valid:<br>"
  s (class,classlst)=""
  f  set class=$order(^VPROP(class)) q:class=""  s classlst=classlst_$get(^RESCODE(class))_", "
  set classlst=$e(classlst,1,$l(classlst)-2)
  set b=b_classlst
  
- set c="Set column to X:where at least one of the patients addresses was not a 'Best Residential match'"
+ ;set c="Set column to X:where at least one of the patients addresses was not a 'Best Residential match'"
+ set c="Set column to X: where an address was not a 'Best Residential match'"
  
- set d="Set column to X:where Discovery has <b>not</b> matched an assign record to at least one of the patients addresses"
+ ;set d="Set column to X:where Discovery has <b>not</b> matched an assign record to at least one of the patients addresses"
+ set d="Set column to X: where an address did not have an assign record associated with it"
  
  set e="Set column to X:where a patient was not GMS registered at event_date"
+ ;set e="Set column to X: "
  
- set f="Set column to X:where at least one of the patients addresses was a Temporary address"
+ set f="Set column to X: where an address was flagged as a Temporary address"
  
  do H("<font size=""3"" face=""Courier New""><u><b>Outputs</b></u></p></font>")
  do H("<table border=1 width=""60%"">")
- do H("<td><b>column name</b></td><td><b>description</b></td><td><b>column name</b></td><td><b>reasons why a PoR was not found</b></td><tr>")
- do H("<td>CompassSKID</td><td>pseudo anonymised nhs_number</td><td>outside_adr_dates</td><td>"_a_"</td><tr>")
- do H("<td>PoR</td><td>pseudo anonymised UPRN</td><td>invalid_class_property</td><td>"_b_"</td><tr>")
- do H("<td>event_date</td><td>event date used to find PoR</td><td>not_best</td><td>"_c_"</td><tr>")
- do H("<td>prop_class</td><td>property classification code</td><td>no_assign</td><td>"_d_"</td><tr>")
- do H("<td>prop_desc</td><td>property classification description</td><td>not_registered</td><td>"_e_"</td><tr>")
- do H("<td>lsoa</td><td>lower layer super output area (2011)</td><td>temp_address</td><td>"_f_"</td><tr>")
- do H("<td>msoa</td><td>middle layer super output area (2011)</td><td></td><td></td><tr>")
+ do H("<td><b>column</b></td><td><b>column name</b></td><td><b>description</b></td><td><b>column</b></td><td><b>column name</b></td><td><b>reasons why a PoR was not found</b></td><tr>")
+ do H("<td>A</td><td>CompassSKID</td><td>pseudo anonymised nhs_number</td><td>H</td><td>outside_adr_dates</td><td>"_a_"</td><tr>")
+ do H("<td>B</td><td>PoR</td><td>pseudo anonymised UPRN</td><td>I</td><td>invalid_class_property</td><td>"_b_"</td><tr>")
+ do H("<td>C</td><td>event_date</td><td>event date used to find PoR</td><td>J</td><td>not_best</td><td>"_c_"</td><tr>")
+ do H("<td>D</td><td>prop_class</td><td>property classification code</td><td>K</td><td>no_assign</td><td>"_d_"</td><tr>")
+ do H("<td>E</td><td>prop_desc</td><td>property classification description</td><td>L</td><td>not_registered</td><td>"_e_"</td><tr>")
+ do H("<td>F</td><td>lsoa</td><td>lower layer super output area (2011)</td><td>M</td><td>temp_address</td><td>"_f_"</td><tr>")
+ do H("<td>G</td><td>msoa</td><td>middle layer super output area (2011)</td><td></td><td></td><td></tr><tr>")
  do H("</table>")
  quit
  
@@ -506,8 +521,8 @@ STT(result,arguments)
  do H("  ajaxStatus(0);")
  do H("  var result = document.getElementById('result');")
  do H("  let z = result.innerHTML;")
- do H("  if (z.includes('CRASHED')) {alert('your last run crashed!  please contact support'); return false;}")
- do H("  if (z.includes('last click')) {alert('you have a job already running - click on Run Status for more information'); return false;}")
+ do H("  if (z.includes('CRASHED')) {alert('Your last run crashed!  please contact support'); return false;}")
+ do H("  if (z.includes('last click')) {alert('You already have a job running - click on Run Status for more information'); return false;}")
  do H("  var pseudo_salts = document.forms[""MyForm""][""pseudo_salts""].value;")
  do H("  var ralf_salts = document.forms[""MyForm""][""ralf_salts""].value;")
  do H("  var file = document.forms[""MyForm""][""fileToUpload""].value;")
@@ -679,6 +694,29 @@ STT(result,arguments)
  do H("function webHelp() {")
  do H("  window.open ('/por4/webhelp')")
  do H("}")
+ 
+ do H("")
+ do H("async function ajaxStop() {")
+ do H("  ajaxStatus(0);")
+ do H("  var result = document.getElementById('result');")
+ do H("  let z = result.innerHTML;")
+ do H("  console.log(z);")
+ do H("  if (z.includes('nothing running')) {alert('You do not have a job running to stop'); return false;}")
+ do H("  if (z.includes('You stopped your last run')) {alert('Already stopped'); return false;}")
+ do H("  if (!confirm('Stop?')) {return false;}")
+ do H("  $.ajax({")
+ do H("    url: '/por4/stop',")
+ do H("    async: false,")
+ do H("    dataType: 'json',")
+ do H("    success: function (response) {")
+ do H("       var str = response.upload.status;")
+ do H("       var div = document.getElementById('progress');")
+ do H("       div.innerHTML = str;")
+ do H("       alert(str);")
+ do H("    }")
+ do H("  });")
+ do H("}")
+ do H("")
  do H("</script>")
  
  do H("<h1 style=""background-color:DodgerBlue;"">PoR utility v0.4</h1>")
@@ -865,6 +903,7 @@ ST(user) ;
  if '$t set status="RUNNING" q status
  ;lock -^KRUNNING(user)
  i $d(^POUR("O",user)) s status="READY TO DOWNLOAD"
+ I $d(^TSTOP(user)) s status="STOPPED!"
  ; unlock anyway
  lock -^KRUNNING(user)
  quit status 
@@ -886,6 +925,7 @@ STATUS(result,arguments) ;
  s error=$$IDERROR(un)
  if error s ^TMP($J,1)="{""upload"": { ""status"": ""!!!! YOUR LAST RUN CRASHED !!!! CONTACT SUPPORT""}}"
  s:'error ^TMP($J,1)="{""upload"": { ""status"": ""You have nothing running""}}"
+ if $data(^TSTOP(un)) set ^TMP($J,1)="{""upload"": { ""status"": ""You stopped your last run!""}}"
  lock ^KRUNNING(un):0.5
  s ^lock=$t
  I '$T do
@@ -897,6 +937,7 @@ STATUS(result,arguments) ;
  .s text=text_"~total patients left to process: "_$fn(r,",")
  .s text=text_"~total patients processed since last click: "_$s(last>0:$fn((last-r),","),1:0)
  .if $data(^T(un,"SKID")) set text="Creating indexes so that the software can lookup patient id's from pseudo nhs numbers"
+ .;if $data(^TSTOP(un)) set text="You stopped your last run!"
  .s ^TMP($J,1)="{""upload"": { ""status"": """_text_"""}}"
  .quit
  set ^fred=$get(un)
