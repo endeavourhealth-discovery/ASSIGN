@@ -1,4 +1,4 @@
-POURB ; ; 1/29/23 2:08pm
+POURB ; ; 2/11/23 11:49am
  quit
  
  ; job SERVICE^POURB:(out="/dev/null")
@@ -21,7 +21,7 @@ SERVICE ;
  .for  set qid=$order(^ZQZ(qid)) q:qid=""  do
  ..for  set zi=$order(^ZQZ(qid,zi)) q:zi=""  do
  ...if $data(^ZQZ1(qid,zi)) quit
- ...D RUN(qid,zi)
+ ...D RUN(qid,zi,1)
  ...quit
  ..quit
  .quit
@@ -30,20 +30,21 @@ SERVICE ;
  lock -^KRUNNING("START","POURB")
  quit
  
-RUN(qid,i) ;
+RUN(qid,i,topup) ;
  new zskid,rec,t1
  
  set t1=^ZQZ(qid,i)
  if i>+$H quit
  if t1>$piece($horolog,",",2) quit
  
- S ^S("POURB",1)=$$HT^STDDATE($P($H,",",2))
+TST S ^S("POURB",1)=$$HT^STDDATE($P($H,",",2))
  
- W !,"ALL^REFRESH"
- do ALL^REFRESH
+ ;
+ W !,"ALL^REFRESH" do ALL^REFRESH
+ i topup=1 w !,"topping up" DO TOPUP^POURB2
  
- W !,"test^REFRESH"
- do test^REFRESH
+ ;
+ I topup=0 W !,"test^REFRESH" do test^REFRESH
  
  W !,"WRITEMATCH"
  do WRITEMATCH^SKID

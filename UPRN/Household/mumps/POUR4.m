@@ -1,11 +1,11 @@
-POUR4 ; ; 1/31/23 2:11pm
+POUR4 ; ; 2/6/23 12:03pm
  ; next version of PoR utility
  ;
  
 BUTTONBAR ;
  do H("<table border=1 width=100%>")
- do H("<td><button onclick=""ajaxSubmit()"">RUN</button></td>")
- do H("<td><button onclick=""ajaxStop()"">STOP</button></td>")
+ do H("<td><button onclick=""ajaxSubmit()"">Start/Run</button></td>")
+ do H("<td><button onclick=""ajaxStop()"">Stop</button></td>")
  do H("<td><button onclick=""ajaxStatus(1)"">Run Status</button></td>")
  do H("<td><button onclick=""ajaxInfo()"">Information about last run</button></td>")
  do H("<td><button onclick=""webDownload()"">Download</button></td>")
@@ -462,10 +462,10 @@ OUTPUT ;
  set e="Set column to X:where a patient was not GMS registered at event_date"
  ;set e="Set column to X: "
  
- set f="Set column to X: where an address was flagged as a Temporary address"
+ set f="Set column to X: where an address was flagged as Temporary"
  
  do H("<font size=""3"" face=""Courier New""><u><b>Outputs</b></u></p></font>")
- do H("<table border=1 width=""60%"">")
+ do H("<table border=1 width=""70%"">")
  do H("<td><b>column</b></td><td><b>column name</b></td><td><b>description</b></td><td><b>column</b></td><td><b>column name</b></td><td><b>reasons why a PoR was not found</b></td><tr>")
  do H("<td>A</td><td>CompassSKID</td><td>pseudo anonymised nhs_number</td><td>H</td><td>outside_adr_dates</td><td>"_a_"</td><tr>")
  do H("<td>B</td><td>PoR</td><td>pseudo anonymised UPRN</td><td>I</td><td>invalid_class_property</td><td>"_b_"</td><tr>")
@@ -557,7 +557,7 @@ STT(result,arguments)
  
  do H("  if (val == false) {return false;}")
  ;do H("  alert('do the ajax request');")
- do H("  if (!confirm('Continue?')) {return false;}")
+ do H("  if (!confirm('Continue (note: the output from your last run will be overwritten)?')) {return false;}")
  do H("  var form = document.getElementById('MyForm');")
  do H("  var formData = new FormData(form);")
  do H("  var xhr = new XMLHttpRequest();")
@@ -768,19 +768,23 @@ STT(result,arguments)
  do H("<form enctype=""multipart /form-data"" name=""MyForm"" id=""MyForm"">")
  
  do H("<font size=""2"" face=""Courier New"">")
- do H("<table border=1 width=""50%"">")
+ do H("<table border=1 width=""70%"">")
  do H("<td>Fixed date</td>")
  
  ;do H("<td><input type=""radio"" id=""date"" name=""groupme"" value=""date"" checked></td><tr>")
  
- do H("<td><input type=""date"" id=""date"" name=""date"" min=""1991-01-01"" max="""_$$TODAY()_"""></td><tr>")
+ set text="Enter a Fixed date to make the software run the algorithm for all the patients in the system, using the date entered as the event date"
+ do H("<td><input type=""date"" id=""date"" name=""date"" min=""1991-01-01"" max="""_$$TODAY()_"""></td><td>"_text_"</td><tr>")
  
  ;do H("<td>File</td><td><input type=""radio"" id=""file"" name=""groupme"" value=""file""></td><tr>")
  ;do H("<td>File (click Choose file, then Cancel button to remove)</td><td><input type=""file"" id=""fileToUpload"" name=""fileToUpload""></td><tr>")
  
- do H("<td>File</td><td><input type=""file"" class=""fileToUpload"" id=""fileToUpload"" name=""fileToUpload""/><tr>")
- do H("<td>CompassSKID name</td><td>"_$$COMBO1("pseudo_salts")_"</td><tr>")
- do H("<td>RALFSKID name</td><td>"_$$COMBO1("ralf_salts")_"</td><tr>")
+ set text="If you are uploading a file, please make sure the CompassSKID selected is the same as the digest you used to encrypt the nhs numbers in your file.  By default, the CompassSKID selected is what the software uses to encrypt the CompassSKID in the output (column A)"
+ set text2="A tab delimeted file with no header row.  The first column needs to be an encrypted nhs number, the second column is an event_date"
+ do H("<td>File</td><td><input type=""file"" class=""fileToUpload"" id=""fileToUpload"" name=""fileToUpload""/><td>"_text2_"</td><tr>")
+ do H("<td>CompassSKID name</td><td>"_$$COMBO1("pseudo_salts")_"</td><td>"_text_"</td><tr>")
+ set text="Select the RALFSKID name that will be used to encrypt the UPRN in the output (column B)"
+ do H("<td>RALFSKID name</td><td>"_$$COMBO1("ralf_salts")_"</td><td>"_text_"</td><tr>")
  do H("<td>reset all inputs</td><td><button onclick=""resetFile()"">reset</button></td><tr>")
  
  ;do H("<td>&nbsp;</td>&nbsp;<td></td><tr>")
