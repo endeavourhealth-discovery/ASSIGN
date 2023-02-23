@@ -1,0 +1,95 @@
+<html>
+<h1 style="background-color:DodgerBlue;">PoR utility v0.4 (Help)</h1>
+<head>
+<style>
+z1 {font-family:Courier; font-size:14px;}
+tab1 {padding-left:8em;}
+</style>
+</head>
+
+<z1>
+
+<p>The process of identifying a patients PoR can be done either by entering a fixed date, or by uploading a file</p>
+
+<p>
+You cannot enter a fixed date and upload a file at the same time<br>
+You must also select a CompassSKID name and RALFSKID name before clicking the Run button
+</p>
+
+<p>
+A CompassSKID is a pseudo anonymised nhs number<br>
+A RALFSKID is a pseudo anonymised UPRN<br>
+Both skids are also known as digests
+</p>
+
+<p>
+CompassSKIDs and RALFSKIDs can be created using some third party software developed by Nottingham University<br>
+<a href="https://www.openpseudonymiser.org/" target="_blank">OpenPseudonymiser</a>
+</p>
+
+<p>
+<a name="caveat" id="caveat"><u>pre-2014 caveat of use</u></a>
+<p>
+</p>
+Data flow into NEL DDS began in 2014 therefore the system holds only address records that were current for a registration at that point in time and address changes since then.<br>
+Address records will exist for registrations that ended pre-2014, due to the patient leaving or dying, and this will only be the current address at the time of leaving or dying.<br>
+Therefore, determining the household UPRN for event dates before 2014 is less reliable, because we don’t know for sure if a person's household pre-2014 was the same or different for the address/UPRN we have for them since data flow in 2014.<br>
+In addition, if a GP practice closes, DDS no longer has the right to access that data and the patient data, including address is lost.<br>
+If the closed practice merges with another DDS publishing GP Practice, only the patient address at the point of transfer is maintained, no history.<br>
+</p>
+
+<p>
+<u>File upload</u>
+</p>
+<p>
+Allows users to upload a file of variable event_dates and CompassSKIDs that the algorithm uses to calculate a patients place of residence<br>
+<br>
+The contents of the uploaded file (tab delimted with no header row) could contain the following rows:<br>
+165E8DED4D6F2768C6BB2F90711CC2796CB926AAECE2D5F9C06B2629190E3E1A<tab1>2018-10-12<br>
+72102F2B7829A6E07B260EE45E0EA222FAC62068ED98FB4EF22BFE8C7AEFE3C8<tab1>2014-05-09<br>
+<br>
+The first column is an anonymised nhs number, the second column is an event_date<br>
+<br>
+It is important that the user selects the correct CompassSKID name, otherwise the file upload process won't be able to find the patient id<br>
+<br>
+For each row in the uploaded file<br>
+<tab1>Get CompassSKID and event date<br>
+<tab1>Look up the patient id from the CompassSKID<br>
+<tab1>Run the algorithm using the patient id and event date as parameters<br>
+<tab1>Store anonymised nhs number, anonymised UPRN, property classification code, lsoa, msoa so that it can be downloaded later<br>
+</p>
+
+<p>
+<u>Fixed date</u>
+</p>
+<p>
+Allows users to enter a fixed date which is used to run the algorithm for all of the patients in the CEG subscriber database<br>
+<br>
+For every row in the patient table<br>
+<tab1>Runs the algorithm using the 'id' column from the patient table and fixed_date entered in the UI<br>
+<tab1>Store anonymised nhs number, anonymised UPRN, property classification code, lsoa, msoa, so that it can be downloaded later<br>
+</p>
+
+<p>
+<u>Reasons why a PoR was not found</u>
+</p>
+
+<p>
+Where the algorithm does not return a PoR for a patient, the software outputs a reason why the algorithm had difficulties:<br>
+<tab1>The patient was not GMS registered at event date<br>
+<tab1>The event date was outside the start/end dates of an address<br>
+<tab1>The address was not a valid property classification<br>
+<tab1>An address was not a 'Best Residential match'<br>
+<tab1>An address did not have an assign record associated with it<br>
+<tab1>The address was flagged as a Temporary address<br>
+</p>
+
+<p>
+There could be occasions where the output contains empty rows<br>
+The reason for this is that the software has been unable to lookup the patient id from the CompassSKID<br>
+Another reason could be that the patient does not have an nhs number recorded in the subscriber database<br>
+About 5% of the total number of patients in the subscriber database don't have an nhs number<br>
+</p>
+
+</z1>
+</html>

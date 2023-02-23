@@ -1,4 +1,4 @@
-POUR4 ; ; 2/6/23 12:03pm
+POUR4 ; ; 2/22/23 9:19am
  ; next version of PoR utility
  ;
  
@@ -12,6 +12,7 @@ BUTTONBAR ;
  do H("<td><button onclick=""webHelp()"">Help</button></td>")
  do H("</table>")
  do H("<br>")
+ do H("<a href=""/por4/webhelp#caveat"">pre-2014 caveat of use</a>")
  do H("<div id=""progress""></div>")
  quit
  
