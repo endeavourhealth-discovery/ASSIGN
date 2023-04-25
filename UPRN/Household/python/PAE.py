@@ -69,6 +69,8 @@ def GMSV3(nor, event_date):
   
   zevent_date = DH(event_date)
   
+  if (nor not in patient): return 4
+
   dod = patient[nor][0]
   #print(str(dod))
   if (not str(dod) == "None"):
@@ -109,6 +111,8 @@ def GMSV2(nor, event_date):
   b = 2
   #print(str(patient[nor][0]));
   
+  if (nor not in patient): return 4
+
   dod = patient[nor][0]
   d1 = pd.to_datetime(dod, errors = 'coerce')
   if (not pd.isnull(d1)):
@@ -159,7 +163,10 @@ patient.clear()
 cursor = conn.cursor()
 
 #cursor.execute('SELECT id, date_of_death FROM [compass_gp].[dbo].[patient];')
-cursor.execute('select id, date_of_death from [compass_gp].[dbo].[patient] ORDER BY id OFFSET 0 ROWS FETCH NEXT 999999 ROWS ONLY;')
+#cursor.execute('select id, date_of_death from [compass_gp].[dbo].[patient] ORDER BY id OFFSET 0 ROWS FETCH NEXT 999999 ROWS ONLY;')
+#cursor.execute('select id, date_of_death from [compass_gp].[dbo].[patient] ORDER BY id OFFSET 0 ROWS FETCH NEXT 10000 ROWS ONLY;')
+cursor.execute('select id, date_of_death from [compass_gp].[dbo].[patient] ORDER BY id OFFSET 999999 ROWS FETCH NEXT 999999 ROWS ONLY;')
+
 row = cursor.fetchone()
 c = 1
 while row:
@@ -199,7 +206,7 @@ ret = GMSV2(20827,"2021-01-01")
 print("gmsv2: "+str(ret))
 ret = GMSV3(20827,"2021-01-01")
 print("gmsv3: "+str(ret))
-input("test gms")
+#input("test gms")
 
 ### patient_address
 input("Start loading addresses...")
@@ -224,7 +231,7 @@ while row:
   
   #adr.setdefault(patient_id, []).append(str(id)+"~"+str(start_date)+"~"+str(end_date)+"~"+str(use)+"~"+str(lsoa)+"~"+str(msoa))
   if (patient_id in patient):
-    adr.setdefault(patient_id,[]).append([id,str(start_date),str(end_date),str(use),str(lsoa),str(msoa)])
+    adr.setdefault(patient_id,[]).append([id,str(start_date),str(end_date),str(use),str(lsoa),str(msoa),DH(str(start_date))])
     adridx[id] = []
   
   row = cursor.fetchone()
@@ -241,6 +248,77 @@ c = 1; q = ""
 VPROP = {"R":"","RD":"","RD01":"","RD02":"","RD03":"","RD04":"","RD06":"","RD07":"","RD10":"","RH02":"","U":"","UC":"","UP":"","X":""}
 #zevent_date = pd.to_datetime("2021-01-01")
 zevent_date = DH("2021-01-01")
+
+print("start match chunking")
+input("press:")
+c = 1; q = ""
+
+#for z in range(len(test[nor])): print(test[nor][z][0])
+
+##matchbig.clear();
+
+##for nor in patient:
+##  if (nor not in adr): continue
+##  for i in range(len(adr[nor])):
+##    #print(str(adr[nor][i][0]))
+##    adr_id = adr[nor][i][0]
+##    # bug!
+##    q = q + str(adr_id) + ","
+##    if (c % 2000 ==0):
+##       print(c)
+##       q = q[0:len(q)-1]
+##       sql = "select id, patient_address_id, uprn, qualifier, uprn_property_classification from [compass_gp].[dbo].[patient_address_match] where patient_address_id in ("+q+")"
+##       #print(sql)
+##       #input("press a key:")
+##       q = ""
+##       cursor.execute(sql)
+##       row = cursor.fetchone()
+##       while row:
+##          adr_id = row[1];
+##          #if (adr_id not in adridx): row = cursor.fetchone(); continue;
+##          
+##          match_id = row[0]
+##          uprn = row[2];
+##          qualifier = row[3];
+##          classification = row[4];
+##          if (adr_id in matchbig):
+##             m_id = matchbig[adr_id][0]
+##             #print("testing"+str(match_id)+">"+str(m_id))
+##             if (match_id > m_id):
+##                matchbig[adr_id] = [match_id, uprn, qualifier, classification]
+##        
+##          if (adr_id not in matchbig):
+##             matchbig[adr_id] = [match_id, uprn, qualifier, classification]
+##
+##          row = cursor.fetchone()
+
+##    c =c + 1;   
+####    q = q + str(adr_id) + ","
+
+##print("end match chunking - what's left in q = "+q)
+
+##if (q != ""):
+##  print("getting what's left")
+##  q = q[0:len(q)-1]
+##  sql = "select id, patient_address_id, uprn, qualifier, uprn_property_classification from [compass_gp].[dbo].[patient_address_match] where patient_address_id in ("+q+")"
+##  cursor.execute(sql)
+##  row = cursor.fetchone()
+##  while row:
+##    adr_id = row[1];
+##    #if (adr_id not in adridx): row = cursor.fetchone(); continue;
+##          
+##    match_id = row[0]; uprn = row[2]; qualifier = row[3]; classification = row[4];
+##    if (adr_id in matchbig):
+##       m_id = matchbig[adr_id][0]
+##       if (match_id > m_id):
+##          matchbig[adr_id] = [match_id, uprn, qualifier, classification]
+##        
+##    if (adr_id not in matchbig):
+##       matchbig[adr_id] = [match_id, uprn, qualifier, classification]
+
+##    row = cursor.fetchone()
+
+####input("press:")
 
 sql = "select id, patient_address_id, uprn, qualifier, uprn_property_classification from [compass_gp].[dbo].[patient_address_match]" # order by id desc"
 
@@ -266,13 +344,6 @@ while row:
     uprn = row[2];
     qualifier = row[3];
     classification = row[4];
-
-    #start_date = addr[str(adr_id)][1]
-        
-    #end_date = addr[str(adr_id)][2]
-    #use = addr[str(adr_id)][3]
-    #lsoa = addr[str(adr_id)][4]
-    #msoa = addr[str(adr_id)][5]
 
     if (adr_id in matchbig):
         m_id = matchbig[adr_id][0]
@@ -316,10 +387,14 @@ for nor in patient:
       continue
     
   if (nor in adr):
-      blist = sorted(adr[nor], key=lambda x:x[0], reverse=True)
+      #address id
+      #blist = sorted(adr[nor], key=lambda x:x[0], reverse=True)
+      #start_date
+      #blist = sorted(adr[nor], key=lambda x:x[6], reverse=True)
+      blist = sorted(adr[nor], key=lambda x:(x[6], x[0]), reverse=True)
       if (nor == 490120):
         print(blist)
-        input("test:")
+        #input("test:")
       #for i in adr[nor]:
       for i in range(len(blist)):
         #z = i.split("~")
@@ -333,7 +408,7 @@ for nor in patient:
         #print(str(nor) + " " + str(id) + " " + str(start_date) + " " + str(end_date) + " " + use)
         if (nor == 490120 and id in matchbig):
           print(matchbig[id])
-          input("test2:")
+          #input("test2:")
 
         if (use == "1335360"): continue
 
@@ -358,7 +433,7 @@ for nor in patient:
         if (d1 <= zevent_date or d1==0) and (d2 >= zevent_date or d2==0):
             #print(str(nor) + " " + str(uprn));
             #matcherb[nor] = [id, adr_id, uprn, start_date, end_date, use, classification, lsoa, msoa]
-            outputFile.write(str(nor) + "\t" + str(adr_id) + "\t" + str(uprn) + "\t" + str(start_date) + "\t" + end_date + "\t" + use + "\t" + classification + "\t" + lsoa + "\t" + msoa + "\n")
+            outputFile.write(str(nor) + "\t" + str(id) + "\t" + str(uprn) + "\t" + str(start_date) + "\t" + end_date + "\t" + use + "\t" + classification + "\t" + lsoa + "\t" + msoa + "\n")
             break
 
         
@@ -423,6 +498,6 @@ outputFile.close()
 
 #ret = PLACEATEVT(id, "2021-01-01", 0, 0, conn)
   
-input("pae end")
+#input("pae end")
 
 conn.close()
