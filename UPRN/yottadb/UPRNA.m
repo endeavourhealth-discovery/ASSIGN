@@ -1,7 +1,15 @@
-UPRNA ;Formats discovery address [ 06/19/2020  12:43 PM ] ; 2/1/21 3:56pm
- 
+UPRNA ;Address dformat [ 05/12/2023  9:58 AM ]
  ;
-format(adrec,address)    ;
+reformat(address)    ;
+ i $p(address,"~",2)?1"flat "1n.n.e d
+ .i $p(address,"~")?1n.n.l1" ".e d
+ ..s address("flat")=$p($p(address,"~",2)," ",2)
+ ..s address("number")=$p(address," ")
+ ..s address("building")=$p($p(address,"~")," ",2,20)
+ ..s address("street")=$p($p(address,"~",2)," ",3,20)
+ q
+ 
+format(adrec,address)    ; ;[ 05/11/2023  12:33 PM ]
  ;Populates the discovery address object
  ;initialise address field variabls
  k address
@@ -28,6 +36,8 @@ format(adrec,address)    ;
  s ISFLAT=0
  I address?1"flat"1" "1n.n.l1" ".e d
  .S ISFLAT=1
+ .I $P(address," ",3)?1n.n.e d
+ ..s address=$p(address," ",1,2)_"~"_$p(address," ",3,20)
  i address["." d
  .f i=1:1:$l(address," ") d
  ..s word=$p(address," ",i)
@@ -285,6 +295,7 @@ f35a ;Brackets
  
  ;Ordinary flat building various formats, split it up
  if adflat="" do flatbld(.adflat,.adbuild)
+ s adflat=$$fixflat(adflat)
  
  ;Ordinary street format , split it up
  do numstr(.adbno,.adstreet,.adflat,.adbuild)
@@ -499,6 +510,8 @@ f122 ;Now has flat as number and number still in street
  ..set adstreet=$p(adstreet," ",2,20)
  
 f123 ;area in street
+ ;First fix street
+ s adstreet=$$fixstr(adstreet)
  I adloc="",$l(adstreet," ")>1 d
  .I '$d(^UPRNX("X.BLD",adstreet))&('$D(^UPRNX("X.STR",adstreet))) d
  ..i $D(^UPRNS("TOWN",$p(adstreet," ",$l(adstreet," ")))) d
@@ -579,6 +592,7 @@ f136 ;dependent locality has number
  .s adepth=""
  
 f137 ;House and street in same line
+ b
  i adflat="",adbuild="",adbno'="",$l(adstreet," ")>2 d
  .s lenstr=$l(adstreet," ")
  .i $p(adstreet," ",lenstr)?1n.n d
@@ -730,8 +744,21 @@ isno(word)         ;is it a number
  if word?1n.n1"-"1n.n q 1
  if word?1n.n1l1"-"1n.n1l q 1
  q 0
+fixflat(adflat)    ;
+ i adflat?1n.n1" flat".e d
+ .i $p(adflat," ",$l(adflat," "))="g" d
+ ..s adflat="g"_$p(adflat," ")
+ .e  i $p(adflat," ",$l(adflat," "))="flat" d
+ ..s adflat="flat "_$p(adflat," ")
+ q adflat
  
 flatbld(adflat,adbuild) ;
+DS1105A i adbuild?1n.n1" flat".e d
+ .i $p(adbuild," ",$l(adbuild," "))="flat" d
+ ..s adbuild="flat "_$p(adbuild," ")
+ .i $p(adbuild," ",$l(adbuild," "))="g" d
+ ..s adflat="g"_$p(adbuild," ")
+DS1105B ..s adbuild=""
  ;is it a flat or number and if so what piece is the rest?
  s adbuild=$$co(adbuild)
  I adbuild["flat-" s adbuild=$tr(adbuild,"-"," ")
@@ -1042,3 +1069,13 @@ spelchk(address)   ;
  ..s $p(field," ",wordno)=word
  .s $p(address,"~",part)=field
  q
+fixstr(str)        ;
+ n (str)
+ i $D(^UPRNX("X.STR",str)) q str
+ s new=str
+ i $D(^UPRNX("X.STR",$tr(str," "))) d
+ .f i=2:1:$l(str," ") d  q:$d(^UPRNX("X.STR",new))
+ ..s new=$p(str," ",1,i-1)_$p(str," ",i)
+ ..i i<$l(str," ") s new=new_" "_$p(str," ",i+1,20)
+ i $D(^UPRNX("X.STR",new)) q new
+ q str

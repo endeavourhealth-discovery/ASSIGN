@@ -1,4 +1,4 @@
-UPRNIND ;Rebuilds all the UPRN indexes [ 06/19/2020  6:48 AM ] ; 11/9/22 12:29pm
+UPRNIND ;Rebuilds all the UPRN indexes [ 05/12/2023  9:46 AM ]
  n
  S ^STATS("START")=$H
  s d="~"
@@ -156,6 +156,7 @@ indexstr(index,term)         ;Indexes street or building etc
  .S ^UPRNX("X."_index)=$G(^UPRNX("X."_index))+1
  .S strno=^UPRNX("X."_index)
  .S ^UPRNX("X."_index,term)=strno
+ .s ^UPRNS("X."_index,$tr(term," "))=strno
  .s ^UPRNX(index,strno)=term
  s strno=^UPRNX("X."_index,term)
  f i=1:1:$l(term," ") d

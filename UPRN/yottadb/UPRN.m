@@ -1,7 +1,5 @@
-UPRN ;Command line Main routine for processing a batch of addresseset [ 06/19/2020  2:16 PM ] ; 2/3/21 9:16am
- 
- 
- K ^UPRN("MX")
+UPRN ;Command line for processing a batch of adresses [ 05/12/2023  8:47 AM ]
+ K ^UPRN("MX") ;[ 05/11/2023  12:26 PM ]
  K ^UPRN("UX")
  K ^UPRNI("UM")
  K ^UPRNI("Stats")
@@ -65,7 +63,8 @@ batch(mkey,qpost,from,to,ui,country)   ;Processes a batch of addresses for a lis
  .S ^ADNO=adno
  .d tomatch(adno,qpost,ui,country) ;Match 1 address
  .s total=total+1
- .S ^UPRNI(mkey,adno,"f")=adflat_"~"_adbuild_"~"_adbno_"~"_adepth_"~"_adstreet_"~"_adeploc_"~"_adloc_"~"_adpost
+ .i $d(adflat) d
+ ..S ^UPRNI(mkey,adno,"f")=adflat_"~"_adbuild_"~"_adbno_"~"_adepth_"~"_adstreet_"~"_adeploc_"~"_adloc_"~"_adpost
  .i '$D(^TUPRN($J,"MATCHED")) I $D(^UPRNI("Prev",adno)) d
  ..I $D(^TUPRN($J,"INVALID")) D
  ...S ^UPRNI("Invalid",adno)=""
@@ -74,7 +73,7 @@ batch(mkey,qpost,from,to,ui,country)   ;Processes a batch of addresses for a lis
  ..s ouprn=^UPRNI("Prev",adno)
  ..i ouprn="" q
  ..S ^UPRNI("mismatch",adno)=ouprn
- .I '(adno#1000) d
+ .;I '(adno#1000) d
  ..w !,"Matched "_adno
  ..d stats
  q
@@ -189,18 +188,7 @@ MATCHONE(adrec,qpost,orgpost,ui)    ;matches one address
  d format^UPRNA(adrec,.address)
  ;
  ;format the address record
- set adflat=address("flat")
- set adbuild=address("building")
- set adbno=address("number")
- set adstreet=address("street")
- set adloc=address("locality")
- set adpost=address("postcode")
- set adepth=address("depth")
- set adeploc=address("deploc")
- set adpstreet=$$plural^UPRNU(adstreet)
- set adpbuild=$$plural^UPRNU(adbuild)
- set adflatbl=$$flat^UPRNU(adbuild_" ")
- set adplural=0
+ D SETADS
  i adpstreet'=adstreet s adplural=1
  if adpbuild'=adbuild s adplural=1
  set adb2=""
@@ -228,18 +216,54 @@ MATCHONE(adrec,qpost,orgpost,ui)    ;matches one address
  D match(adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2)
  i $D(^TUPRN($J,"MATCHED"))  D  Q
  .d matched
+ D SETADS
  i adbuild'="",adflat'="",adbno="",adstreet'="" d  i $D(^TUPRN($J,"MATCHED")) d matched q
  .s adbno=adflat,adstreet=adbuild_" "_adstreet,adflat="",adbuild=""
  .d match(adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2)
- .
+ i $D(^TUPRN($J,"MATCHED"))  D  Q
+ .d matched
+ D SETADS
  i adbuild'="" d
  .D match(adflat,"former "_adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2)
  i $D(^TUPRN($J,"MATCHED")) d  q 
  .d matched
+ ;
+ D SETADS
+ i adbuild="",adflat'="",adloc'="",adstreet'="" d
+ .d match(adflat,adstreet,adbno,"",adloc,"","",adpost,"","")
+ i $D(^TUPRN($J,"MATCHED")) d  q 
+ .d matched
+ ;Is it ground floor?
+ D SETADS
+ i $p(address," ")?1n.n,adflat?1n.n d
+ .D match("g"_$P(address," "),adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2)
+ i $D(^TUPRN($J,"MATCHED")) d  q 
+ .d matched
+ I $p(address,"~",2)?1"flat "1n.n.e d
+ .d reformat^UPRNA(.address)
+ .d SETADS
+ .D match(adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2)
+ i $D(^TUPRN($J,"MATCHED")) d  q 
+ .d matched
+ 
+ 
 010221 I '$d(^TUPRN($J,"MATCHED")) D  Q
- .;
  .d nomatch
  q
+SETADS ;
+ set adflat=address("flat")
+ set adbuild=address("building")
+ set adbno=address("number")
+ set adstreet=address("street")
+ set adloc=address("locality")
+ set adpost=address("postcode")
+ set adepth=address("depth")
+ set adeploc=address("deploc")
+ set adpstreet=$$plural^UPRNU(adstreet)
+ set adpbuild=$$plural^UPRNU(adbuild)
+ set adflatbl=$$flat^UPRNU(adbuild_" ")
+ set adplural=0
+ Q
  
  
 match(adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2) ;
@@ -1910,7 +1934,7 @@ fnsplit(tbno,bno,tflat,flat) ;Number includes flat
  i bno'="",tbno'="",flat=tbno,(tbno*1)=bno q 1 ;
  i flat?1l,$e(tbno,$l(tbno))=flat,bno=(tbno*1) q 1
  q 0
-match11(tpost,tstreet,tbno,tbuild,tflat,lastchance,tloc) 
+match11(tpost,tstreet,tbno,tbuild,tflat,lastchan,tloc) 
  ;Cycles through all uprns looking for fuzzy streets,odd buildings
  n matched,front,back,flatlist,xstreet,xbuild,lenstreet
  s matched=0
