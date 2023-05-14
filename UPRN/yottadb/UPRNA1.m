@@ -1,4 +1,16 @@
-UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting routine [ 05/12/2021  10:35 AM ]
+UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting routine [ 05/14/2023  12:45 PM ]
+ ;Repeated flat number
+ i adbno=adflat,adbuild="",$D(^UPRNS("BUILDING",$p(adstreet," ",$l(adstreet," ")))) d
+ .s adbno=""
+ .s adbuild=adstreet
+ .s adstreet=""
+ I adbno="",adflat?1n.n.l1" "1l.e d
+ .i adbuild?1n.n1" "1l.e d
+ ..i $D(^UPRNS("ROAD",adstreet)) d
+ ...s adbno=$p(adbuild," ")
+ ...s adstreet=$p(adbuild," ",2,10)_" "_adstreet
+ ...s adbuild=$p(adflat," ",2,20)
+ ;unformed street
  ;Dependent location is street
  i adeploc'="",adbno="",adflat="" d
  .i adeploc?1n.n.e1" "1l.e d
@@ -35,4 +47,10 @@ UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting ro
  ....s adstreet=$p(adbuild," ",i,$l(adbuild," "))
  ....s adbuild=$p(adstreet," ",1,i-2)
  Q
+change(glob,node,from,to)    ;
+ n nodes
+ s nodes=glob_"("_node_")"
+ for  s nodes=$q(@nodes) q:(nodes'[(glob_"("_node))  d
+ .s @nodes=$$tr^UPRNL(@nodes,from,to)
+ q
         

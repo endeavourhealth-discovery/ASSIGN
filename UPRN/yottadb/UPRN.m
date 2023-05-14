@@ -1,4 +1,4 @@
-UPRN ;Command line for processing a batch of adresses [ 05/12/2023  8:47 AM ]
+UPRN ;Command line for processing a batch of adresses [ 05/14/2023  12:43 PM ]
  K ^UPRN("MX") ;[ 05/11/2023  12:26 PM ]
  K ^UPRN("UX")
  K ^UPRNI("UM")
@@ -61,6 +61,7 @@ batch(mkey,qpost,from,to,ui,country)   ;Processes a batch of addresses for a lis
  set total=0
  for  set adno=$O(^UPRNI(mkey,adno)) q:adno=""  q:adno>to  d
  .S ^ADNO=adno
+ .;w !,adno
  .d tomatch(adno,qpost,ui,country) ;Match 1 address
  .s total=total+1
  .i $d(adflat) d
@@ -176,12 +177,17 @@ MATCHONE(adrec,qpost,orgpost,ui)    ;matches one address
  set orgpost=$tr($$lc^UPRNL(orgpost)," ")
  
  ;OutOfArea
+ s repost=""
  i post'="" d  i quit q
  .i $$validp(post) d
  ..i '$$inpost(post,qpost) d  q
- ...s ^TUPRN($J,"OUTOFAREA")="Post code out of areas"
- ...s ^TUPRN($J,"UNMATCHED")=""
- ...s quit=1
+ ...s tpost=$e(post,1)_$e(post,3)_$e(post,2)_$e(post,4,20)
+ ...i $$inpost(tpost,qpost) d
+ ....s repost=tpost
+ ...e  d
+ ....s ^TUPRN($J,"OUTOFAREA")="Post code out of areas"
+ ....s ^TUPRN($J,"UNMATCHED")=""
+ ....s quit=1
  
  
  ;formats the address ready for action
@@ -239,10 +245,22 @@ MATCHONE(adrec,qpost,orgpost,ui)    ;matches one address
  .D match("g"_$P(address," "),adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2)
  i $D(^TUPRN($J,"MATCHED")) d  q 
  .d matched
- I $p(address,"~",2)?1"flat "1n.n.e d
- .d reformat^UPRNA(.address)
+ s reformed=$$reformat^UPRNA(adrec,.address)
+ I reformed d
  .d SETADS
  .D match(adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2)
+ i $D(^TUPRN($J,"MATCHED")) d  q 
+ .d matched
+ i repost'="" d
+ .D match(adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,repost,adf2,adb2)
+ i $D(^TUPRN($J,"MATCHED")) d  q 
+ .d matched
+ .d change^UPRNA1("^TUPRN",$J,"Pe","Pl")
+ I adbuild'="",adflat="",adbno'="" d
+ .D match(adbno,adbuild,"",adepth,adstreet,adeploc,adloc,adpost,adf2,adb2)
+ .I $D(^TUPRN($J,"MATCHED")) D
+ ..d change^UPRNA1("^TUPRN",$J,"Ne","N>f")
+ ..d change^UPRNA1("^TUPRN",$J,"Fe","F<n")
  i $D(^TUPRN($J,"MATCHED")) d  q 
  .d matched
  
@@ -2531,6 +2549,7 @@ match3(tpost,tstreet,tbno,tbuild,tflat)          ;Try from building and flat
  ...s ALG=ALG_"match3"
  ...s matched=$$set(uprn,table,key)
  i $D(^TUPRN($J,"MATCHED")) q $G(^TUPRN($J,"MATCHED"))
+ B
  s street=""
  for  s street=$O(^UPRNX("X5",tpost,street)) q:street=""  d  q:matched
  .I $D(^UPRNX("X5",tpost,street,tbno,tbuild,tflat)) d  q

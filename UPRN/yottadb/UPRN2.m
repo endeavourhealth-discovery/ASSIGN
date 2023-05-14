@@ -1,4 +1,4 @@
-UPRN2 ;NEW PROGRAM [ 06/10/2019  2:35 PM ]
+UPRN2 ;NEW PROGRAM [ 05/14/2023  12:48 PM ]
  ;D COLLECT
  ;D EXPORT
  d GETDIR
@@ -244,7 +244,7 @@ ALL ;
  ..s ^UPRNL("POST",area,"UM")=$G(^UPRNL("POST",area,"UM"))+1
  Q
  
-UNMATCH(stat)
+UNMATCH(stat) 
  new out51,out52
  
  s d=$c(9)
@@ -440,9 +440,9 @@ degree(degree)     ;Returns the text of the degree to which it matches
  s result=""
  i degree["&" d
  .s result="mapped also to "_$$part($p(degree,"&",2))_" "
- i degree[">" d
+ i degree[">" d  q result
  .s result="moved to "_$$part($p(degree,">",2))_" "
- i degree["<" d
+ i degree["<" d  q result
  .s result="moved from "_$$part($p(degree,"<",2))_" "
  i degree["f" d
  .s result=$s(result="":"",1:" ")_"field merged"
@@ -462,8 +462,3 @@ degree(degree)     ;Returns the text of the degree to which it matches
  I degree["v" s result=$s(result'="":result_" ",1:"")_"level based match"
  I degree["xd" s result=$s(result'="":result_" ",1:"")_"level based match"
  Q result
-
-EOF;
- if '$zeof zmessage +$zstatus
- close file
- quit
