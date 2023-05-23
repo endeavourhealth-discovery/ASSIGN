@@ -1,4 +1,4 @@
-UPRNA ;Address dformat [ 05/14/2023  10:50 AM ]
+UPRNA ;Address dformat [ 05/22/2023  2:17 PM ]
  ;
 reformat(adrec,address)    ;
  s reformed=0
@@ -47,7 +47,7 @@ format(adrec,address)    ; ;[ 05/11/2023  12:33 PM ]
  set address=$tr(address,"',")
  set address=$tr(address,"/","-")
  s ISFLAT=0
- I address?1"flat"1" "1n.n.l1" ".e d
+ I address?1"fla".l1" "1n.n.l1" ".e d
  .S ISFLAT=1
  .I $P(address," ",3)?1n.n.e d
  ..s address=$p(address," ",1,2)_"~"_$p(address," ",3,20)
@@ -178,6 +178,7 @@ f10 i addlines=2 d
  .i adstreet?1n.n,adbuild'="" d
  ..s adstreet=adstreet_" "_adbuild
  ..s adbuild=""
+        
 f11 i addlines=3 d
  .s adbuild=$p(address,d,1)
  .s adstreet=$p(address,d,2)
@@ -199,13 +200,6 @@ f14 i addlines=6 d
  .s adstreet=$p(address,d,4)
  .s adeploc=$p(address,d,5)
  .s adloc=$p(address,d,6)
- .;.s adepth=$p(address,d,3)
- .;.s adeploc=$p(address,d,4)
- .;.s adloc=$p(address,d,5)
- .;.i adepth?1n.n!(adepth?1n.n1),adeploc'="" d
- .;..s adbuild=adbuild_" "_adstreet
- .;..s adstreet=adepth_" "_adeploc
- .;..s adepth="",adeploc=""
 f15 i addlines=7 d
  .s adbuild=$p(address,d,1)_" "_$p(address,d,2)
  .s adepth=$p(address,d,3)
@@ -250,8 +244,15 @@ f22 ....e  d
  ....s adstreet=adepth_" "_adeploc
  ....s adepth="",adeploc=""
  
-f23 ;Location is street, street is building
- i adloc'="",adstreet'="" d
+f23 ;Location is street
+ i adloc'="",adeploc'="",adstreet'="",adbuild'="" d
+ .I $D(^UPRNS("ROAD",adloc)) d
+ ..i $D(^UPRNS("BUILDING",adstreet))!($D(^UPRNS("FLAT",adstreet)))  d
+ ...s adbuild=adbuild_" "_adstreet
+ ...s adstreet=adeploc_" "_adloc
+ ...s (adloc,adeploc)=""
+ 
+ i adloc'="",adstreet'="",adeploc="" d
  .if $$isroad(adloc),'$$isroad(adstreet) do
 f24 ..if adloc?1n.n1" "1l.e d  q
 f25 ...if adstreet?1n.n do
@@ -266,6 +267,7 @@ f27 ..i adflat="" d  q
  ...s adflat=adbuild
 f28 ...I adstreet'="" d
  ....set adbuild=adstreet
+ ....s adstreet=""
 f29 ...e  i adflat?1n.n.l1" "2l.e d
  ....set adbuild=$p(adflat," ",2,20)
  ....set adflat=$p(adflat," ")
@@ -291,7 +293,10 @@ f31 if $$isflat^UPRNU(adstreet) d  ;Might be flat
 f32 .if '$$isroad(adstreet) do   q ;straight swap
  ..set xbuild=adbuild
  ..set adbuild=adstreet
- ..set adstreet=xbuild
+ ..I xbuild?1"room"1" "1n.n d
+ ...set adstreet=""
+ ..e  d
+ ...s adstreet=xbuild
 f33 .else  d
  ..if $$isno($p(adstreet," ",3)) do
 f34 ...if adbuild'="" d
@@ -307,9 +312,29 @@ f35a ;Brackets
  .s adbuild=$$tr^UPRNL(adbuild,"  "," ")
  
  ;Ordinary flat building various formats, split it up
+ ;
  if adflat="" do flatbld(.adflat,.adbuild)
  s adflat=$$fixflat(adflat)
- 
+ i adflat?1"room".e d
+ .s address("room")=adflat
+ ;First address line has flat but building is in second etc
+ I adbuild="",adstreet'?1n.n.e,adeploc?1n.n.l1" "1l.e d
+ .s adbuild=adstreet
+ .s adstreet=adeploc
+ .s adeploc=""
+ ;Check for flat number in flat
+ i adflat?1"flat"1" "1n.n.l1" "1n.n.l d
+ .I $D(^UPRNX("X.STR",adbuild)),'$D(^UPRNX("X.STR",adstreet)) d
+ ..s adbno=$p(adflat," ",2,3)
+ ..s adflat=$p(adflat," ",1,2)
+ ..i adeploc="",adloc="" d
+ ...s adloc=adstreet
+ ...s adstreet=adbuild
+ ...s adbuild=""
+ ..e  i adeploc="" d
+ ...s adeploc=adstreet
+ ...s adstreet=adbuild
+ ...s adbuild=""
  ;Ordinary street format , split it up
  do numstr(.adbno,.adstreet,.adflat,.adbuild)
  s adstreet=$$fixstr("X.STR",adstreet)
@@ -317,6 +342,26 @@ f35a ;Brackets
  ;
  
 f84 ;Left shift locality to street, street to building, building to flat?
+ I adflat="",adbuild="" d
+ .i '$D(^UPRNX("X.STR",adstreet)) d
+ ..I $D(^UPRNX("X.BLD",adstreet)) d
+ ...s adflat=adbno,adbuild=adstreet,adbno="",adstreet=""
+ ;+building shift
+ i '$D(^UPRNX("X.STR",adstreet)) d
+ .i $D(^UPRNX("X.STR",$p(adstreet," ",2,20))) d
+ ..I $D(^UPRNX("X.BLD",adbuild_" "_$p(adstreet," "))) D
+ ...s adbuild=adbuild_" "_$p(adstreet," ")
+ ...s adstreet=$p(adstreet," ",2,20)
+ ..e  i adbuild?1n.n.l1" ".l.e d
+ ...i $D(^UPRNX("X.BLD",$p(adbuild," ",2,10)_" "_$p(adstreet," ")_" "_$p(adbuild," "))) d
+ ....s adbuild=$p(adbuild," ",2,10)_" "_$p(adstreet," ")_" "_$p(adbuild," ")
+ ....s adstreet=$P(adstreet," ",2,20)
+ I adeploc'="",adbuild="" d
+ .I $D(^UPRNX("X.STR",adeploc)) d
+ ..i $D(^UPRNX("X.BLD",adstreet)) d
+ ...s adbuild=adstreet
+ ...s adstreet=adeploc
+ ...s adeploc=""
  i adloc?1n.n1" "1l.e d
  .i adbuild="",adbno'="" do
  ..s adflat=adflat_" "_adbno
@@ -360,8 +405,10 @@ f91 ..i adloc="" d
  ....s adstreet=adbuild
  ....s adbno=adflat
  ....s (adflat,adbuild)=""
+ ;
 f92 if adflat'="",adbuild'="",adbno="",adstreet="" d
 f93 .if adbno="",adstreet="" d  q
+ ..I $D(^UPRNX("X.BLD",adbuild)) q
 f94 ..i adflat["flat" d  q
  ...s adstreet=adbuild
  ...s adbuild=""
@@ -428,9 +475,18 @@ f107 ...if adbuild?1l.l1" "1l1" "1l.e d  q ; room f unite stratford
 f108 ...i adbuild?1l.l1" "1l d  q ; room h
  ....set adflat=adflat_" "_$p(adbuild," ",1,2)
  ....set adbuild=$p(adbuild," ",3,20)
-f108a    ...else  d
+f108a ...else  d
  ....if adbuild?1l.l1" "1n.n d
  .....s xflat=adbuild,adbuild=adflat,adflat=xflat
+f108b ;nn  building, flat nnn street
+ i $D(^UPRNS("FLAT",$p(adstreet," "))) d
+ .i $p(adstreet," ",2)?1n.n.l d
+ ..i $D(^UPRNX("X.STR",$p(adstreet," ",3,10))) d
+ ...i adbno="",adflat?1n.n.l,adbuild'="" d
+ ....s adbno=adflat
+ ....s adflat=$p(adstreet," ",2)
+ ....s adstreet=$p(adstreet," ",3,10)
+ ;
  
 f109 ;Street has flat name and flat has street
  if $$isflat^UPRNU(adstreet) d
@@ -489,7 +545,7 @@ f117 ;Street number mixed with flat and building
  .if adflat="",adbno="" d
  ..set adflat=$p(adbuild," ",1)
  ..set adbno=$p(adbuild," ",2)
- ..set adbuild=$p(adbuild,3,20)
+ ..set adbuild=$p(adbuild," ",3,20)
  
 f118 ;duplicate flat number in building number without street
  ;46, 46 ballance road
@@ -581,11 +637,15 @@ f130 i '$d(address("obuild")) s address("obuild")=adbuild
 f131 i adbno'="" s adbno=$$flat^UPRNU($$co($$correct^UPRNU(adbno)))
  
 f132 ;Duplicate building
- i adbuild=adstreet d
+ i adbuild'="",adbuild=adstreet d
  .i adbno="",adflat'="" d
- ..s adbno=adflat
  ..s adbuild=""
- ..s adflat=""
+ ..I 'ISFLAT d
+ ...s adbno=adflat
+ ...s adflat=""
+ .e  d
+ ..i $$isroad(adstreet) d
+ ...s adbuild=""
  
 f133 ;Street still has number
  i adstreet?1n.n1l1" "1l.e,adbno="",adflat'="" d
@@ -707,9 +767,15 @@ f150 ;Building has range number in it
  ..s adbuild=""
  
 f151 ;Street is building
- I adflat'="",adbuild="",adbno="",'$D(^UPRNX("X.STR",adstreet)) d
+ I adflat'="",adbuild="",'$D(^UPRNX("X.STR",adstreet)) d
  .I $D(^UPRNX("X.BLD",adstreet)) d
- ..s adbuild=adstreet,adstreet=""
+ ..s adbuild=adstreet
+ ..i adeploc'="" d
+ ...s adstreet=adeploc,adeploc=""
+ ..e  i adloc'="" d
+ ...s adstreet=adloc,adloc=""
+ ..e  d
+ ...s adstreet=""
  
 f152 ;Flat contains street number
  i adflat?1n.n1" "1n.n,adbno="",$d(^UPRNX("X.STR",adbuild_" "_adstreet))  d
@@ -761,6 +827,10 @@ isno(word)         ;is it a number
  if word?1n.n1l1"-"1n.n1l q 1
  q 0
 fixflat(adflat)    ;
+ i adflat?1"f"1"-"1n.n1" ".e d
+ .s adflat="flat "_$p($p(adflat," "),"f-",2)
+ I $D(^UPRNS("CORRECT",adflat)) d
+ .s adflat=^(adflat)
  i adflat?1n.n1" flat".e d
  .i $p(adflat," ",$l(adflat," "))="g" d
  ..s adflat="g"_$p(adflat," ")
@@ -777,8 +847,11 @@ getnum(term)       ;
  q num_" "_rest
  
 flatbld(adflat,adbuild) ;
- i adbuild?1"flat"1n.n.l d
+ n tbuild
+ i adbuild?1"flat"1n.n.3l.l d
  .s adbuild="flat "_$$getnum($p(adbuild,"flat",2))
+ i adbuild?1n.n.1l3l.l d
+ .s adbuild=$$getnum(adbuild)
  
  
 DS1105A i adbuild?1n.n1" flat".e d
@@ -799,6 +872,9 @@ f36 i adbuild?1n.n1" "1"y"1" "1l.e d
 f37 if $$isflat^UPRNU(adbuild) do  q
  .set adflat=$p(adbuild," ",1,2)
  .set adbuild=$p(adbuild," ",3,10)
+ .I adbuild?1"flat"1" "1n.n.l1" ".e d
+ ..s adflat=adflat_" "_$p(adbuild," ",1,2)
+ ..s adbuild=$p(adbuild," ",3,10)
  .I adbuild?1"floor"1" "1n.n.l1" ".e d
  ..s adflat=adflat_" "_$p(adbuild," ",1,2)
  ..s adbuild=$p(adbuild," ",3,20)
@@ -951,6 +1027,8 @@ numpos(text)       ;
  
 numstr(adbno,adstreet,adflat,adbuild) ;
  ;Reformat a variety of number and street patterns
+ i adstreet?1n.n3l.l d
+ .s adstreet=$$getnum(adstreet)
  
 f66 ;38 & 40 arthur street
  i adstreet?1n.n1" "1"&"1" "1n.n1" "1l.e d  q
@@ -1044,6 +1122,12 @@ f83 ;westdown road 99
  i $p(adstreet," ",$l(adstreet," "))?1n.n d
  .s adbno=$p(adstreet," ",$l(adstreet," "))
  .s adstreet=$p(adstreet," ",0,$l(adstreet," ")-1)
+ ;
+ I adstreet?1n1.n1" "1n.n1" "1l.e d
+ .i $p(adstreet," ",1)=$p(adstreet," ",2) d
+ ..i adbuild="",adflat="" d
+ ...s adbno=$p(adstreet," ",1)
+ ...s adstreet=$p(adstreet," ",3,20)
  
 f841 ;
  i adbno="",adstreet?1n.n1"-"1n.n d
@@ -1051,6 +1135,8 @@ f841 ;
  .s adstreet=""
  .i adloc'="" d
  .s adstreet=adloc,adloc=""
+ 
+   
  q
  
  
@@ -1065,12 +1151,14 @@ isroad(text)       ;
  .I $D(^UPRNS("ROAD",word)) s road=1
  q road
  
-iscity(text)       ;
+delcity(text)       ;
  n word,done
  s done=0
  s word=""
- for  s word=$O(^UPRNS("CITY",word)) q:word=""  d
- .i text[word s done=1
+ for  s word=$O(^UPRNS("CITY",word)) q:word=""  d  q:done
+ .i $E(text,$l(text)-$l(word)+1,$l(text))=word d  s done=1
+ ..s text=$e(text,0,$l(text)-$l(word))
+ q text
  q done
 spelchk(address)   ;
  n (address)
@@ -1103,6 +1191,10 @@ fixstr(index,str)        ;
  .i ^UPRNX(index,str)[" " d
  ..s str=^UPRNX(index,str)
  s new=str
- I str[" " i $D(^UPRNX(index,$tr(str," "))) d
+ I str[" " i $D(^UPRNX(index,$tr(str," "))) d  q new
  .s new=^UPRNX(index,$tr(str," "))
+ i str[" " d
+ .s word=$p(str," ",1)
+ .i $D(^UPRNX(index,$e(word,1,$l(word)-1)_" "_$p(str," ",2,10))) d
+ ..s new=$E(word,1,$l(word)-1)_" "_$p(str," ",2,10)
  q new

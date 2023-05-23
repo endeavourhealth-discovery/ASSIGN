@@ -1,4 +1,4 @@
-UPRNIND ;Rebuilds all the UPRN indexes [ 05/14/2023  9:29 AM ]
+UPRNIND ;Rebuilds all the UPRN indexes [ 05/22/2023  11:42 AM ]
  n
  S ^STATS("START")=$H
  s d="~"
@@ -10,6 +10,7 @@ REDO ;First the name uprn BLPU table
  
 GO ;Next the post office DPA table
  D INDMAIN
+ ;
  
  ;Next the local authority LPI table
  S ^STATS("END")=$H
@@ -177,3 +178,18 @@ isok(uprn)        ;
  s res=$G(^UPRN("CLASSIFICATION",class,"residential"))
  i res="Y" q 1
  q 0
+LEVENSTR ;
+ K ^UPRNW("SFIX")
+ K ^UPRNW("Done")
+ s word=""
+ for  s word=$O(^UPRNX("X.W",word)) q:word=""  d
+ .i $l(word)<5 q
+ .i word'?1l.l."'".".".l q
+ .s st=$e(word,1,2)
+ .s next=st
+ .for  s next=$o(^UPRNX("X.W",next)) q:($e(next,1,2)'=st)  d
+ ..i next=word q
+ ..I $$levensh^UPRNU(word,next,5,1) d
+ ...S ^UPRNW("SFIX",word,next)=""
+ ...;W !,word,"~= ",next r t
+ELEV q

@@ -1,4 +1,4 @@
-UPRNU ;Library functionset for UPRN matching [ 06/19/2020  12:23 PM ]
+UPRNU ;Library functionset for UPRN matching [ 05/22/2023  12:29 PM ]
  ;
 area(post)         ;
  n area,done
@@ -217,7 +217,7 @@ ANYADR(uprn)       ;Returns an adress stringfrom a uprn
 GETADR(uprn,table,key,flat,build,bno,depth,street,deploc,loc,town,post,org)       ;
  ;Returns address variables from UPRN record
  n rec,status
- s rec=^UPRN("U",uprn,table,key,"O")
+ s rec=^UPRN("U",uprn,table,key)
  s flat=$p(rec,"~",1)
  s build=$p(rec,"~",2)
  s bno=$p(rec,"~",3)
@@ -246,7 +246,7 @@ ADLPI(uprn,key,address)
  D GETLPI(saos,saosf,saoe,saoef,saot,paos,paosf,paoe,paoef,paot,lpstr,uprn,.address)
  q
  
-GETLPI(saos,saosf,saoe,saoef,saot,paos,paosf,paoe,paoef,paot,lpstr,uprn,apaddress) ;
+GETLPI(saos,saosf,saoe,saoef,saot,paos,paosf,paoe,paoef,paot,lpstr,uprn,apaddres) ;
  ;Returns LPI fields in address object
  k apaddress
  S lpdes="",lploc="",lptown=""
@@ -400,7 +400,7 @@ levensh(s,t,min,force)
  ..e  set cost=1
  ..set d(i,j)=$$min(d(i-1,j)+1,d(i,j-1)+1,d(i-1,j-1)+cost)
  set result=d(m,n)
- I result=0 q 1
+res I result=0 q 1
  if $g(force),result>force q 0
  if $g(force),result'>force q 1
  if result=1 Q 1
@@ -479,6 +479,7 @@ fs f i=1:1:9 S ^UPRNS("FLATSUFNUM",$c(96+i))=i
 fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
  
  K ^UPRNS("ROAD")
+ S ^UPRNS("NUMWORD",7)="seven"
  K ^UPRNS("BESTFIT")
  K ^UPRNS("CITY")
  K ^UPRNS("CORRECT")
@@ -680,6 +681,9 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
  S ^UPRNS("CITY","london")=""
  set ^UPRNS("CORRECT","1st")="first"
  S ^UPRNS("CORRECT","bsemnt")="basement"
+ S ^UPRNS("CORRECT","flaat")="flat"
+ S ^UPRNS("CORRECT","flatt")="flat"
+ S ^UPRNS("CORRECT","appartments")="apartments"
  S ^UPRNS("CORRECT","1st-2nd-3rd")="first second and third"
  S ^UPRNS("CORRECT","blk")="block"
  S ^UPRNS("CORRECT","hosp")="hospital"
@@ -785,7 +789,7 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
  S ^UPRNS("NUMBERS","one")=1
  S ^UPRNS("NUMBERS","two")=2
  S ^UPRNS("NUMBERS","three")=3
- f text="house","place","lodge","cottage" d
+ f text="house","building","place","lodge","cottage","point" d
  .s ^UPRNS("BUILDING",text)=""
  f text="court","close","mews" d
  .S ^UPRNS("COURT",text)=""
@@ -793,6 +797,7 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
  S ^UPRNS("TOWN","neasden")=""
  S ^UPRNS("TOWN","wembley")=""
  S ^UPRNS("TOWN","harlesden")=""
+ S ^UPRNS("TOWN","poplar")=""
  
  q
 setvert(vertical,qual)       ;

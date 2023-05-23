@@ -1,4 +1,34 @@
-UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting routine [ 05/14/2023  12:45 PM ]
+UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting routine [ 05/22/2023  9:16 AM ]
+ i adflat="",adbuild'="",'$D(^UPRNX("X3",adbuild)) d
+ .i adbuild'[" ",$e(adbuild,$l(adbuild))?1n d
+ ..s done=0
+ ..f i=$l(adbuild):-1:1 d  q:done
+ ...i $e(adbuild,i)'?1n d
+ ....s adflat=$e(adbuild,i+1,$l(adbuild))
+ ....s adbuild=$e(adbuild,1,i)
+ ....s done=1
+ ....I $d(^UPRNS("FLAT",adbuild)) s adbuild=""
+ i adflat?1"g-"1n.n.l d
+ .s adflat="g"_$p(adflat,"g-",2)
+ I adstreet'[" ",$D(^UPRNX("X.STR",adloc)) d
+ .n tbld,tadbuild,done
+ .s tbld="",done=0
+ .for  s tbld=$O(^UPRNS("BUILDING",tbld)) q:tbld=""  d
+ ..s tadbuild=adstreet_" "_tbld
+ ..I $D(^UPRNX("X.BLD",tadbuild)) d  s done=1
+ ...s adflat=adflat_" "_adbuild
+ ...s adbuild=tadbuild
+ ...s adstreet=adloc
+ ...s adloc=""
+ ;i adstreet'="",adstreet'[" " d
+ .s adstreet=$$delcity^UPRNA(adstreet)
+ .I $g(^UPRNX("X.STR",adstreet))?1l.e d
+ ..s adstreet=^(adstreet)
+ i adflat?1n.n.l1" "1l.l d
+ .I '$D(^UPRNX("X.BLD",adbuild)) d
+ ..i $D(^UPRNX("X.BLD",$p(adflat," ",$l(adflat," "))_" "_adbuild)) d
+ ...s adbuild=$p(adflat," ",$l(adflat," "))_" "_adbuild
+ ...s adflat=$p(adflat," ",1,$l(adflat," ")-1)
  ;Repeated flat number
  i adbno=adflat,adbuild="",$D(^UPRNS("BUILDING",$p(adstreet," ",$l(adstreet," ")))) d
  .s adbno=""
@@ -37,15 +67,10 @@ UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting ro
  ....s adbuild=$p(adstreet," ",1,i-2)
  ....s adstreet=$p(adstreet," ",i,$l(adstreet," "))
  I adstreet'="",'$D(^UPRNX("X.STR",adstreet)),adbno="" d
- f i=$l(adbuild," ")-1:-1:2 d
- .s tstr=$p(adbuild," ",i,$l(adbuild," "))
- .i $D(^UPRNX("X.STR",tstr)) d
- ..s tstno=$p(adbuild," ",i-1)
- ..i tstno?1n.n.l!(tstno?1n.n1"-"1n.n) d
- ...s adbno=$p(adbuild," ",i-1)
- ...i i>2 d
- ....s adstreet=$p(adbuild," ",i,$l(adbuild," "))
- ....s adbuild=$p(adstreet," ",1,i-2)
+ .i adbuild="" d
+ ..i $D(^UPRNX("X.BLD",adstreet)) d
+ ...S adbuild=adstreet
+ ...s adstreet=""
  Q
 change(glob,node,from,to)    ;
  n nodes

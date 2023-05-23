@@ -1,4 +1,4 @@
-UPRNB ;Best fit algorithms for UPRN match [ 06/19/2020  12:33 PM ] ; 2/3/21 9:06am
+UPRNB ;Best fit algorithms for UPRN match [ 05/18/2023  10:00 AM ]
  ;
 bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
  ;Best fit algorithms on matched post code and street
@@ -16,13 +16,12 @@ bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
  ;K ^DLS,^DLS1
  ;M ^DLS=^UPRNX("X5",tpost,tstreet,tbno)
  ;M ^DLS1=^UPRNX("X5",tpost,tstreet)
- ;B
  d bestfitv
  i $g(^TUPRN($J,"MATCHED")) Q
  d bestfitb
  i $g(^TUPRN($J,"MATCHED")) Q
 210120 d bestfitc
- d bestfitd
+210120 d bestfitd
  d bestfito
  i $g(^TUPRN($J,"MATCHED")) Q
  d bestfitf
@@ -483,12 +482,6 @@ whichno(matchrec,tpost,tstreet,tbno,tbuild,tflat)  ;
  .s bno=""
  .for  s bno=$O(^TORDER($J,matchrec,"N",count,bno)) q:bno=""  d  q:matched
  ..s matched=$$whichb(matchrec,tpost,tstreet,bno,tbuild,tflat)
- ..I matchrec="Pe,Se,Ni,Be,Fe",tbuild="" d
- ...s dupl=$O(^TORDER($J,matchrec,"N",count,bno))
- ...q:dupl=""
- ...I $D(^TBEST($j,matchrec,dupl,"",tflat)) d
- ....s ^TPOSS($J)=2
- ....s matched=$$whichb(matchrec,tpost,tstreet,dupl,tbuild,tflat)
  .I $D(^TORDER($J,matchrec,"N",count,"")) d
  ..s matched=$$whichb(matchrec,tpost,tstreet,"",tbuild,tflat)
  q matched
@@ -553,6 +546,7 @@ bestch ;Fits with a care home
  ....s matchrec="Pe,Se,Ne,Bi,Fe"
  ....s matched=$$setuprns(matchrec,"X5",tpost,tstreet,tbno,build,tflat) d
  q
+        
  
 bestfitn          ;Fits with no building
  ;but may be an exact match on building and close post code
@@ -572,24 +566,23 @@ bestfitn          ;Fits with no building
  ....s ^TBEST($j,matchrec)=post
  q
  
- ;
+210120 ;
 bestfitc ;Sibling flat with candidate flat suffix
- i tflat?1n.n1l d
- .;break
- .I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,tflat*1)) d
- ..s matchrec="Pe,Se,Ne,Be,Fc"
- ..S ^TBEST($J,matchrec,tbno,tbuild,tflat*1)=""
- q
+210120 i tflat?1n.n1l d
+210120 .I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,tflat*1)) d
+210120 ..s matchrec="Pe,Se,Ne,Be,Fs"
+210120 ..S ^TBEST($J,matchrec,tbno,tbuild,tflat*1)=""
+210120 q
  
- ;
+210120 ;
 bestfitd ;
- I tflat'="",tstreet'="",tbuild="",tbno="" d
- .s bno=""
- .for  s bno=$O(^UPRNX("X5",tpost,tstreet,bno)) q:bno=""  d
- ..i $D(^UPRNX("X5",tpost,tstreet,bno,tbuild,tflat)) d
- ...s matchrec="Pe,Se,Ni,Be,Fe"
- ...S ^TBEST($j,matchrec,bno,tbuild,tflat)=""
- q
+210120 I tflat'="",tstreet'="",tbuild="",tbno="" d
+210220 .s bno=""
+210120 .for  s bno=$O(^UPRNX("X5",tpost,tstreet,bno)) q:bno=""  d
+210120 ..i $D(^UPRNX("X5",tpost,tstreet,bno,tbuild,tflat)) d
+210120 ...s matchrec="Pe,Se,Ni,Be,Fe"
+210120 ...S ^TBEST($j,matchrec,bno,tbuild,tflat)=""
+210120 q
  
 bestfitb        ;
  ;Could match on building or flat
@@ -740,7 +733,6 @@ bestv2        ;
  ...e  d
  ....S matchrec="Pe,Se,Ne,Be,Fp"
  ...S ^TBEST($j,matchrec,tbno,tbuild,fsuff)=""
- ;b
  i tflat?1n.n.l1" ".e d
  .s fsuff=$p(tflat," ")
  .s vertical=$p(tflat," ",2,20)

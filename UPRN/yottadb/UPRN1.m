@@ -452,13 +452,13 @@ EREC .d GETLPI^UPRNU(saos,saosf,saoe,saoef,saot,paos,paosf,paoe,paoef,paot,str,u
  .s deploc=$$lt^UPRNL(dpadd("deploc"))
  .s loc=$$lt^UPRNL(dpadd("locality"))
  .s post=dpadd("postcode")
+ .set town=dpadd("town")
+ .set ^UPRN(ukey,uprn,"L",key,"O")=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post_d_level
  .set street=$$correct^UPRNU(street)
  .set bno=$$correct^UPRNU(bno)
  .set build=$$correct^UPRNU(build)
  .set flat=$$flat^UPRNU($$correct^UPRNU(flat))
  .set loc=$$correct^UPRNU(loc)
- .set town=dpadd("town")
-ds22 .set ^UPRN(ukey,uprn,"L",key,"O")=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post_d_level
  .f var="flat","build","bno","depth","street","deploc","loc","town","post","org","dep","ptype" d
  ..s @var=$$LC^LIB(@var)
 yrep2 .F var="flat","build","depth","street","deploc","loc" d

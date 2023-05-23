@@ -1,4 +1,90 @@
-UPRNC ;Additional aglorithms [ 05/12/2021  10:36 AM ]
+UPRNC ;Additional aglorithms [ 05/22/2023  5:09 PM ]
+match67(tpost,tbuild,tflat,tbno,tstreet) ;
+ n wno,next,st,word,build
+ I tbuild'="" d  Q $G(^TUPRN($J,"MATCHED"))
+ .f wno=1:1:$l(tbuild," ") d
+ ..s word=$p(tbuild," ",wno)
+ ..s st=$e(word,1,2),next=st
+ ..for  s next=$O(^UPRNX("X.W",next)) q:($e(next,1,2)'=st)  d  q:matched
+ ...i next=word q
+ ...i next'?1l.l."'".".".l q
+ ...i '$$levensh^UPRNU(word,next,5,2) q
+ ...S build=$$tr^UPRNL(tbuild,word,next)
+ ...i '$D(^UPRNX("X3",build,tflat)) q
+ ...s matched=$$match67a(tpost,build,tflat,tbno,tstreet)
+ i tstreet'="" s matched=$$match67a(tpost,tbuild,tflat,tbno,tstreet)
+ Q $G(^TUPRN($J,"MATCHED"))
+match67a(tpost,tbuild,tflat,tbno,tstreet) ;
+ n wno,next,st,word,build,matched
+ s matched=0
+ i tstreet'="" d  Q $G(^TUPRN($J,"MATCHED"))
+ .f wno=1:1:$l(tstreet," ") d
+ ..s word=$p(tstreet," ",wno)
+ ..s st=$e(word,1,2),next=st
+ ..for  s next=$O(^UPRNX("X.W",next)) q:($e(next,1,2)'=st)  d  q:matched
+ ...i next'?1l.l."'".".".l q
+ ...i '$$levensh^UPRNU(word,next,5,2) q
+ ...S street=$$tr^UPRNL(tstreet,word,next)
+ ...i '$D(^UPRNX("X3",street,tbno)) q
+ ...s post=""
+ ...for  s post=$O(^UPRNX("X3",street,tbno,post)) q:post=""  d  q:matched
+ ....i '$D(^UPRNX("X5",post,street,tbno,tbuild,tflat)) q
+ ....i $$nearpost^UPRN(post,tpost)="" d
+ ....s matched=$$setuprns^UPRN("X5",post,street,tbno,tbuild,tflat)
+ q matched
+match66(tpost,tbuild,tflat,tbno,tstreet) ;
+ s post=""
+ for  s post=$O(^UPRNX("X3",tstreet,tbno,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
+ .q:post=tpost
+ .s matchrec=$$nearpost^UPRN(post,tpost,2,1)
+ .I matchrec'="" d
+ ..I $D(^UPRNX("X5",post,tstreet,tbno,tbuild,tflat)) d
+ ...S ALG=ALG_"match66"
+ ...s matched=$$setuprns^UPRN("X5",post,tstreet,tbno,tbuild,tflat)
+ Q $G(^TUPRN($J,"MATCHED"))
+ ; 
+match65(tpost,tbuild,tflat,tbno,tstreet) ;
+ i tbno'="",tstreet'="",$D(^UPRNS("NUMWORD",tbno)) d
+ .s tstreet=^UPRNS("NUMWORD",tbno)_" "_adstreet
+ .s tdbno=""
+ s post=""
+ for  s post=$O(^UPRNX("X3",tbuild,tflat,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
+ .q:post=tpost
+ .s matchrec=$$nearpost^UPRN(post,tpost,2,1)
+ .I matchrec'="" d  q:$D(^TUPRN($J,"MATCHED"))
+ ..s street=""
+ ..for  s street=$O(^UPRNX("X5",post,street)) q:street=""  d
+ ...s bno=$O(^UPRNX("X5",post,street,""))
+ ...i tstreet=street d
+ ....s $p(matchrec,",",2,5)="Se,Ni,Be,Fe"
+ ....S ALG=ALG_"match65"
+ ....s matched=$$setuprns^UPRN("X5",post,street,bno,tbuild,tflat)
+ ...i tstreet="",tbno="" d
+ ....S $P(ALG,"-",2)="match65a"
+ ....s $p(matchrec,",",2,5)="Si,Ni,Be,Fe"
+ ....s matched=$$setuprns^UPRN("X5",post,street,bno,tbuild,tflat)
+ ...i tstreet'=street,bno="",tbno="" d
+ ....f flat=tflat+1,tflat-1 d
+ .....;next door?
+ .....i $D(^UPRNX("X5",tpost,tstreet,"",tbuild,flat)) d
+ ......s $P(ALG,"-",2)="match65b"
+ ......s matchrec="Pl,Si,Ne,Be,Fe"
+ ......s matched=$$setuprns^UPRN("X5",post,street,bno,tbuild,tflat)
+e63 Q $G(^TUPRN($J,"MATCHED"))
+match64(tpost,tbuild,tflat,tbno,tstreet) ;
+ s post=""
+ for  s post=$O(^UPRNX("X3",tbuild,tflat,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
+ .q:post=tpost
+ .s matchrec=$$nearpost^UPRN(post,tpost,2)
+ .I matchrec'="" d  q:$D(^TUPRN($J,"MATCHED"))
+ ..s street=""
+ ..for  s street=$O(^UPRNX("X5",post,street)) q:street=""  d
+ ...i tstreet="",tbno="" d
+ ....i $D(^UPRNX("X5",post,street,tbno,tbuild,tflat)) d
+ .....s $p(matchrec,",",2,5)="Si,Ne,Be,Fe"
+ .....S ALG=ALG_"match64"
+ .....s matched=$$setuprns^UPRN("X5",post,street,"",tbuild,tflat)
+e63 Q $G(^TUPRN($J,"MATCHED"))
 match63(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc)     ;
  ;location in street, building drop
  i tbuild["home" d
