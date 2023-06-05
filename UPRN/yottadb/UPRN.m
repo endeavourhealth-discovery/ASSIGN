@@ -1,4 +1,4 @@
-UPRN ;Command line for processing a batch of adresses [ 05/22/2023  5:50 PM ]
+UPRN ;Command line for processing a batch of adresses [ 06/05/2023  12:21 PM ]
  K ^UPRN("MX") ;[ 05/11/2023  12:26 PM ]
  K ^UPRN("UX")
  K ^UPRNI("UM")
@@ -167,7 +167,7 @@ MATCHONE(adrec,qpost,orgpost,ui)    ;matches one address
  n quit
  s quit=0
  K ^TPOSS($J)
- set adrec=$$LC^LIB(adrec)
+ set adrec=$$lt^UPRNL($$LC^LIB(adrec))
  set adrec=$tr(adrec,"}{""","")
  set adrec=$$welsh^UPRN1(adrec)
         
