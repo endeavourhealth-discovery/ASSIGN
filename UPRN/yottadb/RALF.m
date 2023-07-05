@@ -17,8 +17,8 @@ FIX(file,user) ;
  c file
  o file:(readonly)
  S OUT=""
- f  u file r str q:$zeof  do
- .S OUT=OUT_str
+ f  u file r *str q:$zeof  do
+ .S OUT=OUT_$C(str)
  .quit
  c file
  ;S OUT=$P(OUT,"-----")

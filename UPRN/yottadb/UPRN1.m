@@ -29,10 +29,10 @@ IMPORT(folder)     ;
  LOCK ^IMPORT:1 I '$T Q
  s abp=folder
  
- I $ZV'["IRIS" do
- .set $ECODE=""
- .set $ETRAP="GOTO ET^UTILS"
- .quit
+ ;I $ZV'["IRIS" do
+ ;.set $ECODE=""
+ ;.set $ETRAP="GOTO ET^UTILS"
+ ;.quit
  
  i $e(abp,$l(abp))="/" s abp=$e(abp,1,$l(abp)-1)
  K ^IMPORT
@@ -108,11 +108,12 @@ IMPCLASS ;
  set file=abp_"/ID32_Class_Records.csv"
  close file
  set ^IMPORT("FILE")=$$ESCAPE(file)
- if $zv'["IRIS" do
- .open file:(readonly:exception="do BADOPEN")
- .use file:exception="goto EOF"
- .quit
- if $zv["IRIS" o file:"R"
+ open file:(readonly)
+ ;if $zv'["IRIS" do
+ ;.open file:(readonly:exception="do BADOPEN")
+ ;.use file:exception="goto EOF"
+ ;.quit
+ ;if $zv["IRIS" o file:"R"
  use file read rec
  for  use file read rec q:rec=""  do
  .S uprn=$p(rec,",",4)
@@ -131,15 +132,16 @@ RESIDE ;Imports residential codes
  s file=abp_"/Residential_codes.txt"
  close file
  s ^IMPORT("FILE")=$$ESCAPE(file)
- I $ZV'["IRIS" DO
- .i $$10^ZOS(file)'=1 q
- .open file:(readonly:exception="do BADOPEN")
- .use file:exception="goto EOF"
- .quit
- I $ZV["IRIS" DO
- .d $system.Process.SetZEOF(1)
- .O file:"R"
- .Q
+ open file:(readonly)
+ ;I $ZV'["IRIS" DO
+ ;.i $$10^ZOS(file)'=1 q
+ ;.open file:(readonly:exception="do BADOPEN")
+ ;.use file:exception="goto EOF"
+ ;.quit
+ ;I $ZV["IRIS" DO
+ ;.d $system.Process.SetZEOF(1)
+ ;.O file:"R"
+ ;.Q
  use file read rec
  for  use file read rec q:rec=""!($zeof)  do
  .S include=$p(rec,$c(9),1)
@@ -317,12 +319,14 @@ IMPDPA ;Imports and indexes the DPA file.
  set file=abp_"/ID28_DPA_Records.csv"
  close file
  
- if $zv'["IRIS" do
- .open file:(readonly:exception="do BADOPEN")
- .use file:exception="goto EOF"
- .quit
+ open file:(readonly)
  
- if $zv["IRIS" o file:"R"
+ ;if $zv'["IRIS" do
+ ;.open file:(readonly:exception="do BADOPEN")
+ ;.use file:exception="goto EOF"
+ ;.quit
+ 
+ ;if $zv["IRIS" o file:"R"
  
  use file read rec
  
@@ -400,12 +404,14 @@ IMPLPI ;Imports and indexes LPI file
  
  close file
  
- if $zv'["IRIS" do
- .open file:(readonly:exception="do BADOPEN")
- .use file:exception="goto EOF"
- .quit
+ open file:(readonly)
  
- i $zv["IRIS" o file:"R"
+ ;if $zv'["IRIS" do
+ ;.open file:(readonly:exception="do BADOPEN")
+ ;.use file:exception="goto EOF"
+ ;.quit
+ 
+ ;i $zv["IRIS" o file:"R"
  
  use file read rec
  
@@ -479,12 +485,14 @@ IMPCOUNT ;
  
  close file
  
- if $zv'["IRIS" do
- .open file:(readonly:exception="do BADOPEN")
- .use file:exception="goto EOF"
- .quit
+ open file:(readonly)
  
- if $zv["IRIS" open file:"R"
+ ;if $zv'["IRIS" do
+ ;.open file:(readonly:exception="do BADOPEN")
+ ;.use file:exception="goto EOF"
+ ;.quit
+ 
+ ;if $zv["IRIS" open file:"R"
  
  use file read rec
  
@@ -513,12 +521,14 @@ IMPSTR ;
  
  close file
  
- if $zv'["IRIS" do
- .open file:(readonly:exception="do BADOPEN")
- .use file:exception="goto EOF"
- .quit
+ open file:(readonly)
  
- if $zv["IRIS" o file:"R"
+ ;if $zv'["IRIS" do
+ ;.open file:(readonly:exception="do BADOPEN")
+ ;.use file:exception="goto EOF"
+ ;.quit
+ 
+ ;if $zv["IRIS" o file:"R"
  
  use file read rec
  
@@ -559,12 +569,14 @@ IMPBLP ;
  
  close file
  
- if $zv'["IRIS" do
- .open file:(readonly:exception="do BADOPEN")
- .use file:exception="goto EOF"
- .quit
+ open file:(readonly)
  
- i $zv["IRIS" o file:"R"
+ ;if $zv'["IRIS" do
+ ;.open file:(readonly:exception="do BADOPEN")
+ ;.use file:exception="goto EOF"
+ ;.quit
+ 
+ ;i $zv["IRIS" o file:"R"
  
  use file read rec
  

@@ -55,6 +55,9 @@ DOWNLOAD(result,arguments)
  K ^TMP($J)
  set file=$get(arguments("filename"))
  set user=$get(arguments("userid"))
+ 
+ i $g(un)'="" s user=un
+ 
  I file'["/opt/" S file="/opt/files/"_file
  s c=1,^TMP($J,c)="[",c=c+1,l="" f  s l=$order(^NGX(user,file,l)) q:l=""  S ^TMP($J,c)=^(l)_$C(13,10),c=c+1
  S z=$o(^TMP($J,""),-1)
@@ -92,7 +95,9 @@ UPLOAD(arguments,body,result)
  
  S type=body(1)
  S type=$P($P(type,"Content-Type:",2),$C(13,10,13,10))
- ;S ^TYPE=type
+ ;python
+ S type=$$LT^LIB(type)
+ S ^TYPE=type
  i type'["text/plain",$$LC^LIB(file)'["encryptedsalt" do  quit 1
  .S ^TMP($J,1)="{""upload"": { ""status"": ""NOK""}}"
  .set result=$na(^TMP($J))
@@ -120,6 +125,7 @@ UPLOAD(arguments,body,result)
  
  if $$LC^LIB(file)["encryptedsalt" DO  Q 1
  .S USER=$P($P(ZZ,"name=""userid"""_$C(13,10,13,10),2),$C(13,10))
+ .I USER="" s USER=un
  .S I=$O(^ACTIVITY(USER,""),-1)+1
  .S saltfile=$P(file,"/",$L(file,"/"))
  .S h=+$h,t=$p($h,",",2)
@@ -139,7 +145,12 @@ UPLOAD(arguments,body,result)
  for i=1:1 use file r str q:$zeof  do  quit:'ok!(qf)
  .I str=$C(13) use file r str
  .if str["------WebKitFormBoundary" s qf=1
+ .; python
+ .if $e(str,$l(str)-3,$l(str))["--" s qf=1
+ .; safari
  .if $E(str,1,28)="----------------------------" s qf=1
+ .; curl
+ .if $E(str,1,26)="--------------------------" s qf=1
  .if qf do  quit
  ..S ZZ=str
  ..f i=1:1 use file r str q:$zeof  S ZZ=ZZ_str
@@ -158,6 +169,8 @@ UPLOAD(arguments,body,result)
  
  ;S USER=$P($P(ZZ,"name=""userid"""_$C(13,10,13,10),2),$C(13,10))
  S USER=$P($P(ZZ,"name=""userid"""_$C(13,13),2),$C(13))
+ ; basic authentication
+ I $get(un)'="" set USER=un
  
  S I=$O(^ACTIVITY(USER,""),-1)+1
  S ^ACTIVITY(USER,I)=$H_"~"_file_" uploaded ok~"_file
@@ -191,6 +204,8 @@ PROCESS(file,user) ;
  LOCK ^UPRNUI("process",file):1
  I '$T S ^UPRNUI("process",file)="Already being processed "_$h quit
  
+ K ^TPARAMS($J)
+ 
  K ^TLIST($J)
  I $D(^SALTS("base64",user)) Do GETRALFS^RALF(file,user)
  
@@ -205,6 +220,7 @@ PROCESS(file,user) ;
  .if $E(str,1,28)="----------------------------" s qf=1 quit
  .S ZID=$$TR^LIB($P(str,$C(9),1),"""","")
  .I ZID=""!(ZID=$C(13)) QUIT
+ .I ZID'?1N.N quit
  .s adrec=$$TR^LIB($p(str,$C(9),2),$C(13),"")
  .s qpost=$$TR^LIB($p(str,$c(9),3),$C(13),"")
  .I '$D(^TLIST($J,ZID)) D GETUPRN^UPRNMGR(adrec,qpost) s json=^temp($j,1)
@@ -228,6 +244,7 @@ PROCESS(file,user) ;
  .S QUAL=$GET(B("Qualifier"))
  .S CTERM=$G(B("ClassTerm"))
  .S J=$$JSON(UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,$$ESC^VPRJSON(adrec),ZID,ABPB,CTERM)
+ .I $D(^BUSER("USER",user)) D ROW^UPRNUI3(user,file,ZID,UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,adrec,ABPB,CTERM)
  .S cnt=cnt+1
  .I '$D(^NGX(user,file,ZID)) set ^NGX(user,file,ZID)=J QUIT
  .I $D(^NGX(user,file,ZID)) DO

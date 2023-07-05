@@ -181,6 +181,9 @@ SENDATA ; write out the data as an HTTP response
  
  I +$SY=47,$G(HTTPREQ("header","accept-encoding"))["gzip" D GZIP QUIT  ; If on GT.M, and we can zip, let's do that!
  ;
+ 
+ D:$G(^ICONFIG("STRICT"))'="" W("Strict-Transport-Security: max-age=31536000;"_$C(13,10))
+ 
  D W("Content-Length: "_SIZE_$C(13,10)_$C(13,10))
  I 'SIZE D FLUSH Q  ; flush buffer and quit if empty
  ;
