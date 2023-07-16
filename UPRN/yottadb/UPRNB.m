@@ -1,4 +1,4 @@
-UPRNB ;Best fit algorithms for UPRN match [ 05/18/2023  10:00 AM ]
+UPRNB ;Best fit algorithms for UPRN match [ 07/11/2023  10:12 AM ]
  ;
 bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
  ;Best fit algorithms on matched post code and street
@@ -39,6 +39,7 @@ CH ;Care home flag set?
  d bestfitx
  d farpost
  d bestfit4
+ d bestfit5
  d choose
  I '$D(^TBEST($J)) d bestfit3
  q
@@ -59,7 +60,7 @@ bestfit4 ;Sibling number with a suffix
  i tbno?1n.n,tbuild="",tflat="" d
  .f char=97:1:99 d  q:sibling
  ..I $D(^UPRNX("X5",tpost,tstreet,tbno_$c(char),"","")) d
- ...s matchrec="Pe,Se,Ns,Be,Fe"
+ ...s matchrec="Pe,Se,Na,Be,Fe"
  ...S ^TBEST($j,matchrec,tbno_$c(char),"","")=""
  ...s sibling=0
  q
@@ -228,6 +229,16 @@ farpost ;No post code match
  .........s matchrec="Pl,Se,Ni,Bl,Fe"
  .........S ^TBEST($J,matchrec)=post
  .........S ^TBEST($J,matchrec,bno,build,tflat)=""
+ q
+bestfit5 ;
+ i tbuild=tstreet d
+ .I $D(^UPRNX("X5",tpost,tstreet,tbno)) d
+ ..s build=$o(^UPRNX("X5",tpost,tstreet,tbno,$p(tbuild," ")))
+ ..i $d(^UPRNX("X5",tpost,tstreet,tbno,build,tflat)) d
+ ...i $p(build," ")=$p(tbuild," ") d
+ ....s matchrec="Pe,Se,Ne,Bp,Fe"
+ ....S ^TBEST($J,matchrec)=tpost
+ ....s ^TBEST($J,matchrec,tbno,build,tflat)=""
  q
  
 bestfit1        ;
@@ -570,7 +581,7 @@ bestfitn          ;Fits with no building
 bestfitc ;Sibling flat with candidate flat suffix
 210120 i tflat?1n.n1l d
 210120 .I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,tflat*1)) d
-210120 ..s matchrec="Pe,Se,Ne,Be,Fs"
+210120 ..s matchrec="Pe,Se,Ne,Be,Fc"
 210120 ..S ^TBEST($J,matchrec,tbno,tbuild,tflat*1)=""
 210120 q
  
@@ -887,9 +898,6 @@ sufnum1 i tflat?1n d
  ....I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,fnum)) d
  .....s matchrec="Pe,Se,Ne,Be,Fo"
  .....s ^TBEST($J,matchrec,tbno,tbuild,fnum)=""
- ....I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,fnum-1)) d
- .....s matchrec="Pe,Se,Ne,Be,Fs"
- .....s ^TBEST($J,matchrec,tbno,tbuild,fnum-1)=""
  ....i $a(fnum)>96 d
  .....I $D(^UPRNX("X5",tpost,tstreet,tbno_fnum,tbuild,"")) d
  .....s matchrec="Pe,Se,Nf,Be,Fp>N"
@@ -1018,10 +1026,10 @@ mflat1(tflat,flat,approx) ;Matches two flats
  ;3c to 4
  i tflat?1n.n.1l,flat?1n.n,(flat*1=(tflat*1)) d
  .s matched=1
- .s approx="s"
- i tflat?1n.n,(flat*1)=tflat*1 d
+ .s approx="c"
+ i tflat?1n.n,flat?1n.n1l,(flat*1)=tflat*1 d
  .s matched=1
- .s approx="s"
+ .s approx="a"
  
         
  

@@ -1,4 +1,4 @@
-UPRN2 ;NEW PROGRAM [ 05/14/2023  12:48 PM ]
+UPRN2 ;NEW PROGRAM [ 07/10/2023  9:31 AM ]
  ;D COLLECT
  ;D EXPORT
  d GETDIR
@@ -321,13 +321,13 @@ OUT(adno,uprn,table)
  .use out51 w !,out
  .if $g(out52) use out52 W !,adno_d_$tr(disco,"~",",")_d_abp_d_alg_d_matchrec_d_uprn_d_table_d_key
  q
-qual(matchrec)     ;
- N (matchrec)
+qual(matchrec,commerce)     ;
+ N (matchrec,commerce)
  i matchrec="" q ""
  i matchrec["c" q "Child"
  i matchrec["a" q "Parent"
  i matchrec["s" q "Sibling"
- s qual="Best "_$s('$D(^TPARAMS($J,"commercials")):"(residential)",1:"(+commercial)")_" match"
+ s qual=$s(commerce:"commercial",1:"residential")
  Q qual
  q
 EXPORT ;

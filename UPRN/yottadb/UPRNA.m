@@ -1,4 +1,4 @@
-UPRNA ;Address dformat [ 05/22/2023  2:17 PM ]
+UPRNA ;Address dformat [ 07/11/2023  10:32 AM ]
  ;
 reformat(adrec,address)    ;
  s reformed=0
@@ -46,6 +46,8 @@ format(adrec,address)    ; ;[ 05/11/2023  12:33 PM ]
  set address=$tr(address,","," ")
  set address=$tr(address,"',")
  set address=$tr(address,"/","-")
+ set address=$tr(address,"%","")
+ set address=$tr(address,"'","")
  s ISFLAT=0
  I address?1"fla".l1" "1n.n.l1" ".e d
  .S ISFLAT=1
@@ -84,6 +86,12 @@ f1 d spelchk(.address)
  ;Use lines before the city if present
  ;addlines is number of address lines to format
  ;
+ d addlines
+ i adbuild="",adstreet="" d  q
+ .S ^TUPRN($J,"INVALID")=""
+ d fields
+ q
+addlines ;Gets address lines
  set addlines=0
  ;remove london,middlesex
  s tempadd=""
@@ -213,7 +221,8 @@ f16 f var="adbuild","adstreet","adepth","adeploc","adloc" d
  set address("original")=$$tr^UPRNL($$lt^UPRNL(post_" "_$$flat^UPRNU(adflat)_" "_$$flat^UPRNU(adbuild)_" "_adepth_" "_adstreet_" "_adeploc),"  "," ")
  
  ;
-f17 ;Dependent locality is street
+ q
+fields ;Dependent locality is street
  i adeploc'="" d
  .i $$isroad(adeploc),'$$isroad(adstreet) d
  ..i adstreet?1"no"1" "1n.n d
@@ -314,6 +323,7 @@ f35a ;Brackets
  ;Ordinary flat building various formats, split it up
  ;
  if adflat="" do flatbld(.adflat,.adbuild)
+ s address("oflat")=adflat
  s adflat=$$fixflat(adflat)
  i adflat?1"room".e d
  .s address("room")=adflat
@@ -644,6 +654,7 @@ f132 ;Duplicate building
  ...s adbno=adflat
  ...s adflat=""
  .e  d
+ ..i adflat'="",adbno'="",adflat'=adbno q
  ..i $$isroad(adstreet) d
  ...s adbuild=""
  
@@ -836,6 +847,7 @@ fixflat(adflat)    ;
  ..s adflat="g"_$p(adflat," ")
  .e  i $p(adflat," ",$l(adflat," "))="flat" d
  ..s adflat="flat "_$p(adflat," ")
+ i adflat?1n.n1"-"1n.n1"-"1n.n s adflat=$tr(adflat,"-")
  q adflat
 getnum(term)       ;
  n i,num
@@ -852,6 +864,11 @@ flatbld(adflat,adbuild) ;
  .s adbuild="flat "_$$getnum($p(adbuild,"flat",2))
  i adbuild?1n.n.1l3l.l d
  .s adbuild=$$getnum(adbuild)
+ ;
+ ;g2
+ i adbuild?1l1n.n d
+ .s adflat=adbuild
+ .s adbuild=""
  
  
 DS1105A i adbuild?1n.n1" flat".e d

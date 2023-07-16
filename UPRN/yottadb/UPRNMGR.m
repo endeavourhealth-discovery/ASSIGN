@@ -1,4 +1,4 @@
-UPRNMGR ; ;[ 06/10/2019  3:37 PM ]
+UPRNMGR ; ;[ 07/10/2023  9:54 AM ]
  w !!,"A  - Run address match from file"
  W !!,"B  - Export results "
  W !!,"C  - Import Data "
@@ -46,7 +46,7 @@ STATUS() ;Returns the current status of the ABP load and indexing
  ..s ^temp($j,1)=^temp($j,1)_"""Loading"":"""_^IMPORT("LOAD")_""",""File"":"""_^IMPORT("FILE")_"""}}"
  Q 1
  
-GETUPRN(adrec,qpost,orgpost,country,summary,writejson,noassert) ;Returns the result of a matching request
+GETUPRN(adrec,qpost,orgpost,country,summary,writejso,noassert) ;Returns the result of a matching request
  ;adrec is an address string with post code at the end
  ;qpost is list of post code areas (optional)
  ;orgpost is the post code of a local organisatoin to narrow down search
@@ -115,58 +115,69 @@ SUMMARY ;Summary result
  .s json=json_"true,"
 MATCHK(json,summary)       ;populates match details
  s json=json_"""Matched"":"
- I $D(^TUPRN($J,"NOMATCH"))!($D(^TUPRN($J,"OUTOFAREA"))) D
+ I $D(^TUPRN($J,"NOMATCH"))!($D(^TUPRN($J,"OUTOFAREA")))&('$D(^TCUPRN($J))) D
  .s json=json_"false"
  e  d
  .s json=json_"true,"
- I $D(^TUPRN($J,"MATCHED")) D
- .; return LPI address instead of DPA addresses
- .s uprn=$o(^TUPRN($J,"MATCHED",""),-1)
- .s table=$O(^TUPRN($j,"MATCHED",uprn,""),-1)
- .s key=$O(^TUPRN($J,"MATCHED",uprn,table,""),-1)
- .S matchrec=^TUPRN($j,"MATCHED",uprn,table,key)
- .s json=json_"""UPRN"":"""_uprn_""","
- .s json=json_"""Qualifier"":"""_$$qual^UPRN2(matchrec)_""""
- .I $D(^UPRN("CLASS",uprn)) d
- ..s classcode=$tr($p(^UPRN("CLASS",uprn),"~"),"""")
- ..s json=json_",""Classification"":"""_$tr($p(^UPRN("CLASS",uprn),"~"),"""")_""","
- ..s json=json_"""ClassTerm"":"""_$g(^UPRN("CLASSIFICATION",classcode,"term"))_""""
- ..;s json=json_",""Classification"": {"
- ..;s classcode=$tr($p(^UPRN("CLASS",uprn),"~"),"""")
- ..;s json=json_"""code"": """_classcode_""","
- ..;s json=json_"""term"": """_$g(^UPRN("CLASSIFICATION",classcode,"term"))_"""}"
- .I $G(summary) q
+ I $D(^TCUPRN($J,"MATCHED")) d
+ .D MATCHED(1,1)
+ .I $D(^TUPRN($J,"MATCHED")) d
+ ..s json=json_","
+ ..D MATCHED(0,0)
+ e  I $D(^TUPRN($J,"MATCHED")) D
+ .D MATCHED(1,0)
  .s json=json_","
- .s alg=^TUPRN($J,"MATCHED",uprn,table,key,"A")
- .D GETADR^UPRNU(uprn,table,key,.flat,.build,.bno,.depth,.street,.deploc,.loc,.town,.post,.org)
- .f var="build","depth","street","deploc","loc","town" d
- ..i @var'="" s @var=$$in^UPRNL(@var)
- .s post=$$repost^UPRN2(post)
- .s json=json_"""Algorithm"":"""_alg_""","
- .s json=json_"""ABPAddress"":{"
- .I flat'="" d
- ..s json=json_"""Flat"":"""_flat_""","
- .i build'="" d
- ..s json=json_"""Building"":"""_build_""","
- .i bno'="" d
- ..s json=json_"""Number"":"""_bno_""","
- .i depth'="" d
- ..s json=json_"""Dependent_thoroughfare"":"""_depth_""","
- .i street'="" d
- ..s json=json_"""Street"":"""_street_""","
- .i deploc'="" d
- ..s json=json_"""Dependent_locality"":"""_deploc_""","
- .i loc'="" d
- ..s json=json_"""Locality"":"""_loc_""","
- .i town'="" d
- ..s json=json_"""Town"":"""_town_""","
- .i post'="" d
- ..s json=json_"""Postcode"":"""_post_""","
- .i org'="" d
- ..s json=json_"""Organisaton"":"""_org_""","
- .i $e(json,$l(json))="," s json=$e(json,1,$l(json)-1)
- .s json=json_"},"
- .D PATTERN(matchrec,.json)
+ .D MATCHED(0,0)
+ Q
+MATCHED(best,commerce)  ;Matches either commercial or residential
+ n glob
+ s glob=$s(commerce:"^TCUPRN",1:"^TUPRN")
+ s mtype=$s(best:"BestMatch",1:"BestResidential")
+ ; return LPI address instead of DPA addresses
+ s json=json_""""_mtype_""":{"
+ s uprn=$o(@glob@($J,"MATCHED",""),-1)
+ s table=$O(@glob@($j,"MATCHED",uprn,""),-1)
+ s key=$O(@glob@($J,"MATCHED",uprn,table,""),-1)
+ S matchrec=@glob@($j,"MATCHED",uprn,table,key)
+ s json=json_"""UPRN"":"""_uprn_""","
+ s json=json_"""Qualifier"":"""_$$qual^UPRN2(matchrec,commerce)_""""
+ I $D(^UPRN("CLASS",uprn)) d
+ .s classcode=$tr($p(^UPRN("CLASS",uprn),"~"),"""")
+ .s json=json_",""Classification"":"""_$tr($p(^UPRN("CLASS",uprn),"~"),"""")_""","
+ .s json=json_"""ClassTerm"":"""_$g(^UPRN("CLASSIFICATION",classcode,"term"))_""""
+ I $G(summary) s json=json_"}" q
+ s json=json_","
+ s alg=@glob@($J,"MATCHED",uprn,table,key,"A")
+ D GETADR^UPRNU(uprn,table,key,.flat,.build,.bno,.depth,.street,.deploc,.loc,.town,.post,.org)
+ f var="build","depth","street","deploc","loc","town" d
+ .i @var'="" s @var=$$in^UPRNL(@var)
+ s post=$$repost^UPRN2(post)
+ s json=json_"""Algorithm"":"""_alg_""","
+ s json=json_"""ABPAddress"":{"
+ I flat'="" d
+ .s json=json_"""Flat"":"""_flat_""","
+ i build'="" d
+ .s json=json_"""Building"":"""_build_""","
+ i bno'="" d
+ .s json=json_"""Number"":"""_bno_""","
+ i depth'="" d
+ .s json=json_"""Dependent_thoroughfare"":"""_depth_""","
+ i street'="" d
+ .s json=json_"""Street"":"""_street_""","
+ i deploc'="" d
+ .s json=json_"""Dependent_locality"":"""_deploc_""","
+ i loc'="" d
+ .s json=json_"""Locality"":"""_loc_""","
+ i town'="" d
+ .s json=json_"""Town"":"""_town_""","
+ i post'="" d
+ .s json=json_"""Postcode"":"""_post_""","
+ i org'="" d
+ .s json=json_"""Organisaton"":"""_org_""","
+ i $e(json,$l(json))="," s json=$e(json,1,$l(json)-1)
+ s json=json_"},"
+ D PATTERN(matchrec,.json)
+ s json=json_"}"
  q
 PATTERN(matchrec,json)       ;
  n i,part,degree
@@ -193,7 +204,7 @@ QUALCHK(json) ;Quality checks
  E  D
  .s json=json_"""good"","
  Q
-GETUPRNI(uprn,writejson)     ;
+GETUPRNI(uprn,writejso)     ;
  n json
  s writejson=+$g(writejson)
  s json="{"

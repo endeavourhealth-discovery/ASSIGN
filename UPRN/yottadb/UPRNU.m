@@ -1,4 +1,4 @@
-UPRNU ;Library functionset for UPRN matching [ 05/22/2023  12:29 PM ]
+UPRNU ;Library functionset for UPRN matching [ 07/10/2023  9:02 AM ]
  ;
 area(post)         ;
  n area,done
@@ -17,15 +17,6 @@ district(post)       ;returns post code district
  s district=area_$p(outward,area,2,10)
  q district
  
-isok(uprn)        ;
- n (uprn)
- I $G(^TPARAMS($J,"commercials")) q 1
- s class=$G(^UPRN("CLASS",uprn))
- i class="" q 1
- i '$D(^UPRN("CLASSIFICATION",class)) q 1
- s res=$G(^UPRN("CLASSIFICATION",class,"residential"))
- i res="Y" q 1
- q 0
  
  
  
@@ -780,7 +771,7 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
  s ^UPRNS("DROP"," house")=""
  S ^UPRNS("DROP","moorings")=""
  S ^UPRNS("CORRECT","acenue")="avenue"
- f text="road","street","avenue","court","square","drive","way" d
+ f text="villas","road","street","avenue","court","square","drive","way" d
  .S ^UPRNS("ROAD",text)=""
  f text="lane","grove","row","close","walk","causeway","park","place" d
  .S ^UPRNS("ROAD",text)=""
@@ -854,7 +845,7 @@ flat(text)
  for  set word=$O(^UPRNS("FLAT",word)) q:word=""  d
  .if text[(word_" ") d
  ..set text=$p(text,word_" ",1)_$p(text,word_" ",2,20)
- for  q:($e(text)'="0")  s text=$e(text,2,50)
+ i text'="0" for  q:($e(text)'="0")  s text=$e(text,2,50)
 flatend ;Flat at end
  i $l(text," ")>1 i $d(^UPRNS("FLAT",$p(text," ",$l(text," ")))) q $p(text," ",1,$l(text," ")-1)
  q text

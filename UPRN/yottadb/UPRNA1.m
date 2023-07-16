@@ -1,4 +1,4 @@
-UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting routine [ 05/22/2023  9:16 AM ]
+UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting routine [ 07/10/2023  5:33 PM ]
  i adflat="",adbuild'="",'$D(^UPRNX("X3",adbuild)) d
  .i adbuild'[" ",$e(adbuild,$l(adbuild))?1n d
  ..s done=0
@@ -50,7 +50,7 @@ UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting ro
  ...s adeploc=""
  ;is there a name and number or range in the street
  i adbuild'="",adbuild=adstreet,$D(^UPRNX("X.STR",adbuild)) d
- .i $p(adflat," ",$l(adflat," "))?1n.n.l d
+ .i $p(adflat," ",$l(adflat," "))?1n.n.l,adbno="" d
  ..s adbno=$p(adflat," ",$l(adflat," "))
  ..s adbuild=$p(adflat," ",1,$l(adflat," ")-1)
  ..s adflat=""
