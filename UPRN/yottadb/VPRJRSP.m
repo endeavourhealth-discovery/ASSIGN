@@ -403,6 +403,10 @@ AUTHEN(HTTPAUTH,AUTHNODE)
  ;if '$data(^ICONFIG("BASIC-AUTH")) quit $$VALTOKEN^CURL(HTTPAUTH)
  if AUTHNODE=1 quit $$VALTOKEN^CURL(HTTPAUTH)
  
+ SET ZOK=0
+ if $$UP^VPRJRUT($P(HTTPAUTH," "))="BEARER",AUTHNODE=2 S ZOK=$$COGNITO^CURL3(HTTPAUTH)
+ if ZOK k HTTPRSP("auth") q 1
+ 
  ; We only support Basic authentication right now
  N P1,P2 S P1=$P(HTTPAUTH," "),P2=$P(HTTPAUTH," ",2)
  I $$UP^VPRJRUT(P1)'="BASIC" Q 0 ; We don't support that authentication

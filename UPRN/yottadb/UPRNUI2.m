@@ -175,7 +175,7 @@ UPLOAD(arguments,body,result)
  S I=$O(^ACTIVITY(USER,""),-1)+1
  S ^ACTIVITY(USER,I)=$H_"~"_file_" uploaded ok~"_file
  
- Job PROCESS(file,USER)
+ Job PROCESS(file,USER,$GET(ZCOGID))
  quit 1
  
 ETCODE ;
@@ -199,7 +199,7 @@ STRIP(Y)
  .Q 
  QUIT OUT
  
-PROCESS(file,user) ;
+PROCESS(file,user,ZCOGID) ;
  S $ETRAP="G ETCODE^UPRNUI"
  LOCK ^UPRNUI("process",file):1
  I '$T S ^UPRNUI("process",file)="Already being processed "_$h quit
@@ -244,7 +244,7 @@ PROCESS(file,user) ;
  .S QUAL=$GET(B("Qualifier"))
  .S CTERM=$G(B("ClassTerm"))
  .S J=$$JSON(UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,$$ESC^VPRJSON(adrec),ZID,ABPB,CTERM)
- .I $D(^BUSER("USER",user)) D ROW^UPRNUI3(user,file,ZID,UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,adrec,ABPB,CTERM)
+ .I $D(^BUSER("USER",user))!($GET(ZCOGID)'="") D ROW^UPRNUI3(user,file,ZID,UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,adrec,ABPB,CTERM)
  .S cnt=cnt+1
  .I '$D(^NGX(user,file,ZID)) set ^NGX(user,file,ZID)=J QUIT
  .I $D(^NGX(user,file,ZID)) DO
