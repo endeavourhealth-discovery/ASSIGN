@@ -1,12 +1,23 @@
-UPRNC ;Additional aglorithms [ 07/12/2023  4:09 PM ]
+UPRNC ;Additional aglorithms [ 07/28/2023  10:55 AM ]
 match71(tpost,tstreet,tbno,tbuild,tflat)         ;
  i tflat'="",tbno="",tstreet'="",tbuild'="" d
  .s bno=""
  .for  s bno=$O(^UPRNX("X4",tpost,tstreet,bno)) q:bno=""  d  q:matched
  ..i $D(^UPRNX("X4",tpost,tstreet,bno,tflat_" "_tbuild)) d
- ...B
  ...s depth=$O(^UPRNX("X4",tpost,tstreet,bno,tflat_" "_tbuild,""))
+ ...s $p(ALG,"-",2)="match71"
+ ...s matchrec="Pe,Se,Ne,B>F,Fe"
  ...s matched=$$setuprns^UPRN("X4",tpost,tstreet,bno,tflat_" "_tbuild,depth)
+ Q $G(^TUPRN($J,"MATCHED"))
+match72(tpost,tstreet,tbno,tbuild,tflat)         ;
+ i tflat'="",tbno="",tstreet'="",tbuild="" d
+ .s bno=""
+ .for  s bno=$O(^UPRNX("X4",tpost,tstreet,bno)) q:bno=""  d  q:matched
+ ..i $D(^UPRNX("X4",tpost,tstreet,bno,tflat)) d
+ ...s build=$O(^UPRNX("X4",tpost,tstreet,bno,tflat,""))
+ ...s $p(ALG,"-",2)="match72"
+ ...s matchrec="Pe,Se,Ni,Bi,Fe"
+ ...s matched=$$setuprns^UPRN("X4",tpost,tstreet,bno,tflat,build)
  Q $G(^TUPRN($J,"MATCHED"))
 match70(tpost,tstreet,tbno,tbuild,tflat)         ;
  I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,"")),tflat'="" d
@@ -106,7 +117,6 @@ match66(tpost,tbuild,tflat,tbno,tstreet) ;
  s post=""
  for  s post=$O(^UPRNX("X3",tstreet,tbno,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
  .q:post=tpost
- .b
  .s matchrec=$$nearpost^UPRN(post,tpost,2,1)
  .I matchrec'="" d
  ..I $D(^UPRNX("X5",post,tstreet,tbno,tbuild,tflat)) d

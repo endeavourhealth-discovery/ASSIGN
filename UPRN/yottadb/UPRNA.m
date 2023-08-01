@@ -1,4 +1,4 @@
-UPRNA ;Address dformat [ 07/11/2023  10:32 AM ]
+UPRNA ;Address dformat [ 07/27/2023  11:08 AM ]
  ;
 reformat(adrec,address)    ;
  s reformed=0
@@ -322,7 +322,7 @@ f35a ;Brackets
  
  ;Ordinary flat building various formats, split it up
  ;
- if adflat="" do flatbld(.adflat,.adbuild)
+ if adflat="" do flatbld(.adflat,.adbuild,.adstreet)
  s address("oflat")=adflat
  s adflat=$$fixflat(adflat)
  i adflat?1"room".e d
@@ -858,8 +858,11 @@ getnum(term)       ;
  .e  s rest=rest_$e(term,i)
  q num_" "_rest
  
-flatbld(adflat,adbuild) ;
+flatbld(adflat,adbuild,adstreet) ;
  n tbuild
+ i adstreet?1"flat"1n.n.l d  q
+ .s adflat=adstreet
+ .s adstreet=adbuild
  i adbuild?1"flat"1n.n.3l.l d
  .s adbuild="flat "_$$getnum($p(adbuild,"flat",2))
  i adbuild?1n.n.1l3l.l d
@@ -871,12 +874,12 @@ flatbld(adflat,adbuild) ;
  .s adbuild=""
  
  
-DS1105A i adbuild?1n.n1" flat".e d
+ i adbuild?1n.n1" flat".e d
  .i $p(adbuild," ",$l(adbuild," "))="flat" d
  ..s adbuild="flat "_$p(adbuild," ")
  .i $p(adbuild," ",$l(adbuild," "))="g" d
  ..s adflat="g"_$p(adbuild," ")
-DS1105B ..s adbuild=""
+ ..s adbuild=""
  ;is it a flat or number and if so what piece is the rest?
  s adbuild=$$co(adbuild)
  I adbuild["flat-" s adbuild=$tr(adbuild,"-"," ")

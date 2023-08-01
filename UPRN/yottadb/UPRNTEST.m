@@ -1,4 +1,7 @@
-UPRNTEST(vold,vnew,commerce) ;Command line for processing a batch of adresses [ 07/12/2023  4:20 PM ]
+UPRNTEST(vold,vnew,debug,commerce) ;Command line for processing a batch of adresses [ 07/28/2023  11:17 AM ]
+ I '$D(^UPRNI(debug)) d
+ .M ^UPRNI(debug,"M")=^UPRNI("M")
+ .M ^UPRNI(debug,"UM")=^UPRNI("UM")
  S diff=$tr(vold,".","_")_"-"_$tr(vnew,".","_")_"-diff.txt"
  s file="c:\temp\"_diff
  O 51:(file:"W")
@@ -16,12 +19,11 @@ UPRNTEST(vold,vnew,commerce) ;Command line for processing a batch of adresses [ 
  w !
  i to="" s to=100000000000
  s ui=0,country="e"
-setarea d batch("D","",from,to,ui,country,vold,vnew)
+setarea d batch("D","",from,to,ui,country,vold,vnew,debug)
  q
-stat(same,nomatch,nownot,diff,nowmatch)          ;
- f var="same","nomatch","nownot","diff","nowmatch" d
- .i @var=1 d
- ..s ^UPRNI("stats",var)=$G(^UPRNI("stats",var))+1
+stat(same,nomatch,nownot,diff,nowmatch,bugfix)          ;
+ f var="same","nomatch","nownot","diff","nowmatch","bugfix" d
+ .s ^UPRNI("stats",var)=$G(^UPRNI("stats",var))+@var
  q
 stat1(var)         ;
  s ^UPRNI("stats",var)=$G(^UPRNI("stats",var))+1
@@ -42,7 +44,7 @@ stats ;End of run stats
 reenter ;
  d batch(1,"D","",^ADNO,10000000,0,"e")
  q
-batch(mkey,qpost,from,to,ui,country,vold,vnew)   ;Processes a batch of addresses for a list of areas
+batch(mkey,qpost,from,to,ui,country,vold,vnew,debug)   ;Processes a batch of addresses for a list of areas
  ;mkey is the node for the address list
  ;qpost is the , delimited list of addresses
  ;
@@ -77,10 +79,13 @@ batch(mkey,qpost,from,to,ui,country,vold,vnew)   ;Processes a batch of addresses
  w vnew_" best class"
  U 51 W d,vnew_" nest algorithm",d,vnew_" best quality"
  f i=1:1:3 w d,vnew_" best abp addrress "_i
- w d,vnew_" res uprn",d
- w vnew_" res class"
- U 51 W d,vnew_" res algorithm",d,vnew_" res quality"
- f i=1:1:3 w d,vnew_" res abp addrress "_i
+ ;w d,vnew_" res uprn",d
+ ;w vnew_" res class"
+ ;U 51 W d,vnew_" res algorithm",d,vnew_" res quality"
+ ;f i=1:1:3 w d,vnew_" res abp addrress "_i
+ w d,"Different from "_debug
+ w d,debug_" uprn"
+ w d,debug_" address"
  w !
  
  set adno=from
@@ -109,12 +114,11 @@ batch(mkey,qpost,from,to,ui,country,vold,vnew)   ;Processes a batch of addresses
  .K oaddr,bestaddr,resaddr
  .s resglob="^TUPRN"
  .s adrec=$tr(^UPRNI("D",adno),"~",",")
- .i $D(^TCUPRN($J,"MATCHED")) D
- ..B
- ..s bestuprn=$O(^TCUPRN($J,"MATCHED",""))
- ..S bestglob="^TCUPRN"
- ..s resuprn=$O(^TUPRN($J,"MATCHED",""))
- .e  d
+ .i $D(^TUPRN($J,"MATCHED")) D
+ ..s bestuprn=$O(^TUPRN($J,"MATCHED",""))
+ ..S bestglob="^TUPRN"
+ ..;s resuprn=$O(^TUPRN($J,"MATCHED",""))
+ .;e  d
  ..s bestuprn=$O(^TUPRN($J,"MATCHED",""))
  ..s bestglob="^TUPRN"
  ..s resuprn=bestuprn
@@ -124,7 +128,7 @@ batch(mkey,qpost,from,to,ui,country,vold,vnew)   ;Processes a batch of addresses
  ..s bestclass=^UPRN("CLASS",bestuprn)
  ..d matches2(bestglob,bestuprn,.bestaddr)
  ..s bestmatch=$$matchrec(bestglob,bestuprn)
- .i resuprn'="" d
+ .;i resuprn'="" d
  ..s resalg=$$alg(resglob,resuprn)
  ..s resclass=^UPRN("CLASS",resuprn)
  ..d matches2(resglob,resuprn,.resaddr)
@@ -145,14 +149,28 @@ batch(mkey,qpost,from,to,ui,country,vold,vnew)   ;Processes a batch of addresses
  ..s nowmatched=1
  .i olduprn'="",bestuprn'="",olduprn=bestuprn d
  ..s same=1
- .d stat(same,nomatch,nownot,diff,nowmatched)
+ .s difbug=""
+ .S buguprn=""
+ .k bugaddr
+ .i $D(^UPRNI(debug,"M",adno)) D
+ ..s buguprn=$O(^UPRNI(debug,"M",adno,""))
+ ..d matches(olduprn,.oaddr)
+ ..I bestuprn'=buguprn d
+ ...s difbug=1
+ ...d matches(buguprn,.bugaddr)
+ ..e  s buguprn=""
+ .e  I $D(^UPRNI(debug,"UM",adno)) d
+ ..i bestuprn'="" s difbug=1
+ .d stat(same,nomatch,nownot,diff,nowmatched,difbug)
+ .i 'difbug q
  .u 51 w adno,d,adrec,d,same,d,nomatch,d,nownot,d,diff,d,nowmatched,d
  .w olduprn,d,oclass,d,oalg,d,oldmatch
  .f i=1:1:3 w d,$g(oaddr(i))
  .W d,bestuprn,d,bestclass,d,bestalg,d,bestmatch
  .f i=1:1:3 w d,$g(bestaddr(i))
- .W d,resuprn,d,resclass,d,resalg,d,resmatch
- .f i=1:1:3 w d,$g(resaddr(i))
+ .;W d,resuprn,d,resclass,d,resalg,d,resmatch
+ .;f i=1:1:3 w d,$g(resaddr(i))
+ .w d,difbug,d,buguprn,d,$g(bugaddr(1))
  .w !
  c 51
  q
@@ -164,11 +182,13 @@ matchrec(glob,newuprn)  ;
         
  q matchrec
 alg(glob,newuprn)  ;
+ n alg
  s table=$O(@glob@($J,"MATCHED",newuprn,""))
  s key=$O(@glob@($J,"MATCHED",newuprn,table,""))
- q ^(key,"A")
+ s alg=^(key,"A")
+ i alg["match53" b
  ;
- q
+ q alg
 matches(uprn,matches)    ;
  k matches
  s i=0

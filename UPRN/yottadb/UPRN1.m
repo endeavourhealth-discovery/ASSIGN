@@ -38,6 +38,7 @@ IMPORT(folder)     ;
  K ^IMPORT
  S ^IMPORT("START")=$$DH^UPRNL1($H)_"T"_$$TH^UPRNL1($P($H,",",2))
  s ^IMPORT("FOLDER")=$$ESCAPE(abp)
+ D IMPSAINT
  D RESIDE
  D IMPCLASS
  d IMPCOUNT
@@ -509,6 +510,36 @@ IMPCOUNT ;
  .s oreg=$G(^UPRNS("COUNTY",county,"region"))
  .i oreg'=region d
  ..S ^UPRNS("COUNTY",county,"region")=region
+ 
+ close file
+ Q
+ IMPSAINT ;
+ S ^IMPORT("LOAD")="Saints"
+ s del=$C(9)
+ K ^UPRN("SAINT")
+ s file=abp_"/Saints.txt"
+ S ^IMPORT("FILE")=$$ESCAPE(file)
+ 
+ close file
+ 
+ open file:(readonly)
+ 
+ ;if $zv'["IRIS" do
+ ;.open file:(readonly:exception="do BADOPEN")
+ ;.use file:exception="goto EOF"
+ ;.quit
+ 
+ ;if $zv["IRIS" open file:"R"
+ 
+ use file read rec
+ 
+ for  d  q:rec=""
+ .use file read rec
+ .q:rec=""
+ .s rec=$tr($$lc^UPRNL(rec),"""")
+ .s saint=$p(rec,del,1)
+ .S ^UPRNS("SAINT",saint)=""
+ .s ^UPRNS("SAINT",saint_"s")=""
  
  close file
  Q

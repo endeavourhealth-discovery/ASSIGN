@@ -1,4 +1,4 @@
-UPRNU ;Library functionset for UPRN matching [ 07/10/2023  9:02 AM ]
+UPRNU ;Library functionset for UPRN matching [ 07/28/2023  9:34 AM ]
  ;
 area(post)         ;
  n area,done
@@ -522,16 +522,16 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
  S ^UPRNS("BESTFIT",fix)="Pe,Sp,Ne,Be,Fev" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Sp,Ne,Be,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Se,Ns,Be,Fe" s fix=fix+1
- S ^UPRNS("BESTFIT",fix)="Pi,Se,Ne,Be,Fev" s fix=fix+1
- S ^UPRNS("BESTFIT",fix)="Pi,Se,Ne,Be,Fe" s fix=fix+1
+ S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Be,Fev" s fix=fix+1
+ S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Be,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Si,Ne,Be,Fev" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Si,Ne,Be,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pl,Se,Ni,Bl,Fev" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pl,Se,Ni,Bl,Fe" s fix=fix+1
- S ^UPRNS("BESTFIT",fix)="Pi,Se,Ne,Bd,Fev" s fix=fix+1
- S ^UPRNS("BESTFIT",fix)="Pi,Se,Ne,Bd,Fe" s fix=fix+1
- S ^UPRNS("BESTFIT",fix)="Pi,Se,Ne,Be,Fev" s fix=fix+1
- S ^UPRNS("BESTFIT",fix)="Pi,Se,Ne,Be,Fe" s fix=fix+1
+ S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Bd,Fev" s fix=fix+1
+ S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Bd,Fe" s fix=fix+1
+ S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Be,Fev" s fix=fix+1
+ S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Be,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,S<B,N<F,B>S,F>N" s fix=fix+1
  K ^UPRNS("FLOOR")
  S ^UPRNS("FLOOR","basement","a")=""
