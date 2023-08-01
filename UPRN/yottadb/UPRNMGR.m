@@ -1,4 +1,4 @@
-UPRNMGR ; ;[ 07/23/2023  10:35 AM ]
+UPRNMGR ; ;[ 08/01/2023  4:27 PM ]
  w !!,"A  - Run address match from file"
  W !!,"B  - Export results "
  W !!,"C  - Import Data "
@@ -119,15 +119,10 @@ MATCHK(json,summary)       ;populates match details
  .s json=json_"false"
  e  d
  .s json=json_"true,"
- ;I $D(^TCUPRN($J,"MATCHED")) d
- .D MATCHED(1,1)
- .I $D(^TUPRN($J,"MATCHED")) d
- ..s json=json_","
- ..D MATCHED(0,0)
- e  I $D(^TUPRN($J,"MATCHED")) D
+ I $D(^TUPRN($J,"MATCHED")) D
  .D MATCHED(1,0)
- .s json=json_","
- .D MATCHED(0,0)
+ E  I $D(^TCUPRN($J,"MATCHED")) d
+ .D MATCHED(1,1)
  Q
 MATCHED(best,commerce)  ;Matches either commercial or residential
  n glob
