@@ -1,4 +1,4 @@
-UPRN ;Command line for processing a batch of adresses [ 07/28/2023  10:25 AM ]
+UPRN ;Command line for processing a batch of adresses [ 08/01/2023  4:15 PM ]
  K ^UPRN("MX") ;[ 05/11/2023  12:26 PM ]
  K ^UPRN("UX")
  K ^UPRNI("UM")
@@ -3058,6 +3058,7 @@ setuprns(index,n1,n2,n3,n4,n5)
  ....s matched=$$set(uprn,table,key)
  q matched
 set(uprn,table,key) ;
+ b
  n status,xuprn
  s status=$p(^UPRN("U",uprn),"~",3)
  s class=$G(^UPRN("CLASS",uprn))
@@ -3067,7 +3068,15 @@ set(uprn,table,key) ;
  .s xuprn=""
  .for  s xuprn=$O(^TUPRN($J,"STATUS",8,xuprn)) q:xuprn=""  d
  ..K ^TUPRN($J,"MATCHED",xuprn)
- ..K ^TCUPRN($J,"MATCHED",xuprn)
+ ..S ^TUPRN($J,"MATCHED")=^TUPRN($J,"MATCHED")-1
+ ..I ^TUPRN($J,"MATCHED")=0 D
+ ...K ^TUPRN($J,"MATCHED")
+ ..I $d(^TCUPRN($J,"MATCHED",xuprn)) d
+ ...K ^TCUPRN($J,"MATCHED",xuprn)
+ ...S ^TCUPRN($J,"MATCHED")=^TCUPRN($J,"MATCHED")-1
+ ...I ^TCUPRN($J,"MATCHED")=0 D
+ ....K ^TCUPRN($J,"MATCHED")
+ .k ^TUPRN($J,"STATUS",8)
  S ^TUPRN($J,"STATUS",status,uprn)=""
  i reside d  q 1
  .I status=8,$O(^TUPRN($J,"MATCHED",""))'="" Q
