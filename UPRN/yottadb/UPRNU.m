@@ -1,4 +1,4 @@
-UPRNU ;Library functionset for UPRN matching [ 07/28/2023  9:34 AM ]
+UPRNU ;Library functionset for UPRN matching [ 08/01/2023  6:04 PM ]
  ;
 area(post)         ;
  n area,done
@@ -526,6 +526,7 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
  S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Be,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Si,Ne,Be,Fev" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pe,Si,Ne,Be,Fe" s fix=fix+1
+ S ^UPRNS("BESTFIT",fix)="Pl,Se,Ne,Bp,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pl,Se,Ni,Bl,Fev" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pl,Se,Ni,Bl,Fe" s fix=fix+1
  S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Bd,Fev" s fix=fix+1

@@ -1,4 +1,4 @@
-UPRNB ;Best fit algorithms for UPRN match [ 07/28/2023  9:33 AM ]
+UPRNB ;Best fit algorithms for UPRN match [ 08/01/2023  6:02 PM ]
  ;
 bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
  ;Best fit algorithms on matched post code and street
@@ -49,6 +49,7 @@ choose i $d(^TBEST($J)) d
  .f fit=1:1 q:'$D(^UPRNS("BESTFIT",fit))  d  q:matched
  ..s matchrec=^UPRNS("BESTFIT",fit)
  ..I '$D(^TBEST($J,matchrec)) q
+ ..b
  ..s matched=$$best(matchrec,tpost,tstreet,tbno,tbuild,tflat)
  .f matchrec="Pe,Se,N>B,Bf,F>Be" d  q:matched
  ..s matched=$$best(matchrec,tpost,tstreet,tbno,tbuild,tflat)
@@ -187,7 +188,7 @@ isres(uprn)        ;
  q 0
  
 farpost ;No post code match
- n matched,post,town,loc
+ n matched,post,town,loc,bno,tdist
  s matched=0
  s tdist=$$district^UPRNU(tpost)
  i $D(^UPRNX("X3",tstreet,tbno)) d
@@ -229,6 +230,19 @@ farpost ;No post code match
  .........s matchrec="Pl,Se,Ni,Bl,Fe"
  .........S ^TBEST($J,matchrec)=post
  .........S ^TBEST($J,matchrec,bno,build,tflat)=""
+ i tflat="",tbuild'="" d
+ .I $D(^UPRNX("X3",tstreet,tbno)) d
+ ..s post=""
+ ..for  s post=$O(^UPRNX("X3",tstreet,tbno,post)) q:post=""  d
+ ...i post=tpost q
+ ...i $$district^UPRNU(post)'=tdist q
+ ...i '$$levensh^UPRNU(post,tpost,5,1) q
+ ...s build=""
+ ...for  s build=$O(^UPRNX("X5",post,tstreet,tbno,build)) q:build=""  d
+ ....i $$MPART^UPRNU(build,tbuild) d
+ .....s matchrec="Pl,Se,Ne,Bp,Fe"
+ .....S ^TBEST($J,matchrec)=post
+ .....S ^TBEST($J,matchrec,tbno,build,tflat)=""
  q
 bestfit5 ;
  i tbuild=tstreet d

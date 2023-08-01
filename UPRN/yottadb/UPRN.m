@@ -1,4 +1,4 @@
-UPRN ;Command line for processing a batch of adresses [ 08/01/2023  4:15 PM ]
+UPRN ;Command line for processing a batch of adresses [ 08/01/2023  6:08 PM ]
  K ^UPRN("MX") ;[ 05/11/2023  12:26 PM ]
  K ^UPRN("UX")
  K ^UPRNI("UM")
@@ -1354,7 +1354,6 @@ nearpost(post,adpost,hownear,part)        ;How close is post code
  ;part indicates which parts of the post code must be present
  n near,distance,endpost,endad
         
- s nosector=$g(nosector)
  s hownear=$g(hownear,2)
  s near=""
  i adpost="" q ""
@@ -3067,10 +3066,11 @@ set(uprn,table,key) ;
  i status<8,$D(^TUPRN($J,"STATUS",8)) d
  .s xuprn=""
  .for  s xuprn=$O(^TUPRN($J,"STATUS",8,xuprn)) q:xuprn=""  d
- ..K ^TUPRN($J,"MATCHED",xuprn)
- ..S ^TUPRN($J,"MATCHED")=^TUPRN($J,"MATCHED")-1
- ..I ^TUPRN($J,"MATCHED")=0 D
- ...K ^TUPRN($J,"MATCHED")
+ ..i $D(^TUPRN($J,"MATCHED",xuprn)) d
+ ...K ^TUPRN($J,"MATCHED",xuprn)
+ ...S ^TUPRN($J,"MATCHED")=^TUPRN($J,"MATCHED")-1
+ ...I ^TUPRN($J,"MATCHED")=0 D
+ ....K ^TUPRN($J,"MATCHED")
  ..I $d(^TCUPRN($J,"MATCHED",xuprn)) d
  ...K ^TCUPRN($J,"MATCHED",xuprn)
  ...S ^TCUPRN($J,"MATCHED")=^TCUPRN($J,"MATCHED")-1
