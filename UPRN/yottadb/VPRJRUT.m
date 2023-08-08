@@ -148,6 +148,8 @@ SETERROR(ERRCODE,MESSAGE,ERRARRAY) ; set error info into ^TMP("HTTPERR",$J)
  I ERRCODE=214 S HTTPERR=404,ERRNAME="Patient ID not found in database"
  I ERRCODE=215 S ERRNAME="Missing collection name"
  I ERRCODE=216 S ERRNAME="Incomplete deletion of collection"
+ I ERRCODE=217 S HTTPERR=401,ERRNAME="Unknown email domain"
+ I ERRCODE=218 S HTTPERR=401,ERRNAME="Invalid token"
  ; HTTP errors
  I ERRCODE=400 S ERRNAME="Bad Request"
  I ERRCODE=401 S ERRNAME="Unauthorized" ; VEN/SMH

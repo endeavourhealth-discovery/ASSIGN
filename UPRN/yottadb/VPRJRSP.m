@@ -61,6 +61,10 @@ MATCH(ROUTINE,ARGS) ; evaluate paths in sequence until match found (else 404)
  . S:AUTHNODE=2 HTTPRSP("auth")="Basic realm="""_HTTPREQ("header","host")_"""" ; Send Authentication Header
  . ;N AUTHEN S AUTHEN=$$AUTHEN($G(HTTPREQ("header","authorization"))) ; Try to authenticate
  . N AUTHEN S AUTHEN=$$AUTHEN($G(HTTPREQ("header","authorization")),AUTHNODE)
+ . ; unknown email domain
+ . if AUTHEN=-2 D SETERROR^VPRJRUT(217) quit
+ . ; invalid token
+ . if AUTHEN=-3 D SETERROR^VPRJRUT(218) quit
  . I 'AUTHEN D SETERROR^VPRJRUT(401) QUIT  ; Unauthoirzed
  . QUIT
  QUIT
@@ -405,7 +409,13 @@ AUTHEN(HTTPAUTH,AUTHNODE)
  
  SET ZOK=0
  if $$UP^VPRJRUT($P(HTTPAUTH," "))="BEARER",AUTHNODE=2 S ZOK=$$COGNITO^CURL3(HTTPAUTH)
- if ZOK k HTTPRSP("auth") q 1
+ S ^ZOK=ZOK
+ if ZOK=1 k HTTPRSP("auth") q 1
+ ; unknown e-mail domain.
+ S ^ZOK=ZOK
+ if ZOK=-2 k HTTPRSP("auth") q -2
+ ; invalid token.
+ if ZOK=-3 k HTTPRSP("auth") q -3
  
  ; We only support Basic authentication right now
  N P1,P2 S P1=$P(HTTPAUTH," "),P2=$P(HTTPAUTH," ",2)
