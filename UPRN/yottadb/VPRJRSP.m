@@ -11,6 +11,9 @@ RESPOND ; find entry point to handle request and call it
  N ROUTINE,LOCATION,HTTPARGS,HTTPBODY
  I HTTPREQ("path")="/",HTTPREQ("method")="GET" D EN^%WHOME(.HTTPRSP) QUIT  ; Home page requested.
  if $get(^ICONFIG("CORS"))'="",HTTPREQ("method")="OPTIONS" set HTTPRSP="OPTIONS,POST,GET,DELETE" quit
+ 
+ I HTTPREQ("path")["/srv/",HTTPREQ("method")="GET" D FILESYS^FS QUIT
+ 
  D MATCH(.ROUTINE,.HTTPARGS) I $G(HTTPERR) QUIT  ; Resolve the URL and authenticate if necessary
  D QSPLIT(.HTTPARGS) I $G(HTTPERR) QUIT          ; Split the query string
  S HTTPREQ("paging")=$G(HTTPARGS("start"),0)_":"_$G(HTTPARGS("limit"),999999)
