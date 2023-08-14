@@ -14,8 +14,8 @@ COGNITO(token) ;
  .D DECODE^VPRJSON($name(p),$name(b),$name(err))
  .set ZCOGID=$get(b("sub"))
  .set un=ZCOGID
- .S ok=$$EMAILCHK(.b)
- .i ok=-2 quit
+ .;S ok=$$EMAILCHK(.b)
+ .;i ok=-2 quit
  .s ok=$$VALTOKEN(token)
  .i ok="false"!(ok="") set ok=-3 quit
  .s ok=1

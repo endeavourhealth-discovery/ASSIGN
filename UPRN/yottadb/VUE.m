@@ -29,6 +29,34 @@ ZREG ; register
  set ^%W(17.6001,"B","GET","api2/getreg","GETREG^VUE",567779)=""
  set ^%W(17.6001,567779,"AUTH")=2
  QUIT
+
+EMAIL set ^%W(17.6001,"B","GET","api2/authCheck","EMAILCHK^VUE",567784)=""
+ set ^%W(17.6001,567784,"AUTH")=2
+ quit
+
+EMAILCHK(result,arguments) 
+ new token,y,p,b
+ 
+ K ^TMP($J)
+ S ^TMP($J,1)="{""authenticated"": false}"
+ 
+ S token=$G(HTTPREQ("header","authorization"))
+ 
+ S ^TST=token
+ 
+ s y=$p(token,"Bearer ",2)
+ s p=$$DECODE^BASE64($p(y,".",2))
+ i p["Vt5ScFwss" do
+ .k b
+ .D DECODE^VPRJSON($name(p),$name(b),$name(err))
+ .S ok=$$EMAILCHK^CURL3(.b)
+ .S ^PS=ok
+ .if ok'=-2 S ^TMP($J,1)="{""authenticated"": true}"
+ .;if ok=-2 D SETERROR^VPRJRUT(217)
+ .quit
+ set result("mime")="application/json, text/plain, */*"
+ set result=$na(^TMP($J))
+ quit
  
 REG(arguments,body,result) 
  S ZRET=$$REG^UPRNUI2(.arguments,.body,.result)
