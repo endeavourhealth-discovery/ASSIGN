@@ -115,18 +115,15 @@ SUMMARY ;Summary result
  .s json=json_"true,"
 MATCHK(json,summary)       ;populates match details
  s json=json_"""Matched"":"
- I $D(^TUPRN($J,"NOMATCH"))!($D(^TUPRN($J,"OUTOFAREA")))&('$D(^TCUPRN($J))) D
+ I $D(^TUPRN($J,"NOMATCH"))!($D(^TUPRN($J,"OUTOFAREA"))) D
  .s json=json_"false"
  e  d
  .s json=json_"true,"
- I $D(^TUPRN($J,"MATCHED")) D
- .D MATCHED(1,0)
- E  I $D(^TCUPRN($J,"MATCHED")) d
- .D MATCHED(1,1)
+ .D MATCHED(1,$D(^TUPRN($J,"COMMERCIAL")))
  Q
 MATCHED(best,commerce)  ;Matches either commercial or residential
  n glob
- s glob=$s(commerce:"^TCUPRN",1:"^TUPRN")
+ s glob="^TUPRN"
  s mtype=$s(best:"BestMatch",1:"BestResidential")
  ; return LPI address instead of DPA addresses
  s json=json_""""_mtype_""":{"
@@ -143,7 +140,7 @@ MATCHED(best,commerce)  ;Matches either commercial or residential
  I $G(summary) s json=json_"}" q
  s json=json_","
  s alg=@glob@($J,"MATCHED",uprn,table,key,"A")
- D GETADR^UPRNU(uprn,table,key,.flat,.build,.bno,.depth,.street,.deploc,.loc,.town,.post,.org)
+ D GETABP^UPRNU(uprn,table,key,.flat,.build,.bno,.depth,.street,.deploc,.loc,.town,.post,.org)
  f var="build","depth","street","deploc","loc","town" d
  .i @var'="" s @var=$$in^UPRNL(@var)
  s post=$$repost^UPRN2(post)

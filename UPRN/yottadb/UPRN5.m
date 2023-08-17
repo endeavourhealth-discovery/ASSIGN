@@ -1,8 +1,8 @@
-UPRN5 ;Command line Main routine for processing a batch of addresseset [ 06/10/2019   8:22 AM ]
+UPRN5 ;Command line Main routine for processing a batch of addresseset [ 06/12/2020  10:45 AM ]
  w !,"From address ("_^ADNO_") :" r adno
  I adno="" s adno=^ADNO
  s ui=2
-setarea1 ;d batch("D","e,ec,cr,da,ha,ig,kt,n,se,sw,w,nw,rm,sl,sm,wc",from,to,0)
+setarea ;d batch("D","e,ec,cr,da,ha,ig,kt,n,se,sw,w,nw,rm,sl,sm,wc",from,to,0)
 setarea d batch("Unmatched","",adno,10000000000,ui)
  q
  
@@ -33,9 +33,9 @@ batch(mkey,qpost,from,to,ui)   ;Processes a batch of addresses for a list of are
 U .i $D(^UPRN("Stats","UnmatchedMissingPost",adno)) s skip=1 q
 U1 .i $D(^UPRN("Stats","OutOfArea",adno)) s skip=1 q
  .S ^ADNO=adno
- .set adrec=^UPRN("D",adno)
+ .set adrec=^UPRNI("D",adno)
  .d adrqual(adno,adrec)
- .s orgpost=$tr($$lc^UPRNL($p($g(^UPRN("D",adno,"P")),"~",1)),"""")
+ .s orgpost=$tr($$lc^UPRNL($p($g(^UPRNI("D",adno,"P")),"~",1)),"""")
  .d matchone(adrec,qpost,orgpost,ui)
  ;
  q
@@ -163,8 +163,8 @@ matched ;
  ....I adbuild'="" d
  .....i $P(^UPRN("U",uprn,table,key),"~",10)=adbuild d
  ......s $p(matchrec,",",4)="Be"
- ...S ^UPRN("M",adno,uprn,table,key)=matchrec
- ...S ^UPRN("M",adno,uprn,table,key,"A")=ALG
+ ...S ^UPRNI("M",adno,uprn,table,key)=matchrec
+ ...S ^UPRNI("M",adno,uprn,table,key,"A")=ALG
  ...I ui>1 D
  ....w !,uprn," ",table_": "_^UPRN("U",uprn,table,key)
  ....w ?65,matchrec
@@ -172,7 +172,7 @@ matched ;
  .....w !,uprn," ","LPI : "_^UPRN("LPI",uprn,key)
  ....i table="D" d
  .....W !,uprn," ","DPA : "_^UPRN("DPA",uprn,key)
- .;I $G(^TUPRN($J))>1 D
+ ;I $G(^TUPRN($J))>1 D
  .W *7,!,"Multiple matches"
  .r t
  I ui>1 r t i t=0 s (ui)=0
@@ -238,7 +238,7 @@ fexact(mfield)     ;Filters out if possible
  ...i mfield=0,matchrec="Pe,Se,Ne,Be,Fe" d
  ....s preferred=1
  ....s preferred(uprn,table,key)=""
- ...i mfield>0,$e($p(matchrec,"~",mfield),2)="e" do
+ ...i mfield>0,$e($p(matchrec,"~",mfield),2)="e"
  ....s preferred=1
  ....s preferred(uprn,table,key)=""
  i preferred do

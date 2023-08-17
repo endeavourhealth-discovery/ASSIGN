@@ -1,4 +1,4 @@
-UPRNL ;Library Extrinsic Functions and parameter passed subrtns [ 06/10/2019  11:01 AM ]
+UPRNL ;Library Extrinsic Functions and parameter passed subrtns [ 05/22/2023  1:00 PM ]
 uc(zx) ;Upper Case Conversion
  S zx=$TR(zx,"abcdefghijklmnopqrstuvwxyz","ABCDEFGHIJKLMNOPQRSTUVWXYZ")
  Q zx
@@ -11,11 +11,7 @@ lt(zx) ;Leading and trailing spaces
  F  Q:$E(zx,$L(zx))'=" "  S zx=$E(zx,1,$L(zx)-1)
  Q zx
  ;
-tr(zx,zy,zz)       ;
- for  q:(zx'[zy)  s zx=$$tr1(zx,zy,zz)
- q zx
- 
-tr1(zx,zy,zz) ;Extrinsix function to translate a string [ 01/19/92  5:03 PM ]
+tr(zx,zy,zz)       ;translate a string
  ;zx is the variable
  ;zy is the string to translate
  ;zzis the string to tranlsate to

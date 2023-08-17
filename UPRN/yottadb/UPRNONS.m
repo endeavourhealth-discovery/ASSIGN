@@ -1,4 +1,4 @@
-UPRNONS ;NEW PROGRAM [ 03/21/2019  9:32 AM ]
+UPRNONS ;NEW PROGRAM [ 06/12/2020  10:45 AM ]
  s matched=0,total=0,onsnull=0,dnull=0,unmatched=0
  s d=$c(9)
  s count=0
@@ -22,14 +22,14 @@ import(import)     ;
  .s ons=$p(rec,d,4)
  .s adno=$p(rec,d,8)
  .;s duprn=$p(rec,d,6)
- .s duprn=$O(^UPRN("M",adno,""))
+ .s duprn=$O(^UPRNI("M",adno,""))
  .s onsadr=$P(rec,d,3)
  .s total=total+1
  .i ons=duprn s matched=matched+1 q
  .i ons="" s onsnull=onsnull+1 q
  .i duprn="" s dnull=dnull+1 q
  .s unmatched=unmatched+1
- .s dad=^UPRN("D",adno)
+ .s dad=^UPRNI("D",adno)
  .D mismatch(rec,adno,ons,duprn,onsadr)
  c 51
  q
@@ -41,8 +41,8 @@ mismatch(rec,adno,ons,duprn,onsadr)
  ;u 0
  ;W !!
  s dstatus=$P(^UPRN("U",duprn),"~",3)
- u 52 w $tr(^UPRN("D",adno),"~"," ")_d_duprn
- ;w !,"Discovery  : "_^UPRN("D",adno)
+ u 52 w $tr(^UPRNI("D",adno),"~"," ")_d_duprn
+ ;w !,"Discovery  : "_^UPRNI("D",adno)
  ;w !,"ONS        : "_onsadr
  s type=$O(^UPRN("U",duprn,"")) q:type=""  d
  s key=$O(^UPRN("U",duprn,type,"")) q:key=""  d

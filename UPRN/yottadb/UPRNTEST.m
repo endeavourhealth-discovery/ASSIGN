@@ -21,9 +21,10 @@ UPRNTEST(vold,vnew,debug,commerce) ;Command line for processing a batch of adres
  s ui=0,country="e"
 setarea d batch("D","",from,to,ui,country,vold,vnew,debug)
  q
-stat(same,nomatch,nownot,diff,nowmatch,bugfix)          ;
+stat(same,nomatch,nownot,diff,nowmatch,bugfix,adno)          ;
  f var="same","nomatch","nownot","diff","nowmatch","bugfix" d
  .s ^UPRNI("stats",var)=$G(^UPRNI("stats",var))+@var
+ .i var="bugfix",@var=1 s ^UPRNI("stats",var,"adno",adno)=""
  q
 stat1(var)         ;
  s ^UPRNI("stats",var)=$G(^UPRNI("stats",var))+1
@@ -85,6 +86,7 @@ batch(mkey,qpost,from,to,ui,country,vold,vnew,debug)   ;Processes a batch of add
  ;f i=1:1:3 w d,vnew_" res abp addrress "_i
  w d,"Different from "_debug
  w d,debug_" uprn"
+ w d,debug_" class"
  w d,debug_" address"
  w !
  
@@ -161,7 +163,7 @@ batch(mkey,qpost,from,to,ui,country,vold,vnew,debug)   ;Processes a batch of add
  ..e  s buguprn=""
  .e  I $D(^UPRNI(debug,"UM",adno)) d
  ..i bestuprn'="" s difbug=1
- .d stat(same,nomatch,nownot,diff,nowmatched,difbug)
+ .d stat(same,nomatch,nownot,diff,nowmatched,difbug,adno)
  .i 'difbug q
  .u 51 w adno,d,adrec,d,same,d,nomatch,d,nownot,d,diff,d,nowmatched,d
  .w olduprn,d,oclass,d,oalg,d,oldmatch
@@ -170,7 +172,9 @@ batch(mkey,qpost,from,to,ui,country,vold,vnew,debug)   ;Processes a batch of add
  .f i=1:1:3 w d,$g(bestaddr(i))
  .;W d,resuprn,d,resclass,d,resalg,d,resmatch
  .;f i=1:1:3 w d,$g(resaddr(i))
- .w d,difbug,d,buguprn,d,$g(bugaddr(1))
+ .s debugc=""
+ .i buguprn'="" s debugc=^UPRN("CLASS",buguprn)
+ .w d,difbug,d,buguprn,d,debugc,d,$g(bugaddr(1))
  .w !
  c 51
  q

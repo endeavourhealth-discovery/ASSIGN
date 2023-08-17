@@ -1,4 +1,41 @@
-UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting routine [ 07/10/2023  5:33 PM ]
+UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting routine [ 08/02/2023  11:55 AM ]
+ ;
+f153A ;Flat in location
+ i adloc'="",adstreet'="",adbno="",adbuild'="" d
+ .i $$isflat^UPRNU(adloc) d
+ ..I adloc?1l.l1" "1n.n.l d
+ ...i $d(^UPRNX("X.BLD",adstreet)) d
+ ...i '$D(^UPRNX("X.BLD",adbuild)) d
+ ....s adbno=adflat
+ ....s adflat=$$flat^UPRNU(adloc)
+ ....s xbuild=adbuild
+ ....s adbuild=adstreet
+ ....s adstreet=xbuild
+  ; 
+F154 ;Building is number flat range
+ i adflat="",adbno="",adstreet'="",adbuild?1n.n.1"-"1l1"-"1l d
+ .s adbno=$p(adbuild,"-",1)_$p(adbuild,"-",2,3)
+ .s adbuild=""
+ ;
+f155 ;
+ i adflat="",adbno="",adstreet'="",adbuild?1n.n1"-"1l d
+ .s adbno=$p(adbuild,"-")_$p(adbuild,"-",2)
+ .s adbuild=""
+ ;
+f156 ;
+ n lpart
+ i adflat="",adbno'="",adstreet'="",adbuild[" " d
+ .I '$D(^UPRNX("X3",adbuild)) d
+ ..I $D(^UPRNX("X3",$p(adbuild," ",1,$l(adbuild," ")-1))) d
+ ...s lpart=$p(adbuild," ",$l(adbuild," "))
+ ...i lpart?1"-"1n.n d
+ ....s adflat=$p(lpart,"-",2)
+ ....s adbuild=$p(adbuild," ",1,$l(adbuild," ")-1)
+ ...i lpart?1n.n d
+ ....s adflat=lpart
+ ....s adbuild=$p(adbuild," ",1,$l(adbuild," ")-1)
+ ;
+ 
  i adflat="",adbuild'="",'$D(^UPRNX("X3",adbuild)) d
  .i adbuild'[" ",$e(adbuild,$l(adbuild))?1n d
  ..s done=0

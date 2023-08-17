@@ -1,4 +1,4 @@
-UPRNA ;Address dformat [ 07/27/2023  11:08 AM ]
+UPRNA ;Address dformat [ 08/02/2023  9:26 AM ]
  ;
 reformat(adrec,address)    ;
  s reformed=0
@@ -295,7 +295,6 @@ f30 if adloc?1n.n.l1" "1l.e d
  ..set adbuild=adbuild_" "_adstreet
  ..set adstreet=adloc
  ..set adloc=""
- 
  ;Street starts with flat number so swap
  ;May or may not contain building
 f31 if $$isflat^UPRNU(adstreet) d  ;Might be flat
@@ -347,6 +346,21 @@ f35a ;Brackets
  ...s adbuild=""
  ;Ordinary street format , split it up
  do numstr(.adbno,.adstreet,.adflat,.adbuild)
+ ;Is flat or street wrong way round?
+ i adflat'="",adbno="",adbuild'="",adstreet'="",adloc="" d
+ .I '$D(^UPRNX("X.BLD",adstreet)) d
+ ..I $D(^UPRNX("X.STR",adstreet)) d
+ ...i $D(^UPRNS("TOWN",adstreet)) d
+ ....s adloc=adstreet,adbno=adflat,adstreet=adbuild,adflat="",adbuild=""
+ i adflat'="",adbno="",adbuild'="",adstreet'="" d
+ .I $D(^UPRNX("X.BLD",adstreet)),$D(^UPRNX("X.STR",adbuild)),'$D(^UPRNX("X.STR",adstreet)),'$d(^UPRNS("TOWN",adstreet)) d
+ ..i $d(^UPRNX("X3",adstreet,"",adpost)) d
+ ...s xstreet=adstreet
+ ...s adstreet=adbuild
+ ...s adbuild=xstreet
+ ...i $D(^UPRNX("X3",adstreet,adflat)) d
+ ....s adbno=adflat
+ ....s adflat=""
  s adstreet=$$fixstr("X.STR",adstreet)
  
  ;
@@ -795,6 +809,11 @@ f152 ;Flat contains street number
  .s adstreet=adbuild_" "_adstreet
  .s adbuild=""
  ;
+f153 ;Building is complex street and flat
+ i adflat="",adbno="",adbuild?1n.n1l1"-"1l d
+ .s adbno=adbuild*1
+ .s adflat=$p(adbuild,adbuild*1,2)
+ .s adbuild=""
  
 f153 ;
  D ^UPRNA1(.adflat,.adbuild,.adbno,.adstreet,.adloc,.adeploc)

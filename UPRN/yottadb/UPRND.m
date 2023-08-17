@@ -1,36 +1,34 @@
-UPRN1 ;Import routine [ 05/22/2023  11:05 AM ]
+UPRND ;Import delta routine [ 06/12/2020  10:45 AM ]
  
  ;
  d files
 SURE ;
+ W !!,"Are you sure you wish to proceeed !!?"
+ r *yn s yn=$$lc^UPRNL($C(yn))
+ i yn="n" q
+ i yn'="y" G SURE
+ ;K ^UPRN
  s del=$c(9)
- s abp=^UPRNF("abpfolder")
+ s abp=^UPRNF("abpdeltafolder")
  s folder=abp
- W !,"Importing data please wait ...."
+ F key="U","DPA","LPI","X5","X3","X5A","X1","X.STR","STR","LPSTR" D
+ .K ^UPRN(key)
  D IMPORT(folder)
  q
 IMPORT(folder)     ;
- ;Deals with bulk and deltas assuming that bulk inserts may be updates
- ;or new inserts
- ;Type="F" is a full bulk replace. Deletes all
- ;Type="D" is delta
- ;Type="A" means you are adding new addresses  does not delete
- ;Make sure you set the variable right
  LOCK ^IMPORT:1 I '$T Q
  s abp=folder
- ;S $ZT="ERROR^UPRN1"
+ S $ZT="ERROR^UPRN1"
  i $e(abp,$l(abp))="\" s abp=$e(abp,1,$l(abp)-1)
  K ^IMPORT
  S ^IMPORT("START")=$$DH^UPRNL1($H)_"T"_$$TH^UPRNL1($P($H,",",2))
  s ^IMPORT("FOLDER")=$$ESCAPE(abp)
- D IMPCLASS
- d IMPCOUNT
  D IMPSTR
  D IMPBLP
-RDPA D IMPDPA
+ D IMPDPA
  D IMPLPI
+ D IMPCLASS
  D AREAS
- D ^UPRNIND
  D SETSWAPS^UPRNU
  K ^IMPORT("LOAD")
  S ^IMPORT("END")=$$DH^UPRNL1($H)_"T"_$$TH^UPRNL1($P($H,",",2))
@@ -41,7 +39,7 @@ ERROR ;
  S ^IMPORT("STATUS")="ERROR"
  S ^IMPORT("ERROR")=ze
  s error=""
- I ze["MODER" D
+ I $ZE["MODER" D
  .s error="Unable to read "_^IMPORT("LOAD")_"- "_file
  S ^IMPORT("ERRORTEXT")=error
  H
@@ -88,14 +86,9 @@ IMPCLASS ;
  S ^IMPORT("LOAD")="Class file"
  s file=abp_"\ID32_Class_Records.CSV"
  s ^IMPORT("FILE")=$$ESCAPE(file)
- s bytes=0,rows=0
- o 51:(abp_"\ID32_Class_Records.csv":::::$C(10))
- u 51:(:::::$C(10))
- r rec
+ o 51:(abp_"\ID32_Class_Records.csv")
+ u 51 r rec
  for  u 51 r rec q:rec=""  d
- .s bytes=bytes+$l(rec)
- .s rows=rows+1
- .i (rows#50000)=0 u 0 w !,bytes\1000," kb of uprn class"
  .S uprn=$p(rec,",",4)
  .s code=$tr($p(rec,",",6),"""")
  .;DS-start classfication scheme added
@@ -104,17 +97,12 @@ IMPCLASS ;
  .s newrec=code
  .s ^UPRN("CLASS",uprn)=newrec
  c 51
- D RESIDE("")
- Q
  
 DS3 ;
-RESIDE(file) ;Imports residential codes
- s abp=^UPRNF("abpfolder")
- i file="" s file="Residential codes"
- S ^IMPORT("LOAD")=file
- s file=abp_"\"_file_".txt"
+RESIDE ;Imports residential codes
+ S ^IMPORT("LOAD")="Residential code file"
+ s file=abp_"\Residential_codes.txt"
  s ^IMPORT("FILE")=$$ESCAPE(file)
- i $zos(10,file)<0 q
  o 51:(file)
  u 51 r rec
  for  u 51 r rec q:rec=""  d
@@ -153,140 +141,32 @@ LEVENSTR ;
  ...I $$levensh^UPRNU(word,match,5,2) d
  ....s ^UPRNW("SFIX",word,match)=""
  ....s ^UPRNW("Done",word)=""
-ELEV q
+ q
 IMPADNO ;
- d files
- D ADRFILES
- w !,"England or Wales (e/w) : " r country
  w !,"Importing discovery addresses..."
  i country="w" d Wales
  i country="e" d England
  q
-THOU ;
- S ^UPRNI("DataSet")="100k"
- s del=$c(9)
- s abp=^UPRNF("abpfolder")
- s id=0
- s lno=0
- K ^TUPRN($J,"ITX")
- K ^UPRNI("M")
- K ^UPRNI("D")
- K ^UPRNI("missing")
- k ^UPRNI("nouprn")
- K ^UPRNI("True")
- s del=$c(9)
- o 51:(abp_"\EastLondon.txt":::::$C(10))
- S ^UPRNI("orig")=""
- f lno=1:1:764000 u 51  d
- .u 51 r rec
- .i rec="" Q
- .s rec=$tr(rec,$c(9),",")
- .S rec=$tr(rec,$c(13),"")
- .s rec=$tr(rec,$c(10),"")
- .s adno=$p(rec,",",1)
- .S add=$p(rec,",",2,200)
- .S ^UPRNI("D",adno,"orig")=add
- .S ^UPRNI("D",adno)=add
- .;s ^UPRNI("Prev",adno)=uprn
- c 51
- q
-TH ;
- S ^UPRNI("DataSet")="TH"
- s del=$c(9)
- s abp=^UPRNF("abpfolder")
- s id=0
- s lno=0
- K ^TUPRN($J,"ITX")
- K ^UPRNI("M")
- K ^UPRNI("D")
- K ^UPRNI("missing")
- k ^UPRNI("nouprn")
- K ^UPRNI("True")
- s del=$c(9)
- o 51:(abp_"\TH_GoldStandard_Nov19.txt")
- u 51 r rec
- S ^UPRNI("orig")=rec
- f lno=1:1:764000 u 51  d
- .u 51 r rec
- .i rec="" Q
- .s id=$p(rec,del,1)
- .s uprn=$p(rec,del,2)
- .s adr=$p(rec,del,3)
- .s adr=adr_"~"_$p(rec,del,4)
- .s ^UPRNI("D",id)=adr
- .S ^UPRNI("D",id,"orig")=$tr(adr,"~",",")
- .S ^UPRNI("True",id)=uprn
- c 51
- q
- 
 Wales ;Imports welsh addressses
- s del=$c(9)
- s abp=^UPRNF("abpfolder")
- s id=0
+ s adno=0
  s lno=0
  K ^TUPRN($J,"ITX")
  K ^UPRNI("M")
  K ^UPRNI("D")
- K ^UPRN("missing")
- k ^UPRN("nouprn")
  s del=$c(9)
- o 51:(abp_"\Addresses_Camarthenshire.txt")
+ o 51:(abp_"\addresses.txt")
  u 51 r rec
- S ^UPRNI("orig")=rec
  f lno=1:1:764000 u 51  d
  .u 51 r rec
  .i rec="" Q
- .s id=$p(rec,del,1)
- .s sysid=$p(rec,del,2)
- .s line1=$p(rec,del,3)
- .s line2=$p(rec,del,4)
+ .s adno=$p(rec,del,1)
+ .s line1=$p(rec,del,2)
+ .s line2=$p(rec,del,3)_" "_$p(rec,del,4)
  .S line3=$p(rec,del,5)
  .s line4=$p(rec,del,6)
- .s line5=$p(rec,del,7)
- .s post=$tr($p(rec,del,8)," ")
- .s ^UPRNI("D",id)=$$lt^UPRNL($$lc^UPRNL(line1_"~"_line2_"~"_line3_"~"_$p(line4,",")_"~"_line5_"~"_post))
- .S ^UPRNI("D",id,"orig")=rec
- d Special
+ .s post=$tr($p(rec,del,7)," ")
+ .s ^UPRNI("D",adno)=$$lt^UPRNL($$lc^UPRNL(line1_"~"_line2_"~"_line3_"~"_$p(line4,",")_"~"_post))
  c 51
- q
-WalesFP ;Imports false positive welsh addressses
- s del=$c(9)
- s abp=^UPRNF("abpfolder")
- s id=0
- s lno=0
- K ^TUPRN($J,"ITX")
- K ^UPRNI("M")
- K ^UPRNI("D")
- K ^UPRNI("missing")
- k ^UPRNI("nouprn")
- s del=$c(9)
- ;o 51:(abp_"\Addresses_Camarthenshire.txt")
- o 51:(abp_"\Falsepositives.txt")
- u 51 r rec
- ;S ^UPRNI("orig")=rec
- S ^UPRNI("orig")=$p(rec,del,8,100)
- f lno=1:1:764000 u 51  d
- .u 51 r rec
- .i rec="" Q
- .s id=$p(rec,del,1)
- .s sysid=$p(rec,del,2)
- .;s line1=$p(rec,del,3)
- .;s line2=$p(rec,del,4)
- .;S line3=$p(rec,del,5)
- .;s line4=$p(rec,del,6)
- .;s line5=$p(rec,del,7)
- .;s post=$tr($p(rec,del,8)," ")
- .s line1=$p(rec,del,8)
- .s line2=$p(rec,del,9)
- .S line3=$p(rec,del,10)
- .s line4=$p(rec,del,11)
- .s line5=$p(rec,del,12)
- .s post=$tr($p(rec,del,13)," ")
- .s ^UPRNI("D",id)=$$lt^UPRNL($$lc^UPRNL(line1_"~"_line2_"~"_line3_"~"_$p(line4,",")_"~"_line5_"~"_post))
- .;S ^UPRNI("D",id,"orig")=rec
- .S ^UPRNI("D",id,"orig")=$p(rec,del,8,100)
- c 51
- d Special
  q
 England s adno=0
  s count=0
@@ -296,7 +176,7 @@ England s adno=0
  K ^UPRNI("M")
  K ^UPRNI("D")
  s del=","
- o 51:(adrfile:::::$c(10))
+ o 51:(adrfile)
  u 51 r header
  for  u 51 r rec q:rec=""  d
  .S rec=$tr(rec,$C(9),",")
@@ -320,6 +200,36 @@ England s adno=0
  .q
  c 51
  q
+ f lno=1:1:1000000 u 51  d
+ .u 51 r rec
+ .i rec="" Q
+ .s lno=lno+1
+ .s adrec=$p(rec,",",2,200)
+ .I adrec="" q
+ .s line="",text=""
+ .s type=$p(adrec,":",1)
+ .s count=count+1
+ .i $e(type,1,6)="""text""" d  q
+ ..d TXTADNO($p(adrec,":",2,200))
+ .i $e(type,1,6)="""line""" d  q
+ ..s line=$p(adrec,"""line"":",2,200)
+ ..D LINEADNO(line)
+ .i adrec["""line""" d  q
+ ..s line=$p(adrec,"""line"":",2,20)
+ ..D LINEADNO(line)
+ .B
+ .q
+ c 51
+ s adno=0
+ s rec=""
+ for  s rec=$O(^TUPRN($J,"ITX",rec)) q:rec=""  d
+ .s adno=adno+1
+ .s ^UPRNI("D",adno)=rec
+ .s line=""
+ .for  s line=$O(^TUPRN($J,"ITX",rec,line)) q:line=""  d
+ ..s ^UPRNI("D",adno,line)=""
+ K ^TUPRN($J,"ITX")
+EEng q
 TXTADNO(adrec)       ;
  s text=adrec
  i rec["""line"":" d
@@ -381,26 +291,21 @@ IMPDPA ;Imports and indexes the DPA file.
  s file=abp_"\ID28_DPA_Records.CSV"
  s ^IMPORT("FILE")=$$ESCAPE(file)
  D SETSWAPS^UPRNU
- s bytes=0,rows=0
  s del=","
  s d="~"
- o 51:(abp_"\ID28_DPA_Records.CSV":::::$C(10))
+ o 51:(abp_"\ID28_DPA_Records.CSV")
  u 51 r rec
  for  u 51  d  q:rec=""
  .u 51 r rec
- .s bytes=bytes+$l(rec)
- .s rows=rows+1
- .i (rows#50000)=0 u 0 w !,bytes\1000," kb of dpa file"
  .q:rec=""
- .s rec=$tr(rec,""".'")
+ .s rec=$tr($$lc^UPRNL(rec),""".'")
  .s rec=$$tr^UPRNL(rec,", ,",",,")
  .s rec=$tr(rec,"""","")
  .s uprn=$p(rec,del,4)
-ds7 .s ukey="U"
+ .I uprn="46009991" b
+ .I '$D(^UPRN("U",uprn)) q
  .s post=$tr($p(rec,del,16)," ")
  .S key=$p(rec,del,5)
- .S change=$$lc^UPRNL($p(rec,del,2))
- .i change="d" k ^UPRN("U",uprn,"D",key) q
  .set org=$p(rec,del,6)
  .set dep=$p(rec,del,7)
  .s flat=$p(rec,del,8)
@@ -436,12 +341,9 @@ ds7 .s ukey="U"
  .i build?1n.n.l1" "1e.e,flat="" d
  ..s flat=$p(build," ")
  ..s build=$p(build," ",2,10)
-ds9 .S ^UPRN(ukey,uprn,"D",key,"O")=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post_d_org_d_dep_d_ptype
- .f var="flat","build","bno","depth","street","deploc","loc","town","post","org","dep","ptype" d
- ..s @var=$$LC^LIB(@var)
-yrep .F var="flat","build","depth","street","deploc","loc" d
- ..s @var=$$welsh(@var)
  .S newrec=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post_d_org_d_dep_d_ptype
+ .i newrec'=$G(^UPRN("DPA",uprn,key)) d
+ ..S ^UPRN("DPA",uprn,key)=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post_d_org_d_dep_d_ptype
  .set street=$$correct^UPRNU(street)
  .set bno=$$correct^UPRNU(bno)
  .set build=$$correct^UPRNU(build)
@@ -449,12 +351,85 @@ yrep .F var="flat","build","depth","street","deploc","loc" d
  .set loc=$$correct^UPRNU(loc)
  .if depth'="" s depth=$$correct^UPRNU(depth)
  .if deploc'="" s deploc=$$correct^UPRNU(deploc)
-ds10 .set ^UPRN(ukey,uprn,"D",key)=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post_d_org_d_dep_d_ptype
- ..s table="D"
+e .set newrec=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post_d_org_d_dep_d_ptype
+ .i newrec=$G(^UPRN("U",uprn,"D",key)) q
+e .set ^UPRN("U",uprn,"D",key)=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post_d_org_d_dep_d_ptype
+ .s table="D"
+ .d setind
  .q
  c 51
  q
  
+setind ;Sets indexes
+welsh ;
+ i street[" y " s street=$p(street," y ",1)_"-y-"_$p(street," y ",2,10)
+ i build[" y " s build=$p(build," y ",1)_"-y-"_$p(build," y ",2,10)
+ i town'="" S ^UPRNS("TOWN",town)=""
+ i loc'="" S ^UPRNS("TOWN",loc)=""
+ i $l(street," ")>6 q
+ i $l(build," ")>6 q
+ s pstreet=$$plural^UPRNU(street)
+ s pbuild=$$plural^UPRNU(build)
+ s pdepth=$$plural^UPRNU(depth)
+ s indrec=post_" "_flat_" "_build_" "_bno_" "_depth_" "_street_" "_deploc_" "_loc
+ for  q:(indrec'["  ")  s indrec=$$tr^UPRNL(indrec,"  "," ")
+ s indrec=$$lt^UPRNL(indrec)
+ S ^UPRNX("X",indrec,uprn,table,key)=""
+ s indrec=post_" "_flat_" "_pbuild_" "_bno_" "_pdepth_" "_pstreet_" "_deploc_" "_loc
+ for  q:(indrec'["  ")  s indrec=$$tr^UPRNL(indrec,"  "," ")
+ s indrec=$$lt^UPRNL(indrec)
+ S ^UPRNX("X",indrec,uprn,table,key)=""
+ i deploc'="" d
+ .s ^UPRNX("X5",post,street_" "_deploc,bno,build,flat,uprn,table,key)=""
+ i depth'="" d
+ .s ^UPRNX("X5",post,depth_" "_street,bno,build,flat,uprn,table,key)=""
+ .s ^UPRNX("X5",post,street,bno,depth,flat_" "_build,uprn,table,key)=""
+ .s ^UPRNX("X5",post,pstreet,bno,pdepth,flat_" "_pbuild,uprn,table,key)=""
+ s ^UPRNX("X5",post,street,bno,build,flat,uprn,table,key)=""
+ s ^UPRNX("X5",post,pstreet,bno,pbuild,flat,uprn,table,key)=""
+ i depth'="" d
+ .set ^UPRNX("X3",depth,bno,post,uprn,table,key)=""
+ .set ^UPRNX("X3",pdepth,bno,post,uprn,table,key)=""
+ .D indexstr("STR",depth)
+ .D indexstr("STR",pdepth)
+ i deploc'="",street="" d
+ .S ^UPRNX("X5",post,deploc,bno,build,flat,uprn,table,key)=""
+ i depth'="",street="" d
+ .S ^UPRNX("X5",depth,bno,build,flat,uprn,table,key)=""
+ .S ^UPRNX("X5",pdepth,bno,pbuild,flat,uprn,table,key)=""
+ i street'="" d
+ .set ^UPRNX("X3",street,bno,post,uprn,table,key)=""
+ .set ^UPRNX("X3",pstreet,bno,post,uprn,table,key)=""
+ .set ^UPRNX("X3",$tr(street," "),bno,post,uprn,table,key)=""
+ .I depth'="" d
+ ..set ^UPRNX("X3",depth_" "_street,bno,post,uprn,table,key)=""
+ ..set ^UPRNX("X3",pdepth_" "_pstreet,bno,post,uprn,table,key)=""
+ .do indexstr("STR",street)
+ .do indexstr("STR",pstreet)
+ i build'="" d
+ .set ^UPRNX("X3",build,flat,post,uprn,table,key)=""
+ .set ^UPRNX("X3",pbuild,flat,post,uprn,table,key)=""
+ .do indexstr("BLD",build)
+ .do indexstr("BLD",pbuild)
+ i build'="",flat'="",street'="" d
+ .set ^UPRNX("X2",build,street,flat,post,bno,uprn,table,key)=""
+ I flat'="",bno'="",street'="",build'="" d
+ .S ^UPRNX("X4",post,street,bno,flat,build,uprn,table,key)=""
+ if build="",org'="" d
+ .set ^UPRNX("X5",post,street,bno,org,flat,uprn,table,key)=""
+ .set ^UPRNX("X5",post,pstreet,bno,org,flat,uprn,table,key)=""
+ .if flat'="" d
+ ..set ^UPRNX("X3",org,flat,post,uprn,table,key)=""
+ ..do indexstr("BLD",org)
+ I street'="",bno'="",build'="",flat'="" d
+ .S ^UPRNX("X5A",post,street,build,flat,bno,uprn,table,key)=""
+ .S ^UPRNX("X5A",post,pstreet,pbuild,flat,bno,uprn,table,key)=""
+ I pstreet'=street!(pbuild'=build) d
+ .I deploc'="" d
+ ..s ^UPRNX("X5",post,pstreet_" "_deploc,bno,pbuild,flat,uprn,table,key)=""
+ .I pdepth'="" d
+ ..s ^UPRNX("X5",post,pdepth_" "_pstreet,bno,pbuild,flat,uprn,table,key)=""
+eind q
  
 indexstr(index,term)         ;Indexes street or building etc
  n strno,i,word
@@ -479,25 +454,18 @@ IMPLPI ;Imports and indexes LPI file
  S ^IMPORT("LOAD")="LPI file"
  s file=abp_"\ID24_LPI_Records.CSV"
  s ^IMPORT("FILE")=$$ESCAPE(file)
- s bytes=0,rows=0
  s del=","
  s d="~"
- o 51:(abp_"\ID24_LPI_Records.CSV":::::$c(10))
+ o 51:(abp_"\ID24_LPI_Records.CSV")
  u 51 r rec
  for  u 51  d  q:rec=""
  .u 51 r rec
  .q:rec=""
- .s bytes=bytes+$l(rec)
- .s rows=rows+1
- .i (rows#50000)=0 u 0 w !,bytes\1000," kb of LPI file"
  .s rec=$$lc^UPRNL(rec)
  .s rec=$tr(rec,"""")
- .s change=$$lc^UPRNL($p(rec,del,2))
  .s uprn=$p(rec,del,4)
-ds20 .s ukey="U"
+ .I '$D(^UPRN("U",uprn)) q
  .s key=$p(rec,del,5)
- .S change=$p(rec,del,2)
- .i change="d" k ^UPRN("U",uprn,"L",key) q
 LPIREC .s saos=$p(rec,del,12)
  .s saosf=$p(rec,del,13)
  .s saoe=$p(rec,del,14)
@@ -511,9 +479,7 @@ LPIREC .s saos=$p(rec,del,12)
  .s paoef=$p(rec,del,20)
  .s paot=$p(rec,del,21)
  .s str=$p(rec,del,22)_"-"_$P(rec,del,6)
-L1 .S level=$p(rec,del,25)
  .s org=""
- .i uprn=10009164511 b
  .;i status=8 D  q
  ..;U 0 w rec r t
  .i status=1,end'="" d
@@ -521,6 +487,8 @@ L1 .S level=$p(rec,del,25)
  .S nrec=saos_"~"_saosf_"~"_saoe_"~"_saoef_"~"_saot
  .s nrec=nrec_"~"_paos_"~"_paosf_"~"_paoe_"~"_paoef_"~"_paot
  .s nrec=nrec_"~"_str_"~"_status
+ .i nrec'=$g(^UPRN("LPI",uprn,key)) d
+ ..S ^UPRN("LPI",uprn,key)=nrec
  .k dpadd
 EREC .d GETLPI^UPRNU(saos,saosf,saoe,saoef,saot,paos,paosf,paoe,paoef,paot,str,uprn,.dpadd)
  .s flat=dpadd("flat")
@@ -531,21 +499,19 @@ EREC .d GETLPI^UPRNU(saos,saosf,saoe,saoef,saot,paos,paosf,paoe,paoef,paot,str,u
  .s deploc=$$lt^UPRNL(dpadd("deploc"))
  .s loc=$$lt^UPRNL(dpadd("locality"))
  .s post=dpadd("postcode")
- .set town=dpadd("town")
-ds22 .set ^UPRN(ukey,uprn,"L",key,"O")=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post_d_level
  .set street=$$correct^UPRNU(street)
  .set bno=$$correct^UPRNU(bno)
  .set build=$$correct^UPRNU(build)
  .set flat=$$flat^UPRNU($$correct^UPRNU(flat))
  .set loc=$$correct^UPRNU(loc)
- .f var="flat","build","bno","depth","street","deploc","loc","town","post","org","dep","ptype" d
- ..s @var=$$LC^LIB(@var)
-yrep2 .F var="flat","build","depth","street","deploc","loc" d
- ..i @var="" q
- ..s @var=$$welsh(@var)
+ .set town=dpadd("town")
+ .i $l(street," ")>5 q
+ .i $l(build," ")>5 q
 L .set newrec=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post
- .set ^UPRN(ukey,uprn,"L",key)=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post
- .i level'="" S ^UPRN("L",uprn)=level
+ .I newrec=$G(^UPRN("U",uprn,"L",key)) q
+L .set ^UPRN("U",uprn,"L",key)=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post
+ .s table="L"
+ .do setind
  c 51
  Q
 IMPCOUNT ;
@@ -577,91 +543,74 @@ IMPSTR ;
  s del=","
  S file=abp_"\ID15_StreetDesc_Records.CSV"
  S ^IMPORT("FILE")=$$ESCAPE(file)
- o 51:(abp_"\ID15_StreetDesc_Records.CSV":::::$c(10))
+ o 51:(abp_"\ID15_StreetDesc_Records.CSV")
  u 51 r rec
  for  u 51  d  q:rec=""
  .u 51 r rec
  .q:rec=""
  .s rec=$tr($$lc^UPRNL(rec),"""")
- .S change=$p(rec,del,2)
  .s usrn=$p(rec,del,4)
  .s name=$p(rec,del,5)
  .s locality=$p(rec,del,6)
- .s town=$p(rec,del,7)
+ .S town=$p(rec,del,7)
  .s admin=$p(rec,del,8)
  .S lang=$p(rec,del,9)
- .i change="d" k ^UPRN("LPSTR",usrn_"-"_lang) quit
  .s newrec=name_"~"_locality_"~"_admin_"~"_town
  .i newrec'=$G(^UPRN("LPSTR",usrn_"-"_lang)) d
  ..S ^UPRN("LPSTR",usrn_"-"_lang)=name_"~"_locality_"~"_admin_"~"_town
  C 51
  Q
-welsh(string)      ;Welsh yr y problem
- s string=$$TR^LIB(string," yr ","yr")
- s string=$$TR^LIB(string,"-yr-","yr")
- s string=$$TR^LIB(string," y ","y")
- s string=$$TR^LIB(string,"-y-","y")
- i $e(string,1,2)="y " s string="y"_$e(string,3,100)
- i $e(string,1,2)="y-" s string="y"_$e(string,3,100)
- q string
- 
 IMPBLP ;
  S ^IMPORT("LOAD")="UPRN file"
  s file=abp_"\ID21_BLPU_Records.CSV"
  s ^IMPORT("FILE")=$$ESCAPE(file)
- s bytes=0,rows=0
  s recno=0
- s bytes=0,rows=0
  s del=","
- o 51:(file:::::$c(10))
+ o 51:(file)
  u 51 r rec
  for  u 51  d  q:rec=""
  .U 51 r rec
  .Q:rec=""
- .s bytes=bytes+$l(rec)
- .s rows=rows+1
- .i (rows#50000)=0 u 0 w !,bytes\1000," kb of BLPU file"
  .s recno=recno+1
  .s rec=$tr($$lc^UPRNL(rec),"""")
  .s post=$tr($p(rec,del,21)," ")
  .s uprn=$p(rec,del,4)
  .s status=$p(rec,del,5)
- .s change=$$lc^UPRNL($p(rec,del,2))
  .;i status=8 q
  .s bpstat=$p(rec,del,6)
  .s insdate=$p(rec,del,16)
  .s update=$p(rec,del,18)
  .s parent=$p(rec,del,8)
- .i change="d" D  Q
- ..K ^UPRN("U",uprn)
- .s coord1=$p(rec,del,9)_","_$P(rec,del,10)_","_$p(rec,del,11)_","_$p(rec,del,12)_","_$p(rec,del,13)
+DS1 .s coord1=$p(rec,del,9)_","_$P(rec,del,10)_","_$p(rec,del,11)_","_$p(rec,del,12)_","_$p(rec,del,13)
  .s local=$p(rec,del,14)
  .s adpost=$p(rec,del,20)
  .S newrec=$tr(adpost_"~"_post_"~"_status_"~"_bpstat_"~"_insdate_"~"_update_"~"_coord1_"~"_local,"""")
- .s ukey="U"
-dsu6 .S ^UPRN(ukey,uprn)=$tr(adpost_"~"_post_"~"_status_"~"_bpstat_"~"_insdate_"~"_update_"~"_coord1_"~"_local,"""")
+DS2 .S ^UPRN("U",uprn)=$tr(adpost_"~"_post_"~"_status_"~"_bpstat_"~"_insdate_"~"_update_"~"_coord1_"~"_local,"""")
  .i parent'="" d
  ..i '$D(^UPRN("UPC",parent,uprn)) d
  ...S ^UPRN("UPC",parent,uprn)=""
+ ..i '$d(^UPRN("UCP",uprn,parent)) d
+ ...S ^UPRN("UCP",uprn,parent)=""
+ .if post'="" d
+ ..I '$D(^UPRNX("X1",post,uprn)) d
+ ...S ^UPRNX("X1",post,uprn)=""
  c 51
  q
 files ;
+ s country=""
+ W !,"England or Wales : " r *c
+ i c=13 q
+ s country=$c(c)
  s folder=""
- s folder=$G(^UPRNF("abpfolder"))
- w !,"ABP folder ("_folder_") :" r folder
- i folder="" s folder=$g(^UPRNF("abpfolder"))
+ s folder=$G(^UPRNF("abpdeltafolder"))
+ w !,"ABP delta folder ("_folder_") :" r folder
+ i folder="" s folder=$g(^UPRNF("abpdeltafolder"))
  s att=$ZOS(10,folder)
  i att<2 W *7,"Error no folder " H 2 G files
- s ^UPRNF("abpfolder")=folder
- q
-ADRFILES ;
- w !,"Address file ("_$G(^UPRNF("adrfile"))_") : " r adrfile
- i adrfile="" s adrfile=^UPRNF("adrfile")
- s ^UPRNF("adrfile")=adrfile
- s resdir=$p(adrfile,"\",1,$l(adrfile,"\")-1)_"\Results"
- s att=$ZOS(10,resdir)
- s err=""
- i att<2 s err=$ZOS(6,resdir)
- i err'="" W !,*7,"Error creating results directory" h 2 G files
- s ^UPRNF("Results")=resdir
+ s ^UPRNF("abpdeltafolder")=folder
+ s country=$$lc^UPRNL(country)
+ i country="" q
+ i country'="e"&(country'="w") G files
+ i country="e" s folder="Shared"
+ i country="w" s folder="Wales"
  q

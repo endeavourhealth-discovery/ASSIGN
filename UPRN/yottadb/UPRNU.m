@@ -205,10 +205,21 @@ ANYADR(uprn)       ;Returns an adress stringfrom a uprn
  q $tr(rec,"~",",,")
  
  q
+ 
+GETABP(uprn,table,key,flat,build,bno,depth,street,deploc,loc,town,post,org)       ;
+ ;Returns address variables from UPRN record
+ n rec,status
+ s rec=^UPRN("U",uprn,table,key,"O")
+ d getfields
+ Q  
+ 
 GETADR(uprn,table,key,flat,build,bno,depth,street,deploc,loc,town,post,org)       ;
  ;Returns address variables from UPRN record
  n rec,status
  s rec=^UPRN("U",uprn,table,key)
+ d getfields
+ Q 
+getfields ; 
  s flat=$p(rec,"~",1)
  s build=$p(rec,"~",2)
  s bno=$p(rec,"~",3)

@@ -1,4 +1,4 @@
-UPRNX ;Import routine [ 03/19/2019  12:12 PM ]
+UPRNX ;Import routine [ 06/12/2020   8:43 AM ]
  
  ;
 IMPORT ;
@@ -84,25 +84,25 @@ e .set ^UPRN("U",uprn,"D",key)=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_lo
  
 setind ;Sets indexes
  I flat'="",bno'="",street'="",build'="" d
- .S ^UPRN("X4",post,street,bno,flat,build,uprn,table,key)=""
+ .S ^UPRNX("X4",post,street,bno,flat,build,uprn,table,key)=""
 eind q
  
 indexstr(index,term)         ;Indexes street or building etc
  n strno,i,word
- if '$d(^UPRN("X."_index,term)) d
- .S ^UPRN("X."_index)=$G(^UPRN("X."_index))+1
- .S strno=^UPRN("X."_index)
- .S ^UPRN("X."_index,term)=strno
- .s ^UPRN(index,strno)=term
- s strno=^UPRN("X."_index,term)
+ if '$d(^UPRNX("X."_index,term)) d
+ .S ^UPRNX("X."_index)=$G(^UPRNX("X."_index))+1
+ .S strno=^UPRNX("X."_index)
+ .S ^UPRNX("X."_index,term)=strno
+ .s ^UPRNX(index,strno)=term
+ s strno=^UPRNX("X."_index,term)
  f i=1:1:$l(term," ") d
  .s word=$p(term," ",1)
  .q:word=""
  .i $D(^UPRNS("CORRECT",word)) d
  ..s word=^UPRNS("CORRECT",word)
  .I $D(^UPRNS("ROAD",word)) q
- .I $D(^UPRN("X."_index,word)) q
- .s ^UPRN("X.W",word,index,strno)=""
+ .I $D(^UPRNX("X."_index,word)) q
+ .s ^UPRNX("X.W",word,index,strno)=""
  q
  
  
