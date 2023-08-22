@@ -1606,7 +1606,7 @@ m61f ;Post code matches
  ...s $p(matchrec,",",2,5)="Se,Ne,Be,Fe"
  ...s ALG=ALG_"m61ffaj"
  ...s matched=$$set(uprn,table,key)
- i matched b
+ ;i matched b
  q 
 m61g ;Post code matches
  ;Numbers match, flats are not null
@@ -2870,7 +2870,7 @@ m61a ;Post code matches
  ..s $p(matchrec,",",2,5)="Se,Nds,Be,Fe"
  ..s $P(ALG,"-",2)="match61aaa"
  ..s matched=$$set(uprn,table,key)
- i matched b
+ ;i matched b
  q
  
 match61(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc) 
@@ -3284,7 +3284,7 @@ m61d ;post code matches
  .s matchrec="Pe,Se,Nd,Bd,Fe"
  .s $P(ALG,"-",2)="match61c"
  .s matched=$$set(uprn,table,key)
- i matched b
+ ;i matched b
  Q
 m61e ;Post code matches
  ;candidate number null, flat contains a number and the rest matches street
@@ -3296,7 +3296,7 @@ m61e ;Post code matches
  .s $p(matchrec,",",1,5)="Pe,Se,Ne,Bi,Fe"
  .s $P(ALG,"-",2)="match61e"
  .s matched=$$set(uprn,table,key)
- i matched B
+ ;i matched B
  q
  
 nomatch ;Records no match

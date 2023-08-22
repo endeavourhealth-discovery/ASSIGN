@@ -815,7 +815,7 @@ f153 ;Building is complex street and flat
  .s adflat=$p(adbuild,adbuild*1,2)
  .s adbuild=""
  
-f153 ;
+ ;
  D ^UPRNA1(.adflat,.adbuild,.adbno,.adstreet,.adloc,.adeploc)
  
  

@@ -166,7 +166,7 @@ match64(tpost,tbuild,tflat,tbno,tstreet) ;
  .....s $p(matchrec,",",2,5)="Si,Ne,Be,Fe"
  .....S ALG=ALG_"match64"
  .....s matched=$$setuprns^UPRN("X5",post,street,"",tbuild,tflat)
-e63 Q $G(^TUPRN($J,"MATCHED"))
+ Q $G(^TUPRN($J,"MATCHED"))
 match63(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc)     ;
  ;location in street, building drop
  i tbuild["home" d
