@@ -248,7 +248,7 @@ ADLPI(uprn,key,address)
  D GETLPI(saos,saosf,saoe,saoef,saot,paos,paosf,paoe,paoef,paot,lpstr,uprn,.address)
  q
  
-GETLPI(saos,saosf,saoe,saoef,saot,paos,paosf,paoe,paoef,paot,lpstr,uprn,apaddres) ;
+GETLPI(saos,saosf,saoe,saoef,saot,paos,paosf,paoe,paoef,paot,lpstr,uprn,apaddress) ;
  ;Returns LPI fields in address object
  k apaddress
  S lpdes="",lploc="",lptown=""
