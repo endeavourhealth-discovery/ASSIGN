@@ -2,7 +2,7 @@ UPRNB ;Best fit algorithms for UPRN match [ 08/07/2023  9:00 AM ]
  ;
 bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
  ;Best fit algorithms on matched post code and street
- n (ALG,tpost,tstreet,tbno,tbuild,tflat,qpost,tloc)
+ n (ALG,tpost,tstreet,tbno,tbuild,tflat,qpost,tloc,ZONE)
  K ^TBEST($J),^TORDER($J),^TFLAT($j)
  ;
  s tstreet=$$plural^UPRNU(tstreet)
@@ -190,10 +190,10 @@ farpost ;No post code match
  n matched,post,town,loc,bno,tdist
  s matched=0
  s tdist=$$district^UPRNU(tpost)
- i $D(^UPRNX("X3",tstreet,tbno)) d
+ i $D(^UPRNX("X.3",ZONE,tstreet,tbno)) d
  .i tflat'=""!(tbuild'="") d
  .s post=""
- .for  s post=$O(^UPRNX("X3",tstreet,tbno,post)) q:post=""  d  q:matched
+ .for  s post=$O(^UPRNX("X.3",ZONE,tstreet,tbno,post)) q:post=""  d  q:matched
  ..q:post=tpost
  ..i $$district^UPRNU(post)'=tdist q
  ..i $D(^UPRNX("X5",post,tstreet,tbno,tbuild,tflat)) d  q
@@ -214,11 +214,11 @@ farpost ;No post code match
  .....s ^TBEST($J,matchrec)=post
  I $D(^TBEST($J)) q
  i tflat'="",tbuild'="" d
- .I $D(^UPRNX("X3",tstreet)) d
+ .I $D(^UPRNX("X.3",ZONE,tstreet)) d
  ..s bno=""
- ..for  s bno=$O(^UPRNX("X3",tstreet,bno)) q:bno=""  d
+ ..for  s bno=$O(^UPRNX("X.3",ZONE,tstreet,bno)) q:bno=""  d
  ...s post=""
- ...for  s post=$O(^UPRNX("X3",tstreet,bno,post)) q:post=""  d
+ ...for  s post=$O(^UPRNX("X.3",ZONE,tstreet,bno,post)) q:post=""  d
  ....i post=tpost q
  ....s build=""
  ....for  s build=$O(^UPRNX("X5",post,tstreet,bno,build)) q:build=""  d
@@ -230,9 +230,9 @@ farpost ;No post code match
  .........S ^TBEST($J,matchrec)=post
  .........S ^TBEST($J,matchrec,bno,build,tflat)=""
  i tflat="",tbuild'="",tbno'="" d
- .I $D(^UPRNX("X3",tstreet,tbno)) d
+ .I $D(^UPRNX("X.3",ZONE,tstreet,tbno)) d
  ..s post=""
- ..for  s post=$O(^UPRNX("X3",tstreet,tbno,post)) q:post=""  d
+ ..for  s post=$O(^UPRNX("X.3",ZONE,tstreet,tbno,post)) q:post=""  d
  ...i post=tpost q
  ...i $$district^UPRNU(post)'=tdist q
  ...i $$levensh^UPRNU(post,tpost,5,1)!($$sector^UPRN(tpost)=post) d
@@ -262,7 +262,7 @@ bestfit1        ;
  i tflat=""!(tbuild="") q
  s build=$$dropf^UPRNU(tbuild)
  ;Must match on building and flat
- I '$D(^UPRNX("X3",tbuild,tflat,tpost)),'$d(^UPRNX("X3",build,tflat,tpost)) q
+ I '$D(^UPRNX("X.3",ZONE,tbuild,tflat,tpost)),'$d(^UPRNX("X.3",ZONE,build,tflat,tpost)) q
  ;ABP might have number
  s bno=""
  for  s bno=$O(^UPRNX("X5",tpost,tstreet,bno)) q:bno=""  d  q:matched
@@ -584,11 +584,11 @@ bestfitn          ;Fits with no building
  ..s matchrec="Pe,Se,Ne,Bd,Fe"
  ..S ^TBEST($J,matchrec,tbno,"","")=""
  .S post=""
- .for  s post=$O(^UPRNX("X3",tbuild,tflat,post)) q:post=""  d
+ .for  s post=$O(^UPRNX("X.3",ZONE,tbuild,tflat,post)) q:post=""  d
  ..q:post=tpost
  ..s np=$$nearpost^UPRN(post,tpost,1)
  ..i np="Pl" d
- ...I $D(^UPRNX("X3",post,tstreet,tbno,tbuild,tflat)) d
+ ...I $D(^UPRNX("X.3",ZONE,post,tstreet,tbno,tbuild,tflat)) d
  ....s matchrec=nearp_",Se,Ne,Be,Fe"
  ....s ^TBEST($j,matchrec,tbno,tbuild,tflat)=""
  ....s ^TBEST($j,matchrec)=post

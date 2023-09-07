@@ -32,12 +32,12 @@ match69(tpost,tstreet,tbno,tbuild,tflat)         ;
  i tflat'?1n.n1l q ""
  i tbuild=""!(tstreet="")!(tbno'="") q ""
  s flat=tflat
- I $D(^UPRNX("X3",tbuild,$e(tflat,$l(tflat))_" "_(tflat*1))) d
+ I $D(^UPRNX("X.3",ZONE,tbuild,$e(tflat,$l(tflat))_" "_(tflat*1))) d
  .s flat=$e(tflat,$l(tflat))_" "_(tflat*1)
  e  s flat=tflat*1
- I '$D(^UPRNX("X3",tbuild,flat)) q ""
+ I '$D(^UPRNX("X.3",ZONE,tbuild,flat)) q ""
  s post=""
- for  s post=$O(^UPRNX("X3",tbuild,flat,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
+ for  s post=$O(^UPRNX("X.3",ZONE,tbuild,flat,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
  .q:post=tpost
  .s matchrec=$$nearpost^UPRN(post,tpost,1)
  .i matchrec="" q
@@ -58,7 +58,7 @@ match68(tpost,tbuild,tflat,tbno,tstreet) ;
  s troad=$p(tstreet," ",$l(tstreet," "))
  I '$D(^UPRNS("ROAD",troad)) q ""
  s post=""
- for  s post=$O(^UPRNX("X3",tbuild,tflat,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
+ for  s post=$O(^UPRNX("X.3",ZONE,tbuild,tflat,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
  .q:post=tpost
  .s matchrec=$$nearpost^UPRN(post,tpost,1,1)
  .I matchrec'="" d  q:$D(^TUPRN($J,"MATCHED"))
@@ -85,7 +85,7 @@ match67(tpost,tbuild,tflat,tbno,tstreet) ;
  ...i next'?1l.l."'".".".l q
  ...i '$$levensh^UPRNU(word,next,5,2) q
  ...S build=$$tr^UPRNL(tbuild,word,next)
- ...i '$D(^UPRNX("X3",build,tflat)) q
+ ...i '$D(^UPRNX("X.3",ZONE,build,tflat)) q
  ...s $p(matchrec,",",4,5)="Bl,Fe"
  ...s matched=$$match67a(tpost,build,tflat,tbno,tstreet)
  i tstreet'="" d
@@ -103,10 +103,10 @@ match67a(tpost,tbuild,tflat,tbno,tstreet) ;
  ...i next'?1l.l."'".".".l q
  ...i '$$levensh^UPRNU(word,next,5,2) q
  ...S street=$$tr^UPRNL(tstreet,word,next)
- ...i '$D(^UPRNX("X3",street,tbno)) q
+ ...i '$D(^UPRNX("X.3",ZONE,street,tbno)) q
  ...s $p(matchrec,",",2,3)="Sl,Ne"
  ...s post=""
- ...for  s post=$O(^UPRNX("X3",street,tbno,post)) q:post=""  d  q:matched
+ ...for  s post=$O(^UPRNX("X.3",ZONE,street,tbno,post)) q:post=""  d  q:matched
  ....i '$D(^UPRNX("X5",post,street,tbno,tbuild,tflat)) q
  ....i $$nearpost^UPRN(post,tpost)'="" d
  .....s $p(ALG,"-",2)="match67"
@@ -115,7 +115,7 @@ match67a(tpost,tbuild,tflat,tbno,tstreet) ;
  q matched
 match66(tpost,tbuild,tflat,tbno,tstreet) ;
  s post=""
- for  s post=$O(^UPRNX("X3",tstreet,tbno,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
+ for  s post=$O(^UPRNX("X.3",ZONE,tstreet,tbno,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
  .q:post=tpost
  .s matchrec=$$nearpost^UPRN(post,tpost,2,1)
  .I matchrec'="" d
@@ -130,7 +130,7 @@ match65(tpost,tbuild,tflat,tbno,tstreet) ;
  .s tstreet=^UPRNS("NUMWORD",tbno)_" "_adstreet
  .s tdbno=""
  s post=""
- for  s post=$O(^UPRNX("X3",tbuild,tflat,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
+ for  s post=$O(^UPRNX("X.3",ZONE,tbuild,tflat,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
  .q:post=tpost
  .s matchrec=$$nearpost^UPRN(post,tpost,2,1)
  .I matchrec'="" d  q:$D(^TUPRN($J,"MATCHED"))
@@ -155,7 +155,7 @@ match65(tpost,tbuild,tflat,tbno,tstreet) ;
 e63 Q $G(^TUPRN($J,"MATCHED"))
 match64(tpost,tbuild,tflat,tbno,tstreet) ;
  s post=""
- for  s post=$O(^UPRNX("X3",tbuild,tflat,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
+ for  s post=$O(^UPRNX("X.3",ZONE,tbuild,tflat,post)) q:post=""  d  q:$d(^TUPRN($J,"MATCHED"))
  .q:post=tpost
  .s matchrec=$$nearpost^UPRN(post,tpost,2)
  .I matchrec'="" d  q:$D(^TUPRN($J,"MATCHED"))
@@ -210,7 +210,7 @@ match63(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc)     ;
  ;Dig out street from street
  f i=2:1:$l(tstreet," ")-1 d  q:matched
  .s tstr=$p(tstreet," ",1,i)
- .I $D(^UPRNX("X.STR",tstr)) d
+ .I $D(^UPRNX("X.STR",ZONE,tstr)) d
  ..I $D(^UPRNX("X5",tpost,tstr,tbno)) d
  ...i tflat=""  d
  ....I $D(^UPRNX("X5",tpost,tstr,tbno,"","")) d
@@ -221,8 +221,8 @@ match63(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc)     ;
  i matched q matched
  ;Dig out street from building and number from flat if building is stret
  i tbno="" d
- .I $D(^UPRNX("X.STR",tbuild)) d
- ..I '$D(^UPRNX("X.STR",tstreet)) d
+ .I $D(^UPRNX("X.STR",ZONE,tbuild)) d
+ ..I '$D(^UPRNX("X.STR",ZONE,tstreet)) d
  ...I $p(tflat," ",$l(tflat," "))?1n.n.l d
  ....s tstno=$p(tflat," ",$l(tflat," "))
  ....I $D(^UPRNX("X5",tpost,tbuild,tstno,"","")) d
