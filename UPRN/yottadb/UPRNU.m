@@ -304,7 +304,7 @@ matchbld(build,tbuild)       ;
 	i $D(^UPRNS("DROPSUFFIX",$e(@var1,$l(@var)+2,$l(@var1)))) q 1
 	q 0
 	;	
-equiv(test,tomatch,min,force)          ;Swaps drops and levenshtein
+equiv(test,tomatch,min,force,droproad)          ;Swaps drops and levenshtein
 	i $D(^UPRNW("SFIX",tomatch,test)) q 1
 	N otest,otomatch
 	s otest=test,otomatch=tomatch
@@ -313,6 +313,13 @@ cwm i $l(test)>7 i $e($tr(test," "),1,$l($tr(test," "))-1)=$e($tr(tomatch," "),1
 	d swap(.test,.tomatch)
 	d drop(.test,.tomatch)
 	d welsh(.test,.tomatch)
+	i $g(droproad) d
+	. i test[" " d
+	. . i $D(^UPRNS("ROAD",$p(test," ",$l(test," ")))) d
+	. . . s test=$p(test," ",$l(test," ")-1)
+	. i tomatch[" " d
+	. . i $D(^UPRNS("ROAD",$p(tomatch," ",$l(tomatch," ")))) d
+	. . . s tomatch=$p(tomatch," ",$l(tomatch," ")-1)
 	s tomatch=$$tr^UPRNL(tomatch,"eaux","eux")
 	i $tr(test," ")=$tr(tomatch," ") q 1
 	set test=$$tr^UPRNL(test,"ei","ie")
@@ -493,15 +500,15 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	S ^UPRNS("BESTFIT",fix)="Pe,Se,N>B,Bf,F>Be" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Bi,Fev" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Bi,Fe" s fix=fix+1
-	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Bi,Fa" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Bi,Fp" s fix=fix+1
-01012020 S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fs" s fix=fix+1
+	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fs" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fc" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,Sp,Ne,Be,Fev" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,Sp,Ne,Be,Fe" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ns,Be,Fe" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Be,Fev" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Be,Fe" s fix=fix+1
+	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Bi,Fa" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,Si,Ne,Be,Fev" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,Si,Ne,Be,Fe" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pl,Se,Ne,Bp,Fe" s fix=fix+1
@@ -948,5 +955,6 @@ MFRONT(test,tomatch,count,leftover) ;
 	if mcount<count q 0
 	set leftover=$p(@to," ",mcount+1,20)
 	q 1
+	;
 	;
 	;

@@ -28,6 +28,9 @@ RELINK1				;Entry after Stack-Clearance
 	Q
 INIT    			;Open TCP-Communication-Port
 	N %IO,%DEV,%PORT,%SOCKET,%ZTFORM
+	U 0 W !,"Relinking routines.."
+	U 0 D ^ZLINK
+	u 0 w !,"Waiting for client..."
 	;USE $P:(EXCEPTION="D BYE":CTRAP=$C(3))	;Ensure Clean-Up when Ctrl-C is pressed
 	USE $P	;Ensure Clean-Up when Ctrl-C is pressed
 	S %IO=$I,%PORT=9000,%DEV="|TCP|"_%PORT_"|"_$J
