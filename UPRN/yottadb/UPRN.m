@@ -3488,9 +3488,9 @@ setuprns(index,n1,n2,n3,n4,n5)
 	. . . for  s key=$O(^UPRNX(index,n1,n2,n3,n4,n5,uprn,table,key)) q:key=""  d
 	. . . . s matched=$$set(uprn,table,key)
 	i index="X3"!(index="X3") d
-	. for  s uprn=$O(^UPRNX(index,n1,n2,n3,uprn)) q:uprn=""  d
-	. . for  s table=$O(^UPRNX(index,n1,n2,n3,uprn,table)) q:table=""  d
-	. . . for  s key=$O(^UPRNX(index,n1,n2,n3,uprn,table,key)) q:key=""  d
+	. for  s uprn=$O(^UPRNX(index,ZONE,n1,n2,n3,uprn)) q:uprn=""  d
+	. . for  s table=$O(^UPRNX(index,ZONE,n1,n2,n3,uprn,table)) q:table=""  d
+	. . . for  s key=$O(^UPRNX(index,ZONE,n1,n2,n3,uprn,table,key)) q:key=""  d
 	. . . . s matched=$$set(uprn,table,key)
 	q matched
 	;	
