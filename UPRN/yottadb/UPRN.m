@@ -1847,7 +1847,11 @@ match11(tpost,tstreet,tbno,tbuild,tflat,lastchan,tloc)
 	. . . i flat="",$L(build," ")>1,$p(build," ",$l(build," "))?1n.n.e d
 	. . . . s flat=$p(build," ",$l(build," "))
 	. . . . s build=$p(build," ",1,$l(build," ")-1)
-	. . . I $g(lastchan) d match11c q
+	. . . i tflat=bno,tbno="",flat="",build="",$$equiv^UPRNU(tbuild_" "_tstreet,street) d  q:matched
+	. . . . s matchrec="Pe,Se,Ne,Be,Fe"
+	. . . . s $p(ALG,"-",2)="match11aa"
+	. . . . s matched=$$set(uprn,table,key)
+	. . . I $g(lastchan) d match11c q:matched
 	. . . i flat=tflat,bno=tbno d  q:matched
 	. . . . i tbuild'=""&(build'="") d
 	. . . . . I tbuild[build,$$equiv^UPRNU($p(tbuild,build_" ",2),street) d match11z q
@@ -3041,6 +3045,10 @@ match61(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc)
 	. . . . . . S matchrec="Pe,Sl>B,N>F,Bl,Fe"
 	. . . . . . s $P(ALG,"-",2)="match61d"
 	. . . . . . s matched=$$set(uprn,table,key)
+	. . . . I flat=tbno,tloc'="",$$equiv^UPRNU(build,tstreet_" "_tloc,6,1) d
+	. . . . . S matchrec="Pe,Sl>B,N>F,Bl,Fe"
+	. . . . . s $P(ALG,"-",2)="match61d"
+	. . . . . s matched=$$set(uprn,table,key)
 	. . . i $$equiv^UPRNU(street,tstreet) d  q
 	. . . . i bno=""!(tbno="") q
 	. . . . i bno'=tbno q

@@ -518,7 +518,7 @@ Y	RI02	Communal Residence	R	I	2		Residential	Residential Institution	Communal Re
 Y	RI02NC	Non-Commercial Lodgings	R	I	2	NC	Residential	Residential Institution	Communal Residence	Non-Commercial Lodgings
 Y	RI02RC	Religious Community	R	I	2	RC	Residential	Residential Institution	Communal Residence	Religious Community
 Y	RI03	Residential Education	R	I	3		Residential	Residential Institution	Residential Education	
-Y	U	Unclassified	U				Unclassified			
+	U	Unclassified	U				Unclassified			
 Y	UC	Awaiting Classification	U	C			Unclassified	Awaiting Classification		
 Y	UP	Pending Internal Investigation	U	P			Unclassified	Pending Internal Investigation		
 Y	X	Dual Use	X				Dual Use			

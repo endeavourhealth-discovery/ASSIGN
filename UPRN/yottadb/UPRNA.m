@@ -699,18 +699,24 @@ f137 ;House and street in same line
 	. i $p(adstreet," ",lenstr)?1n.n d
 	. . s strfound=0
 	. . f i=1:1:lenstr-1 d  q:strfound
-f138 . . . i $D(^UPRNX("X.STR",ZONE,$p(adstreet," ",i,lenstr-1))) d
+	. . . i $D(^UPRNX("X.STR",ZONE,$p(adstreet," ",i,lenstr-1))) d
 	. . . . s strfound=1
 	. . . . s adflat=adbno
 	. . . . s adbno=$p(adstreet," ",lenstr)
 	. . . . s adbuild=$p(adstreet," ",0,i-1)
 	. . . . s adstreet=$p(adstreet," ",i,lenstr-1)
-f139 . I $D(^UPRNX("X.STR",ZONE,adstreet)) q
+	. I $D(^UPRNX("X.STR",ZONE,adstreet)) q
 	. f i=$l(adstreet," ")-1:-1:2 i $D(^UPRNX("X.STR",ZONE,$p(adstreet," ",i,$l(adstreet," ")))) d  q
 	. . s adflat=adbno
-	. . s adbuild=$p(adstreet," ",1,i-1)
-	. . s adbno=""
-	. . s adstreet=$p(adstreet," ",i,$l(adstreet," "))
+	. . I $p(adstreet," ",i-1)?1n.n.l d
+	. . . s adbno=$p(adstreet," ",i-1)
+	. . . i '$$isflat^UPRNU($p(adstreet," ",1)) d
+	. . . . s adbuild=$p(adstreet," ",i-2)
+	. . . s adstreet=$p(adstreet," ",i,$l(adstreet," "))
+	. . e  d 
+	. . . s adbuild=$p(adstreet," ",1,i-1)
+	. . . s adbno=""
+	. . . s adstreet=$p(adstreet," ",i,$l(adstreet," "))
 	;	
 	;	
 f140 ;Shifts building to stree if its in street dictionary

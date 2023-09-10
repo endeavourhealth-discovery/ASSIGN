@@ -23,9 +23,13 @@ match73(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc)
 	. . . . s matchrec="Pe,Si,Ni,Be,Fe"
 	. . . . s $p(ALG,"-",2)="match73"
 	. . . . s matched=$$set^UPRN(uprn,table,key)
-	. . . I flat=tflat,bno'=tbno,street'=tstreet,$$equiv^UPRNU(tbuild,build) d  q:matched
-	. . . . s matchrec="Pe,Si,Ni,Be,Fe"
-	. . . . s $p(ALG,"-",2)="match73"
+	. . . I flat=tflat,bno'=tbno,$$equiv^UPRNU(tbuild,build) d  q:matched
+	. . . . i street'=tstreet d
+	. . . . . s matchrec="Pe,Si,Ni,Be,Fe"
+	. . . . . s $p(ALG,"-",2)="match73"
+	. . . . e  d
+	. . . . . s matchrec="Pe,Se,Ni,Be,Fe"
+	. . . . . s $p(ALG,"-",2)="match73b"
 	. . . . s matched=$$set^UPRN(uprn,table,key)
 	. . . I tflat=bno,flat="",build="",$$equiv^UPRNU(tbuild,street,"","",1) d  q:matched
 	. . . . s matchrec="Pe,S<B,N<F,B>S,F>N"
