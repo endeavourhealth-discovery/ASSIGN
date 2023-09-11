@@ -3,7 +3,7 @@ UPRN1A ;Import routine V54
 	;
 	d files
 SURE ;
-	w !,"Full or delta upload ? :" r fulldelta
+	w !,"Full, addtional  or delta upload (F/D/A) ? :" r fulldelta
 	s fulldelta=$$UC^LIB(fulldelta)
 	i fulldelta="F" d
 	. W !!,"You are about to delete the ABP data and replace it"
