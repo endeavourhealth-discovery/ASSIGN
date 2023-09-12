@@ -10,8 +10,8 @@ CONT ;Re-entry point
 	s from=""
 	s to=1000000000
 	s ui=0
-	s country="e"
-	s ^VERSION="4.3.1"
+	s country="w"
+	s ^VERSION="5.4.1"
 setarea d batch("D","",from,to,ui,country)
 	d stats
 	q
@@ -74,7 +74,7 @@ batch(mkey,qpost,from,to,ui,country)   ;Processes a batch of addresses for a lis
 	. . s ouprn=^UPRNI("Prev",^VERSION,adno)
 	. . i ouprn="" q
 	. . S ^UPRNI("mismatch",adno)=ouprn
-	. I '(adno#1000) d
+	. I '(adno#100) d
 	. . w !,"Matched "_adno
 	. . d stats
 	q
@@ -150,7 +150,7 @@ ADRQUAL(rec,country)         ;
 	i post'="",$l(rec,"~")=2,$p(rec,"~")'[" " d
 	. i $l($p(rec,"~"))<10,$g(qpost)="" d
 	. . S ^TUPRN($J,"INVALID")="Insufficient characters"
-	i post'="",$l(rec,"~")=2,$D(^UPRNX("X.STR",ZONE,$p(rec,"~"))) d
+	i post'="",$l(rec,"~")=2,$D(^UPRNX("X.STR",$e(post),$p(rec,"~"))) d
 	. S ^TUPRN($J,"INVALID")="Insufficient characters"
 	q
 validp(post)       ;

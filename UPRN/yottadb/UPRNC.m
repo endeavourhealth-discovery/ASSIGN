@@ -15,6 +15,10 @@ match73(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc)
 	. . . s flat=$p(rec,"~",1),build=$p(rec,"~",2)
 	. . . s bno=$p(rec,"~",3)
 	. . . s street=$p(rec,"~",5)
+	. . . if (flat_" "_build)=(tflat_" "_tbuild_" "_tbno_" "_tstreet) d  q
+	. . . . s matchrec="Pe,S>B,Ne,B<D,F<B"
+	. . . . S $p(ALG,"-",2)="match73b"
+	. . . . s matched=$$set^UPRN(uprn,table,key)
 	. . . I tflat=build,street=tstreet,tbno=bno,flat="" d  q:matched
 	. . . . s matchrec="Pe,Se,Ne,B>F,F<B"
 	. . . . s $p(ALG,"-",2)="match73b"

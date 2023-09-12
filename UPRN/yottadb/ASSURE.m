@@ -7,10 +7,10 @@ IMPORT(source) ;
 	w !,"Add  or Overwrite (A/O) :" r aoro
 	s aoro=$$UC^LIB(aoro)
 	d files(source)
-	D IMPORT^UPRNTEST(^UPRNF("assuranceimport"),source)
+	D IMPORT^UPRNTEST(^UPRNF("assuranceimport",source),source)
 	D unpack(source,aoro)
 	Q
-unpack(source.aro)	;
+unpack(source,aoro)	;
 	if source="SCOT" d SCOT1(aoro)
 	if source="WALES" d WALES(aoro)
 	Q
@@ -44,9 +44,7 @@ files(source) ;
 	s file=""
 	s file=$G(^UPRNF("assuranceimport",source))
 	w !,"source import path & file  ("_file_") :" r file
-	i file="" s file=$g(^UPRNF("assurance",source))
-	set att=$$8^ZOS(file)
-	if 'att write *7,"Error no file" H 2 G files
+	i file="" s file=$g(^UPRNF("assuranceimport",source))
 	s ^UPRNF("assuranceimport",source)=file
 	q	
 	;

@@ -2,9 +2,8 @@ UPRNTEST ;Command line for processing a batch of adresses [ 07/28/2023  11:17 AM
 		n
 	s vold=^UPRNF("oldversion")
 	s vnew=^UPRNF("newversion")
-	i '$d(^UPRNI("Prev",vold)) d
-	. W !,"Saving old version - ",vold
-	. m ^UPRNI("Prev",vold)=^UPRNI("M")
+	i '$d(^UPRNI("Prev",vold)) d  q
+	. W !,"Old version matches not present. Merge from ^UPRNI(M) if required"
 	S diff=$tr(vold,".","_")_"-"_$tr(vnew,".","_")_"-diff.txt"
 	s file=^UPRNF("assurancepath")_"/"_"Diff-"_vold_vnew_".txt"
 	O file:newversion
@@ -211,4 +210,13 @@ IMPORT(file,sourceType) ;
 	c file
 	Q
 	Q
+UNMATCHED(file) ;Exports unmatched data
+			n adno
+		O file:newversion	
+		s adno=""
+		for  s adno=$O(^UPRNI("M",adno))  q:adno=""  d
+		. w adno_$c(9)_^UPRNI("D",adno),!
+		c file
+		q
+	;		
 	;

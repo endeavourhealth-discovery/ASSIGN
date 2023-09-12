@@ -53,13 +53,14 @@ f156 ;
 	I adstreet'[" ",$D(^UPRNX("X.STR",ZONE,adloc)) d
 	. n tbld,tadbuild,done
 	. s tbld="",done=0
-	. for  s tbld=$O(^UPRNS("BUILDING",tbld)) q:tbld=""  d
-	. . s tadbuild=adstreet_" "_tbld
-	. . I $D(^UPRNX("X.BLD",ZONE,tadbuild)) d  s done=1
-	. . . s adflat=adflat_" "_adbuild
-	. . . s adbuild=tadbuild
-	. . . s adstreet=adloc
-	. . . s adloc=""
+	. i '$D(^UPRNX("X3",ZONE,adstreet)) do
+	. . for  s tbld=$O(^UPRNS("BUILDING",tbld)) q:tbld=""  d
+	. . . s tadbuild=adstreet_" "_tbld
+	. . . I $D(^UPRNX("X.BLD",ZONE,tadbuild)) d  s done=1
+	. . . . s adflat=adflat_" "_adbuild
+	. . . . s adbuild=tadbuild
+	. . . . s adstreet=adloc
+	. . . . s adloc=""
 	i adflat?1n.n.l1" "1l.l d
 	. I '$D(^UPRNX("X.BLD",ZONE,adbuild)) d
 	. . i $D(^UPRNX("X.BLD",ZONE,$p(adflat," ",$l(adflat," "))_" "_adbuild)) d
