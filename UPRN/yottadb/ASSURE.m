@@ -3,50 +3,63 @@ ASSURE ;
 	D ^UPRNTEST("0","5.4","","/mnt/c/Users/david/CloudStation/msm/SHARED/ABP/Assurance")
 	Q
 IMPORT(source) ;
-	n aoro
-	w !,"Add  or Overwrite (A/O) :" r aoro
-	s aoro=$$UC^LIB(aoro)
 	d files(source)
-	D IMPORT^UPRNTEST(^UPRNF("assuranceimport",source),source)
-	D unpack(source,aoro)
+	K ^UPRNI("D")
+	D UNMATCHED(source)
+	D MATCHED(source)
 	Q
-unpack(source,aoro)	;
-	if source="SCOT" d SCOT1(aoro)
-	if source="WALES" d WALES(aoro)
-	Q
-WALES(aoro);
-	n adno,newadno,rec
-	i aoro="O" K ^UPRNI("D")
-	s newadno=$O(^UPRNI("D",""),-1)+1
-	s adno=""
-	for  s adno=$O(^UPRNI("WALES",adno)) q:adno=""  D
-	. s rec=^(adno)
-	. s newadno=newadno+1
-	. s ^UPRNI("D",newadno)=$p(rec,$C(9),1)
-	. S ^UPRNI("UPRN","WALES",newadno)=$p(rec,$C(9),2)
+	;
+files(source) ;	
+	n file
+	s file=$G(^UPRNF("matched",source))
+	w !,source," source matched file  ("_file_") :" r file
+	i file="" s file=$g(^UPRNF("matched",source))
+	s ^UPRNF("matched",source)=file
+	s file=$G(^UPRNF("unmatched",source))
+	w !,source," source unmatched file  ("_file_") :" r file
+	i file="" s file=$g(^UPRNF("unmatched",source))
+	s ^UPRNF("unmatched",source)=file
 	q
-	;				
-SCOT1(aoro) ;
-	n newadno,adno,rec
-	i aoro="O" K ^UPRNI("D")
-	s adno=""
-	s newadno=$O(^UPRNI("D",""),-1)+1
-	for  s adno=$O(^UPRNI("SCOT",adno)) q:adno=""  D
-	. s rec=^(adno)
-	. s rec=$$csv^UPRNU(rec)
-	. S newadno=newadno+1
-	. s ^UPRNI("D",newadno)=$$format^UPRNAS(rec)
-q
-	;
 	;	
-files(source) ;
-	n file,att
+MATCHED(source) ;
+	n file,rec,del,adno,header,uprn
+	s file=^UPRNF("matched",source)
+	u 0 w !,"Importing "_file_"..."
+	s del=$c(9)
+	o file
+	s adno=$O(^UPRNI("D",""),-1)
+	i source="SCOT" u file r header
+	for  u file r rec  q:$zeof  d
+	. s adno=adno+1
+	. i source="WALES" d
+	. . s ^UPRNI("D",adno)=$p(rec,$c(9),1)
+	. . S uprn=$p(rec,del,2)
+	. . i uprn'="" S ^UPRNI("M",source,adno)=uprn
+	. i source="SCOT" d  
+	. . S ^UPRNI("D",adno)=$$scotm($$csv^UPRNU(rec))
+	c file
+	Q
+UNMATCHED(source) ;
+	n file,rec,adno,del
 	s file=""
-	s file=$G(^UPRNF("assuranceimport",source))
-	w !,"source import path & file  ("_file_") :" r file
-	i file="" s file=$g(^UPRNF("assuranceimport",source))
-	s ^UPRNF("assuranceimport",source)=file
-	q	
-	;
-	;
-	;
+	s file=^UPRNF("unmatched",source)
+	u 0 w !,"Importing "_file_"..."
+	s del=$c(9)
+	o file
+	s adno=$O(^UPRNI("D",""),-1)
+	i source="SCOT" u file r header
+	for  u file r rec  q:$zeof  d
+	. s adno=adno+1
+	. i source="WALES" d
+	. . s ^UPRNI("D",adno)=$p(rec,$c(9),1)
+	. i source="SCOT" d
+	. . S ^UPRNI("D",adno)=$$scotm($$csv^UPRNU(rec))
+	c file
+	Q	
+scotm(rec) ;
+	n addr,i
+	s addr=$P(rec,$c(9),6)
+	f i=$l(addr,","):-1:1 s post=$p(addr,",",i) i $$validp^UPRN($tr(post," ")) q
+	s addr=$p(addr,",",0,i)
+	q addr
+	;	

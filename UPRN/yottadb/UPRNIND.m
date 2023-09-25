@@ -155,23 +155,12 @@ setind1 ;Sets indexes
 	. . s ^UPRNX("X5",post,pdepth_" "_pstreet,bno,pbuild,flat,uprn,table,key)=""
 eind q
 indexstr(index,term)         ;Indexes street or building etc
-	n strno,i,word
-	if '$d(^UPRNX("X."_index,ZONE,term)) d
-	. S ^UPRNX("X."_index,ZONE)=$G(^UPRNX("X."_index,ZONE))+1
-	. S strno=^UPRNX("X."_index,ZONE)
-	. S ^UPRNX("X."_index,ZONE,term)=strno
-	. I term[" " d
-	. . s ^UPRNS("X."_index,ZONE,$tr(term," "))=term
-	. s ^UPRNX(index,ZONE,strno)=term
-	s strno=^UPRNX("X."_index,ZONE,term)
+	n i,word
+	S ^UPRNX("X."_index,ZONE,term)=term
 	f i=1:1:$l(term," ") d
-	. s word=$p(term," ",1)
-	. q:word=""
-	. i $D(^UPRNS("CORRECT",word)) d
-	. . s word=^UPRNS("CORRECT",word)
-	. I $D(^UPRNS("ROAD",word)) q
-	. I $D(^UPRNX("X."_index,ZONE,word)) q
-	. s ^UPRNX("X.W",word,index,ZONE,strno)=""
+	. s word=$p(term," ",i)
+	. i word="" q
+	. S ^UPRNX("X.W",word)=""
 	q
 isok(uprn)        ;
 	n (uprn)
@@ -181,19 +170,4 @@ isok(uprn)        ;
 	s res=$G(^UPRN("CLASSIFICATION",class,"residential"))
 	i res="Y" q 1
 	q 0
-LEVENSTR ;
-	K ^UPRNW("SFIX")
-	K ^UPRNW("Done")
-	s word=""
-	for  s word=$O(^UPRNX("X.W",word)) q:word=""  d
-	. i $l(word)<5 q
-	. i word'?1l.l."'".".".l q
-	. s st=$e(word,1,2)
-	. s next=st
-	. for  s next=$o(^UPRNX("X.W",next)) q:($e(next,1,2)'=st)  d
-	. . i next=word q
-	. . I $$levensh^UPRNU(word,next,5,1) d
-	. . . S ^UPRNW("SFIX",word,next)=""
-	. . . ;W !,word,"~= ",next r t
-ELEV q
 	;

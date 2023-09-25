@@ -14,7 +14,24 @@ f153A ;Flat in location
 	. . . . . s adbuild=adstreet
 	. . . . . s adstreet=xbuild
 	. . . . . s adloc=""
-	; 
+	;
+f153b	;
+	i adflat?.n.l1" ".n,adbno="",adbuild="" d
+	. s adbno=$p(adflat," ",2)
+	. s adflat=$p(adflat," ")
+	. I adbuild="",$D(^UPRNX("X.BLD",ZONE,adflat)) d
+	. . s adbuild=adflat
+	. . s adflat="" 
+f153c	;Street is building
+	i adbuild="",adflat="" d
+	. I '$D(^UPRNX("X.STR",ZONE,adstreet)),$D(^UPRNS("HOUSE",$p(adstreet," ",$l(adstreet," ")))) D
+	. . I $D(^UPRNX("X.BLD",ZONE,$p(adstreet," ",0,$l(adstreet," ")-1))) d
+	. . . s adbuild=adstreet
+	. . . s adflat=adbno
+	. . . s adstreet="",adbno=""
+f153d	;"at"
+	i $p(adbuild," ",$l(adbuild," "))="at" d
+	. s adbuild=$p(adbuild," ",0,$l(adbuild," ")-1)
 F154 ;Building is number flat range
 	i adflat="",adbno="",adstreet'="",adbuild?1n.n.1"-"1l1"-"1l d
 	. s adbno=$p(adbuild,"-",1)_$p(adbuild,"-",2,3)
@@ -108,6 +125,9 @@ f156 ;
 	. . i $D(^UPRNX("X.BLD",ZONE,adstreet)) d
 	. . . S adbuild=adstreet
 	. . . s adstreet=""
+	i adbno="",$p(adbuild," ",$l(adbuild," "))?1n.n.l d
+	. s adbno=$p(adbuild," ",$l(adbuild," "))
+	. s adbuild=$p(adbuild," ",0,$l(adbuild," ")-1)
 	Q
 change(glob,node,from,to)    ;
 	n nodes

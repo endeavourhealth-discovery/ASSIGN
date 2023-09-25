@@ -312,16 +312,21 @@ f34 . . . if adbuild'="" d
 f35 . . . else  d
 	. . . . s adbuild=$p(adstreet," ",1,2)
 	. . . set adstreet=$p(adstreet," ",3,20)
-f35a ;Brackets
-	i adbuild["(" d
-	. i adbuild["(l)" q
-	. s adbuild=$tr(adbuild,"("," ")
-	. s adbuild=$tr(adbuild,")"," ")
-	. s adbuild=$$tr^UPRNL(adbuild,"  "," ")
-	;	
+	;
 	;Ordinary flat building various formats, split it up
 	;
+f35a ;Brackets
+		s address("originalbuild")=adbuild
+	i adbuild["(" d
+	. i adbuild["(l)" q
+	. S address("bracketed")=""
+	. s adbuild=$tr(adbuild,"("," ")
+	. s adbuild=$tr(adbuild,")","")
+	. s adbuild=$$tr^UPRNL(adbuild,"  "," ")
+	;			
 	if adflat="" do flatbld(.adflat,.adbuild,.adstreet)
+	;
+	;
 	s address("oflat")=adflat
 	s adflat=$$fixflat(adflat)
 	i adflat?1"room".e d
@@ -768,6 +773,8 @@ f145 ;Flat not yet found
 	. F i=1:1:$l(adbuild," ") i $p(adbuild," ",i)?1n.n.l d  q
 	. . s adflat=$p(adbuild," ",1,i)
 	. . s adbuild=$P(adbuild," ",i+1,20)
+	. . i $p(adbuild," ")="at" d
+	. . . s adbuild=$p(adbuild," ",2,20)
 	. i adflat'="" q
 	. i adbuild?1"studio"1" "1l s adflat=adbuild,adbuild="" q
 	. i adbuild?1"studio"1" "1n s adflat=adbuild,adbuild="" q
@@ -992,23 +999,26 @@ f52 ;19- eagle house
 	. set adflat=$p(adbuild,"-",1)
 	. set adbuild=$p(adbuild," ",2,20)
 	;	
-f53 ;first floor flat
+f53 ;first floor flat or front flat
 	if adbuild[" flat"!(adbuild[" room"),adflat="" do  q
-	. n i,flatfound,word
-	. s flatfound=0
-	. F i=1:1:$l(adbuild," ") d  q:flatfound
+	. i adbuild[" no " d
+	. . s adbuild=$$tr^UPRNL(adbuild," no "," ")
+	. n i,flatfound,word,wordcount
+	. s flatfound=0,wordcount=$l(adbuild," ")
+	. F i=1:1:wordcount d  q:flatfound
 	. . s word=$p(adbuild," ",i)
-f54 . . i word="flat"!(word="room") d
+	. . i word="flat"!(word="room") d
 	. . . s flatfound=1
-f55 . . . i $p(adbuild," ",i+1)?.n!($p(adbuild," ",i+1)?.n1l) d  q
-	. . . . s adflat=$p(adbuild," ",1,i+1)
-	. . . . s adbuild=$p(adbuild," ",i+2,$l(adbuild))
-	. . . . I adbuild="",$D(^UPRNS("BUILDING",$p(adflat," ",i-1))) d
-	. . . . . s adbuild=$p(adflat," ",1,i-1)
-	. . . . . s adflat=$p(adflat," ",i,20)
-	. . . E  D
-	. . . . S adflat=$p(adbuild," ",1,i)
-	. . . . s adbuild=$p(adbuild," ",i+1,20)
+	. . . if i+1=wordcount d  q
+	. . . . i $p(adbuild," ",wordcount)?1n.l d  q
+	. . . . . s adflat=$p(adbuild," ",wordcount)
+	. . . . . s adbuild=$p(adbuild," ",0,i-1)
+	. . . i $p(adbuild," ",i+1)?1n.n.l d  q
+	. . . . s adflat=$p(adbuild," ",i+1)
+	. . . . s adbuild=$p(adbuild," ",0,i-1)_" "_$p(adbuild," ",i+2,wordcount)
+	. . . e  d
+	. . . . s adflat=$p(adbuild," ",0,i-1)
+	. . . . s adbuild=$p(adbuild," ",i+1,wordcount)
 	;	
 	;	
 	;	
@@ -1167,6 +1177,13 @@ f83 ;westdown road 99
 	i $p(adstreet," ",$l(adstreet," "))?1n.n d
 	. s adbno=$p(adstreet," ",$l(adstreet," "))
 	. s adstreet=$p(adstreet," ",0,$l(adstreet," ")-1)
+	. s adstreet=$$tr^UPRNL(adstreet," at","")
+	. I $d(^UPRNS("FLOOR",adstreet)) d
+	. . i adbuild="" d
+	. . . s adbuild=adstreet,adstreet=""
+	. . e  i adflat="" d
+	. . . s adflat=adstreet,adstreet=""
+	. . e  s adbuild=adbuild_" "_adstreet,adstreet=""
 	;
 	I adstreet?1n1.n1" "1n.n1" "1l.e d
 	. i $p(adstreet," ",1)=$p(adstreet," ",2) d
@@ -1233,15 +1250,7 @@ spelchk(address)   ;
 fixstr(index,str)        ;
 	n (index,str,ZONE)
 	i $D(^UPRNX(index,ZONE,str)) d  q str
-	. i ^UPRNX(index,ZONE,str)[" " d
-	. . s str=^UPRNX(index,ZONE,str)
-	s new=str
-	I str[" " i $D(^UPRNX(index,ZONE,$tr(str," "))) d  q new
-	. s new=^UPRNX(index,ZONE,$tr(str," "))
-	i str[" " d
-	. s word=$p(str," ",1)
-	. i $D(^UPRNX(index,ZONE,$e(word,1,$l(word)-1)_" "_$p(str," ",2,10))) d
-	. . s new=$E(word,1,$l(word)-1)_" "_$p(str," ",2,10)
-	q new
+	. S str=^UPRNX(index,ZONE,str)
+	q str
 	;
 	;

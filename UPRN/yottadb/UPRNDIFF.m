@@ -1,0 +1,3 @@
+UPRNDIFF	;
+	;D ^UPRNTEST("WALES","5.4.2")
+	D out^UPRNTEST("WALES","5.4.2")

@@ -9,6 +9,7 @@ MDEBUG  			;Debugging Routine for GT.M/YottaDB by Jens Wulf
 				;ignoreVars:%PROGNAME
 	S $ZTRAP="B"
 	S $ZSTEP="S %ERROR=$ZSTatus ZSHOW ""VIS"":^%MDEBUG($J,""VARS"") S %STEP=$$WAIT^MDEBUG($ZPOS) ZST:%STEP=""I"" INTO ZST:%STEP=""O"" OVER ZST:%STEP=""F"" OUTOF ZC:%STEP=""C"""
+	S $ZSTEP="S %ERROR=$ZSTatus ZSHOW ""VIS"":^%MDEBUG($J,""VARS"") S %STEP=$$WAIT^MDEBUG($ZPOS) ZGOTO 1"
 	D INIT
 	F  S %STEP=$$WAIT("") Q:%STEP["^"
 	;Relink and recognize Source-Changes
@@ -44,6 +45,7 @@ INIT    			;Open TCP-Communication-Port
 	KILL ^%MDEBUG($J)
 	S ^%MDEBUG($J,"SOCKET")=%SOCKET
 	S ^%MDEBUG($J,"DEV")=%DEV
+	d ^ZLINK
 	D OUT("Debugger connected")
 	;If there's no explicit Error-Handling show Errors in Debugger
 	S:$ZTRAP="B" $ZTRAP=$ZSTEP
@@ -147,12 +149,13 @@ ENDPROGRAM			;Stop the Debugger and wait for new Debugger-Connection
 ERROR ;
 	u 0
 	W !,$ZStatus
-	W !,"Recovering"
+	W !,"Recovering..."
 	G RESET	
 RESET   			;Clean up and wait for new Connection
 	S %DEV=$G(^%MDEBUG($J,"DEV"))
 	KILL ^%MDEBUG($J,"VARS")
 	C:%DEV'="" %DEV
+	u 0 w !,"Resetting.."
 	ZGOTO 1:MDEBUG
 	Q
 REFRESHBP       		;Remember Breakpoint-Positions to avoid Collisions between ZSTEP INTO and ZBREAK

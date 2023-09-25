@@ -2,7 +2,7 @@ UPRNB ;Best fit algorithms for UPRN match [ 08/07/2023  9:00 AM ]
 	;
 bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
 	;Best fit algorithms on matched post code and street
-	n (ALG,tpost,tstreet,tbno,tbuild,tflat,qpost,tloc,ZONE)
+	n matched
 	K ^TBEST($J),^TORDER($J),^TFLAT($j)
 	;
 	s tstreet=$$plural^UPRNU(tstreet)

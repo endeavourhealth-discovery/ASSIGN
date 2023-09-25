@@ -312,16 +312,25 @@ equiv(test,tomatch,min,force,droproad)          ;Swaps drops and levenshtein
 cwm i $l(test)>7 i $e($tr(test," "),1,$l($tr(test," "))-1)=$e($tr(tomatch," "),1,$l($tr(tomatch," "))-1) q 1
 	d swap(.test,.tomatch)
 	d drop(.test,.tomatch)
+	i $d(^UPRNS("TRANSLATE",test,tomatch)) q 1
+	I $D(^UPRNS("TRANSLATE",tomatch,test)) q 1
+	i $$translate(test,tomatch)  q 1
 	d welsh(.test,.tomatch)
 	i $g(droproad) d
 	. i test[" " d
 	. . i $D(^UPRNS("ROAD",$p(test," ",$l(test," ")))) d
-	. . . s test=$p(test," ",$l(test," ")-1)
+	. . . s test=$p(test," ",0,$l(test," ")-1)
+	. . i droproad=2 I $D(^UPRNS("HOUSE",$p(test," ",$l(test," ")))) d
+	. . . s test=$p(test," ",0,$l(test," ")-1) 
 	. i tomatch[" " d
 	. . i $D(^UPRNS("ROAD",$p(tomatch," ",$l(tomatch," ")))) d
-	. . . s tomatch=$p(tomatch," ",$l(tomatch," ")-1)
+	. . . s tomatch=$p(tomatch," ",0,$l(tomatch," ")-1)
+	. . i droproad=2 I $D(^UPRNS("HOUSE",$p(tomatch," ",$l(tomatch," ")))) d
+	. . . s tomatch=$p(tomatch," ",0,$l(tomatch," ")-1) 
 	s tomatch=$$tr^UPRNL(tomatch,"eaux","eux")
 	i $tr(test," ")=$tr(tomatch," ") q 1
+	i $tr(test,"-"," ")=tomatch q 1
+	i $tr(tomatch,"-"," ")=test q 1
 	set test=$$tr^UPRNL(test,"ei","ie")
 	set tomatch=$$tr^UPRNL(tomatch,"ei","ie")
 	i $$eqlev(test,tomatch) q 1
@@ -331,6 +340,13 @@ cwm i $l(test)>7 i $e($tr(test," "),1,$l($tr(test," "))-1)=$e($tr(tomatch," "),1
 	set tomatch=$$dupl(tomatch)
 	i test'=otest!(otomatch'=tomatch) i $$eqlev(test,tomatch) q 1
 	q 0
+translate(test,tomatch) ;
+	i test="" q 0
+		n translate,i
+		s translate=1
+	f i=1:1:$l(test," ") d  q:(translate=0)
+	. i '$d(^UPRNS("TRANSLATE",$p(test," ",i),$p(tomatch," ",i))) s translate=0
+	q translate	
 eqlev(test,tomatch)          ;Equivalent by levenshtein test
 	i $tr(test," ")=$tr(tomatch," ") q 1
 	i $e(test)?1n,$e(tomatch)?1l q 0
@@ -346,6 +362,10 @@ welsh(test,tomatch)          ;Converts welsh language
 	I test["clos ",tomatch[" close" d
 	. s test=$tr($p(test," ",2,10)," ")
 	. s tomatch=$tr($p(tomatch," ",1,$l(tomatch," ")-1)," ")
+	I $E(test)="y" D
+	. I $e(test,2,50)=tomatch s test=tomatch
+	i $E(tomatch)="y" D
+	. I $e(tomatch,2,50)=test s tomatch=test
 	Q
 	;	
 levensh(s,t,min,force) 
@@ -464,6 +484,10 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	K ^UPRNS("FLAT")
 	K ^UPRNS("VERTICALS")
 	S ^UPRNS("DROPSUFFIX","building")=""
+	S ^UPRNS("TRANSLATE","llew","red")=""
+	S ^UPRNS("TRANSLATE","coch","lion")=""
+	S ^UPRNS("TRANSLATE","red","llew")=""
+	S ^UPRNS("TRANSLATE","lion","coch")=""
 	n fix
 	s fix=1
 	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fev" s fix=fix+1
@@ -538,7 +562,8 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	d crossv("upper floors","upper floor")
 	;	
 	d crossv("second","second")
-	;	
+	;
+	S ^UPRNS("GENERIC","the flats")=""	
 	S ^UPRNS("VERTICALS","top")="high"
 	S ^UPRNS("VERTICALS","top flat")="high"
 	S ^UPRNS("VERTICALS","upper floors","first floor")="h"
@@ -570,6 +595,8 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	S ^UPRNS("VERTICALS","first second and third floor")="high"
 	S ^UPRNS("VERTICALS","first second & third floors")="high"
 	S ^UPRNS("VERTICALS","first second & third floor")="high"
+	S ^UPRNS("VERTICALS","first floor front")="high"
+	S ^UPRNS("VERTICALS","first floor rear")="high"
 	S ^UPRNS("VERTICALS","ground first and second floors")="low"
 	S ^UPRNS("VERTICALS","ground first & second floors")="low"
 	S ^UPRNS("VERTICALS","ground front floor and first floor")="low"
@@ -748,20 +775,24 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
 	S ^UPRNS("FLAT","room")=""
 	S ^UPRNS("FLAT","apartment")=""
 	S ^UPRNS("FLAT","apt")=""
+	S ^UPRNS("FLAT","plot")=""
 	;S ^UPRNS("FLAT","tower")=""
 	S ^UPRNS("FLAT","falt")=""
 	S ^UPRNS("FLAT","workshop")=""
 	S ^UPRNS("DROP","lane ")=""
 	S ^UPRNS("DROP","the ")=""
+	S ^UPRNS("DROP","y ")=""
 	S ^UPRNS("DROP","basement ")=""
 	s ^UPRNS("DROP"," house")=""
 	S ^UPRNS("DROP","moorings")=""
 	S ^UPRNS("CORRECT","acenue")="avenue"
+	F text="house","farm","cottage","manor","hall" d
+	. s ^UPRNS("HOUSE",text)=""
 	f text="villas","road","street","avenue","court","square","drive","way" d
 	. S ^UPRNS("ROAD",text)=""
 	f text="lane","grove","row","close","walk","causeway","park","place" d
 	. S ^UPRNS("ROAD",text)=""
-	f text="lanes","hill","plaza","green","rise","rd" d
+	f text="lanes","hill","plaza","green","rise","rd","terrace" d
 	. S ^UPRNS("ROAD",text)=""
 	S ^UPRNS("NUMBERS","one")=1
 	S ^UPRNS("NUMBERS","two")=2
@@ -775,6 +806,7 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
 	S ^UPRNS("TOWN","wembley")=""
 	S ^UPRNS("TOWN","harlesden")=""
 	S ^UPRNS("TOWN","poplar")=""
+	;
 	;	
 	q
 setvert(vertical,qual)       ;
@@ -899,6 +931,7 @@ MPART(test,tomatch,mincount)         ;
 	set to=$s(from="test":"tomatch",1:"test")
 	set maxlen=$l(@to," ")
 	set mincount=$g(mincount,maxlen-1)
+	i mincount=0 s mincount=1
 	set count=0
 	f i=1:1:$l(@from," ") d
 	. set word=$p(@from," ",i)
