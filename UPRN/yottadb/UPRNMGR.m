@@ -45,7 +45,7 @@ STATUS() ;Returns the current status of the ABP load and indexing
 	. . s ^temp($j,1)=^temp($j,1)_"""Loading"":"""_^IMPORT("LOAD")_""",""File"":"""_^IMPORT("FILE")_"""}}"
 	Q 1
 	;	
-GETUPRN(adrec,qpost,orgpost,country,summary,writejso,noassert) ;Returns the result of a matching request
+GETUPRN(adrec,qpost,orgpost,country,summary,writejson,noassert) ;Returns the result of a matching request
 	;adrec is an address string with post code at the end
 	;qpost IS deprecated
 	;country is deprecated
@@ -167,14 +167,12 @@ MATCHED(best,commerce)  ;Matches either commercial or residential
 	s json=json_"}"
 	q
 PATTERN(matchrec,json)       ;
-	n i,part,degree
+	n i,part,degree,pattern
 	s json=json_"""Match_pattern"":{"
 	f i=1:1:$l(matchrec,",") d
-	. s part=$p(matchrec,",",i)
-	. s degree=$e(part,2,3)
-	. I degree="" q
-	. s json=json_""""_$$part^UPRN2($e(part))_""":"
-	. s json=json_""""_$$degree^UPRN2(degree)_""","
+	. s pattern=$p(matchrec,",",i)
+	. s json=json_""""_$$part^UPRN2($e(pattern))_""":"
+	. s json=json_""""_$$degree^UPRN2(pattern)_""","
 	i $e(json,$l(json))="," s json=$e(json,1,$l(json)-1)
 	s json=json_"}"
 	q

@@ -427,36 +427,38 @@ repost(post)       ;reforms a post code
 	s post=$$uc^UPRNL(post)
 	s post=$e(post,1,$l(post)-3)_" "_$e(post,$l(post)-2,$l(post))
 	q post
-part(part)      ;Returns the name of the matched part of the address
-	s part=$$lc^UPRNL(part)
-	i part="p" q "Postcode"
-	i part="s" q "Street"
-	i part="n" q "Number"
-	i part="b" q "Building"
-	i part="f" q "Flat"
-	i part="d" q "dependent thoroughfare"
-	i part="l" q "location"
-	q ""
+part(parts)      ;Returns the name of the matched part of the address
+	n part,i,rec
+	s rec=""
+	f i=1:1:$l(parts) d
+	. s part=$e(parts,i)  
+	. i part="P" s rec=rec_$s(rec="":"",1:"-")_"Postcode"
+	. i part="S" s rec=rec_$s(rec="":"",1:"-")_"Street"
+	. i part="N" s rec=rec_$s(rec="":"",1:"-")_"Number"
+	. i part="B" s rec=rec_$s(rec="":"",1:"-")_"Building"
+	. i part="F" s rec=rec_$s(rec="":"",1:"-")_"Flat"
+	. i part="D" s rec=rec_$s(rec="":"",1:"-")_"dependent thoroughfare"
+	. i part="L" s rec=rec_$s(rec="":"",1:"-")_"location"
+	q rec
 degree(degree)     ;Returns the text of the degree to which it matches
 	n result
 	s result=""
 	i degree["&" d
 	. s result="mapped also to "_$$part($p(degree,"&",2))_" "
-	i degree[">" d  q result
+	i degree[">" d
 	. s result="moved to "_$$part($p(degree,">",2))_" "
-	i degree["<" d  q result
+	i degree["<" d
 	. s result="moved from "_$$part($p(degree,"<",2))_" "
 	i degree["f" d
 	. s result=$s(result="":"",1:" ")_"field merged"
-	;	
 	i degree["i" d
 	. s result="ABP field ignored"
 	i degree["d" d
-	. I degree["xd" d  q
+	. I degree["xd" d
 	. . s result=$s(result'="":result_" ",1:"")_"candidate prefix dropped to match"
 	. s result="candidate field dropped"
-	i degree["e" s result="equivalent"
-	i degree["l" s result=result_"possible spelling error"
+	i degree["e" s result=result_$s(result'="":" ",1:"")_"equivalent"
+	i degree["l" s result=result_$s(result'="":" ",1:"")_"possible spelling error"
 	i degree["a" s result=$s(result'="":result_" ",1:"")_"matched as parent"
 	i degree["c" s result=$s(result'="":result_" ",1:"")_"matched as child"
 	i degree["s" s result=$s(result'="":result_" ",1:"")_"matched as sibling"
