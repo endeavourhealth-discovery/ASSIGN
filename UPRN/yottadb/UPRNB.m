@@ -145,7 +145,6 @@ eqfb(tbuild,tflat,build,flat)          ;
 	q matched
 	;	
 	q
-	;	
 eqflat(tflat,flat) ;Are they equivalent flats?
 	n (tflat,flat)
 	f var="tflat","flat" d
@@ -161,8 +160,26 @@ eqflat(tflat,flat) ;Are they equivalent flats?
 	f i=1:1:$l(tflat," ") d
 	. i (" "_flat_" ")[(" "_$p(tflat," ",i)_" ") s count=count+1
 	i count=wcount q 1
-	;The block problem
+	;Scottish problems
 	s equiv=0
+	i flat?1"/"1n.n s flat="0/"_$p(flat,"/",2)
+	i flat["/" d  i equiv q 1
+	. i tflat["-" d  i equiv q
+	. . i $tr(tflat,"-","/")=flat s equiv=1 q
+	. . i $G(^UPRNS("SCOTLEVEL",$p(tflat,"-")))=$p(flat,"/") d
+	. . . i $p(tflat,"-",2)=$p(flat,"/",2) s equiv=1
+	. e  i tflat?1"g".1n.n,$P(flat,"/")="0",$p(flat,"/",2)=$p(tflat,"g",2) s equiv=1
+	if flat?1l,$g(^UPRNS("SCOTLEVEL",tflat))=flat q 1
+	;	
+	if tflat?1n1"-"1n d  i equiv q equiv
+	. i $p(flat," ")=$g(^UPRNS("SCOTFLOOR",$p(tflat,"-"))) d
+	. . i $p(flat," ",3)=$G(^UPRNS("SCOTSIDE",$p(tflat," ",2))) d
+	. . . s equiv=1
+	I tflat?1"ground"1" "1n d
+	. i $p(flat," ",1)=$p(tflat," ") d
+	. . i $p(flat," ",3)=$G(^UPRNS("SCOTSIDE",$p(tflat," ",2))) d
+	. . . s equiv=1
+	;The block problem
 	f var="tflat","flat" d  q:equiv
 	. s var1=$s(var="tflat":"flat",1:"tflat")
 	. i @var["block" d
@@ -391,13 +408,6 @@ bestfito ;
 	. . i ($$equiv^UPRNU(build,tbuild)) d  q
 	. . . s matchrec="Pe,Se,Ne,Be,Fe"
 	. . . S ^TBEST($J,matchrec,tbno,build,tflat)=""
-	. . S l1=$l(build," ")
-	. . s l2=$l(tbuild," ")
-	. . s max=$s(l1>l2:l1,1:l2)
-	. . s max=$s(max<3:1,1:max-2)
-	. . I $$MPART^UPRNU(build,tbuild,max) D  q
-	. . . s matchrec="Pe,Se,Ne,Bp,Fe"
-	. . . s ^TBEST($j,matchrec,tbno,build,tflat)=""
 	. i tflat=""  d
 	. . s flat=""
 	. . for  s flat=$O(^UPRNX("X5",tpost,tstreet,tbno,build,flat)) q:flat=""  d
@@ -798,11 +808,16 @@ bestfitv ;Tests vertical flat fitting with candidate number
 	i tbno="" q
 	i tflat="" q
 	;might have short and long flat names
+	i tflat[" flat",$D(^UPRNS("VERTICALS",tflat)) d  q:matched
+	. I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,$p(tflat," flat"))) d
+	. . s matchrec="Pe,Se,Ne,Be,Fe"
+	. . s matched=$$set(matchrec,tpost,tstreet,tbno,tbuild,$p(tflat," flat"))
 	S flatex=$$sflat(tflat)
 	i $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,flatex)) d  q
 	. s flat=flatex
 	. s matchrec="Pe,Se,Ne,Fe"
 	. s matched=$$set(matchrec,tpost,tstreet,tbno,tbuild,flatex)
+	;	
 	;	
 levels ;Candidate is vertical
 	;Test ABP vertical

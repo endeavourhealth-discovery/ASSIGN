@@ -1,0 +1,4 @@
+EXP3	;
+	;	
+	d IMPORT^ASSURE("SCOT")
+	Q

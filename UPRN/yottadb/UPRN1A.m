@@ -73,12 +73,6 @@ ESCAPE(string)     ;
 	. s output=output_$e(string,i)
 	q output
 	;	
-	d IMPCOUNT
-	s del=","
-	w !,"Importing street descriptors..."
-	D IMPSTR
-	w !,"Importing uprns...."
-	D IMPBLP
 DPA w !,"Importing DPA file..."
 	D IMPDPA
 	w !,"Importing LPI file...."

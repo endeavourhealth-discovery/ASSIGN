@@ -32,10 +32,12 @@ RTNS ;
 	; UPRNMGR
 	; UPRNONS
 	; UPRNTEST
+	; UPRNDIFF
 	; UPRNU
 	; UPRNUI
 	; UPRNUI2
 	; UPRNW
 	; 
+	;
 	;
 	;

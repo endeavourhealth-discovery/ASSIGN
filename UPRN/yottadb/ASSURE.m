@@ -24,6 +24,7 @@ files(source) ;
 MATCHED(source) ;
 	n file,rec,del,adno,header,uprn
 	s file=^UPRNF("matched",source)
+	I file="" q
 	u 0 w !,"Importing "_file_"..."
 	s del=$c(9)
 	o file
@@ -43,6 +44,7 @@ UNMATCHED(source) ;
 	n file,rec,adno,del
 	s file=""
 	s file=^UPRNF("unmatched",source)
+	I file="" q
 	u 0 w !,"Importing "_file_"..."
 	s del=$c(9)
 	o file
@@ -53,13 +55,20 @@ UNMATCHED(source) ;
 	. i source="WALES" d
 	. . s ^UPRNI("D",adno)=$p(rec,$c(9),1)
 	. i source="SCOT" d
-	. . S ^UPRNI("D",adno)=$$scotm($$csv^UPRNU(rec))
+	. . S ^UPRNI("D",adno)=$$scotm(rec)
 	c file
 	Q	
 scotm(rec) ;
-	n addr,i
-	s addr=$P(rec,$c(9),6)
-	f i=$l(addr,","):-1:1 s post=$p(addr,",",i) i $$validp^UPRN($tr(post," ")) q
-	s addr=$p(addr,",",0,i)
+	n saon,paon,street,locality,town,county,pout,pin,d,post,var,addr,first
+	s rec=$$csv^UPRNU(rec)
+	s d=$c(9)
+	S rec=$$lt^UPRNL($p(rec,d,4,20))
+	s saon=$p(rec,d,1),paon=$p(rec,d,2),street=$p(rec,d,3),locality=$p(rec,d,4),town=$p(rec,d,5)
+	s county=$p(rec,d,6),pout=$p(rec,d,8),pin=$p(rec,d,9)
+	i saon?1"0"1n.n,$l(saon)=5 s saon=""
+	s post=pout_" "_pin
+	s addr=""
+	f var="saon","paon","street","locality","town","county","post" d
+	. i @var'="" s addr=addr_$s(addr'="":",",1:"")_$$lt^UPRNL(@var)
 	q addr
 	;	

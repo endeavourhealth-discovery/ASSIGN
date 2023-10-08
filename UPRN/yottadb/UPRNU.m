@@ -33,8 +33,44 @@ district(post)       ;returns post code district
 	q district
 	;	
 	;	
-	;	
-	;	
+	;
+edinburgh(adbuild,adflat,adbno,adepth,adstreet,post)	;
+	n flat
+	s adstreet=$$lt^UPRNL($tr($tr(adstreet,"("),")"))
+	i adstreet?1n.n.l1" "1l.e d  q
+	. i adbuild?1n.n1"/"1n.n d
+	. . s adflat=adbuild
+	. . i adepth="" d
+	. . . s adbuild=""
+	. . e  d
+	. . . s adbuild=adepth
+	. . . s adepth=""
+	i adbuild?1n.n1"/"1n.n d
+	. i adbno="",adflat="" d
+	. . s adbno=$p(adbuild,"/",1)
+	. . s adflat=$p(adbuild,"/",2)
+	. . i adepth="" s adbuild=""
+	. . e  s adbuild=adepth,adepth=""
+	. . d isff(.adflat,.adbuild,.adbno,.adstreet,post)
+	e  i adbuild?1n.n.l1"(".e d
+	. s flat=$p($p(adbuild,"(",2),")")
+	. i flat["pf"!(flat["bf")!(flat["gf") d
+	. . s adbno=$p(adbuild,"(")
+	. . s adflat=$tr($tr(flat,"(",""),")")
+	. . i adepth="" s adbuild=""
+	. . e  s adbuild=adepth,adepth=""
+	. . d isff(.adflat,.adbuild,.adbno,.adstreet,post)
+	. e  i flat?1n.n.l1"f"1n.n d
+	. . s adbno=$p(adbuild,"(")
+	. . s adflat=flat
+	. . s adbuild=""
+	q	
+	;
+isff(adflat,adbuild,adbno,adstreet,post)	;
+	I $D(^UPRNX("X5",post,adstreet,"",adbuild,adbno_"/"_adflat)) d
+	. s adflat=adbno_"/"_adflat
+	. s adbno=""
+	q
 islevel(uprn,vertical)       ;
 	n (uprn,vertical)
 	s level=$G(^UPRN("L",uprn)) i level="" q 0
@@ -339,12 +375,21 @@ cwm i $l(test)>7 i $e($tr(test," "),1,$l($tr(test," "))-1)=$e($tr(tomatch," "),1
 	set test=$$dupl(test)
 	set tomatch=$$dupl(tomatch)
 	i test'=otest!(otomatch'=tomatch) i $$eqlev(test,tomatch) q 1
+	;	
 	q 0
 translate(test,tomatch) ;
+	n word,tword
 	i test="" q 0
-		n translate,i
-		s translate=1
+	n translate,i
+	s translate=1
+	i test=""!(tomatch="") q 0
+	i $l(test," ")'=$l(tomatch," ") q 0
 	f i=1:1:$l(test," ") d  q:(translate=0)
+	. s word=$p(test," ",i),tword=$p(tomatch," ",i)
+	. i word=tword q
+	. i $e(word,$l(word))="s",$e(word,0,$l(word)-1)=tword q
+	. i $e(tword,$l(tword))="s",$e(tword,0,$l(tword)-1)=word q
+	. i $g(^UPRNS("NUMBERS",word))=tword q
 	. i '$d(^UPRNS("TRANSLATE",$p(test," ",i),$p(tomatch," ",i))) s translate=0
 	q translate	
 eqlev(test,tomatch)          ;Equivalent by levenshtein test
@@ -357,6 +402,14 @@ eqlev(test,tomatch)          ;Equivalent by levenshtein test
 	S test=$$tr^UPRNL(test,"ow","a")
 	i $$levensh($tr(test," "),$tr(tomatch," "),$g(min,10),$g(force)) q 1
 	q 0
+transcount(word,term)	;
+	n i,found,count,tword
+	s found=0,count=0
+	f i=1:1:$l(term," ") d
+	. s tword=$p(term," ",i)
+	. I $D(^UPRNS("TRANSLATE",word,tword)) s count=count+1
+	. i word=tword s count=count+1
+	q found
 	;	
 welsh(test,tomatch)          ;Converts welsh language
 	I test["clos ",tomatch[" close" d
@@ -468,6 +521,7 @@ flatsuff(flat,num)   ;Matches a suffix e.g. 25a with the number  e.g. 1
 	i suff="" q 0
 	i $G(^UPRNS("FLATSUFNUM",suff))=num q 1
 	q 0
+	;
 	;	
 	;
 SETSWAPS ;
@@ -488,6 +542,12 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	S ^UPRNS("TRANSLATE","coch","lion")=""
 	S ^UPRNS("TRANSLATE","red","llew")=""
 	S ^UPRNS("TRANSLATE","lion","coch")=""
+	S ^UPRNS("TRANSLATE","ffermdy","farm")=""
+	S ^UPRNS("TRANSLATE","ffermdy","farmhouse")=""
+	S ^UPRNS("TRANSLATE","farmhouse","ffermdy")=""
+	S ^UPRNS("TRANSLATE","farm","ffermdy")=""
+	S ^UPRNS("TRANSLATE","hen","old")=""
+	S ^UPRNS("TRANSLATE","old","hen")=""
 	n fix
 	s fix=1
 	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fev" s fix=fix+1
@@ -619,10 +679,13 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	S ^UPRNS("VERTICALS","1st2nd and third floors")="high"
 	S ^UPRNS("VERTICALS","1st2nd & 3rd floors")="high"
 	S ^UPRNS("VERTICALS","1st2nd & third floors")="high"
-	f ew="east","west","flat" d
+	f ew="east","west","flat","left","right","penthouse" d
 	. S ^UPRNS("VERTICALS","first floor "_ew)="low"
 	. S ^UPRNS("VERTICALS","second floor "_ew)="low"
 	. S ^UPRNS("VERTICALS","third floor "_ew)="high"
+	. S ^UPRNS("VERTICALS","fourth floor "_ew)="high"
+	. S ^UPRNS("VERTICALS","fifth floor "_ew)="high"
+	. S ^UPRNS("VERTICALS","sixth floor "_ew)="high"
 	. s ^UPRNS("VERTICALS","upper floor "_ew)="high"
 	. s ^UPRNS("VERTICALS","top floor "_ew)="high"
 	. s ^UPRNS("VERTICALS","ground floor "_ew)="high"
@@ -666,7 +729,7 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	s ^UPRNS("VERTICALS","2nd floor flat")="high"
 	S ^UPRNS("VERTICALS","grd floor")="low"
 	S ^UPRNS("VERTICALS","grnd floor")="low"
-everts S ^UPRNS("VERTICALS","ground floor")="low"
+	S ^UPRNS("VERTICALS","ground floor")="low"
 	s ^UPRNS("FLOOR","1st",2)=""
 	s ^UPRNS("FLOOR","2nd",3)=""
 	s ^UPRNS("FLOOR","3rd",4)=""
@@ -682,6 +745,33 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
 	S ^UPRNS("FLOORCHAR","c")="Second"
 	S ^UPRNS("FLOORCHAR","d")="third"
 	S ^UPRNS("FLOORCHAR",$c(96))="basement"
+scots ;	
+	K ^UPRNS("SCOTFLOORSIDE"),^UPRNS("SCOTFLOOR"),^UPRNS("SCOTSIDE")
+	S ^UPRNS("SCOTFLOOR","first")=1
+	S ^UPRNS("SCOTFLOOR",1)="first"
+	S ^UPRNS("SCOTSIDE","left")=1
+	S ^UPRNS("SCOTSIDE",1)="left"
+	S ^UPRNS("SCOTSIDE","right")=2
+	S ^UPRNS("SCOTSIDE",2)="right"
+	S ^UPRNS("SCOTLEVEL","ground")=0
+	S ^UPRNS("SCOTLEVEL","g")=0
+	S ^UPRNS("SCOTLEVEL","ground 1")="a"
+	S ^UPRNS("SCOTLEVEL","ground 2")="b"
+	S ^UPRNS("SCOTLEVEL","1/1")="c"
+	S ^UPRNS("SCOTLEVEL","1/2")="d"
+	S ^UPRNS("SCOTLEVEL","2/1")="e"
+	S ^UPRNS("SCOTLEVEL","2/2")="f"
+	S ^UPRNS("SCOTLEVEL","ground floor","0g")=""
+	s ^UPRNS("SCOTFLOORSIDE","1/1","1/f left")=""
+	S ^UPRNS("SCOTFLOORSIDE","1/1","first floor left")=""
+	S ^UPRNS("SCOTFLOORSIDE","1/2","1/f right","X")="1/r left"
+	S ^UPRNS("SCOTFLOORSIDE","1/2","first floor right")=""
+	s ^UPRNS("SCOTFLOORSIDE","0/1","g/f left")=""
+	S ^UPRNS("SCOTFLOORSIDE","0/2","g/f right","X")="0/r left"
+	s ^UPRNS("SCOTFLOORSIDE","2/1","2/f left")=""
+	S ^UPRNS("SCOTFLOORSIDE","2/1","second floor left")=""
+	S ^UPRNS("SCOTFLOORSIDE","2/2","second floor right")=""
+	S ^UPRNS("SCOTFLOORSIDE","2/2","2/f right","X")="2/r left"
 	S ^UPRNS("CITY","london")=""
 	set ^UPRNS("CORRECT","1st")="first"
 	S ^UPRNS("CORRECT","bsemnt")="basement"
@@ -692,6 +782,7 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
 	S ^UPRNS("CORRECT","blk")="block"
 	S ^UPRNS("CORRECT","hosp")="hospital"
 	S ^UPRNS("CORRECT","bsmnt")="basement"
+	s ^UPRNS("CORRECT","bk")="bank"
 	S ^UPRNS("CORRECT","bsemt")="basement"
 	S ^UPRNS("CORRECT","bsmt")="basement"
 	S ^UPRNS("CORRECT","b-ment")="basement"
@@ -721,6 +812,7 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
 	S ^UPRNS("CORRECT","cosmopolitian")="cosmopolitan"
 	S ^UPRNS("CORRECT","est")="estate"
 	S ^UPRNS("CORRECT","crt")="court"
+	S ^UPRNS("CORRECT","gnd")="ground"
 	S ^UPRNS("CORRECT","falt")="flat"
 	S ^UPRNS("CORRECT","cres")="crescent"
 	S ^UPRNS("CORRECT","flst")="flat"
@@ -762,6 +854,8 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
 	S ^UPRNS("CORRECT","apts")="apartments"
 	S ^UPRNS("CORRECT","gff")="ground floor"
 	S ^UPRNS("CORRECT","ave")="avenue"
+	S ^UPRNS("CORRECT","c0tt")="cottage"
+	S ^UPRNS("CORRECT","c0ttage")="cottage"
 	S ^UPRNS("FLATEXTRA","studio")=""
 	S ^UPRNS("FLATEXTRA","house")=""
 	S ^UPRNS("FLAT","flat no")=""
@@ -786,13 +880,18 @@ everts S ^UPRNS("VERTICALS","ground floor")="low"
 	s ^UPRNS("DROP"," house")=""
 	S ^UPRNS("DROP","moorings")=""
 	S ^UPRNS("CORRECT","acenue")="avenue"
-	F text="house","farm","cottage","manor","hall" d
+	S ^UPRNS("CORRECT","cott")="cottage"
+	S ^UPRNS("RESIDENTIAL","cottage")=""
+	S ^UPRNS("RESIDENTIAL","house")=""
+	S ^UPRNS("RESIDENTIAL","lodge")=""
+	S ^UPRNS("RESIDENTIAL","farmhouse")=""
+	F text="house","farm","farmhouse","cottage","lodge","cott","manor","hall" d
 	. s ^UPRNS("HOUSE",text)=""
 	f text="villas","road","street","avenue","court","square","drive","way" d
 	. S ^UPRNS("ROAD",text)=""
 	f text="lane","grove","row","close","walk","causeway","park","place" d
 	. S ^UPRNS("ROAD",text)=""
-	f text="lanes","hill","plaza","green","rise","rd","terrace" d
+	f text="lanes","hill","plaza","green","rise","rd","terrace","fields" d
 	. S ^UPRNS("ROAD",text)=""
 	S ^UPRNS("NUMBERS","one")=1
 	S ^UPRNS("NUMBERS","two")=2
@@ -863,13 +962,15 @@ flat(text)
 	for  set word=$O(^UPRNS("FLAT",word)) q:word=""  d
 	. if text[(word_" ") d
 	. . set text=$p(text,word_" ",1)_$p(text,word_" ",2,20)
-	i text'="0" for  q:($e(text)'="0")  s text=$e(text,2,50)
+	i text'="0",text'["-" for  q:($e(text)'="0")  s text=$e(text,2,50)
 flatend ;Flat at end
 	i $l(text," ")>1 i $d(^UPRNS("FLAT",$p(text," ",$l(text," ")))) q $p(text," ",1,$l(text," ")-1)
 	q text
 isflat(text) 
-	n word,isflat
-	i $p(text," ")="tower",$p(text," ",2)'?1n.n.e q 0
+	n word,isflat,first
+	s first=$p(text," ")
+	i first="tower",$p(text," ",2)'?1n.n.e q 0
+	I first="croft",$p(text," ",2)?1n.n q 1
 	set word="",isflat=0
 	for  set word=$O(^UPRNS("FLAT",word)) q:word=""  do  q:isflat
 	. if $p(text," ")=word set isflat=1

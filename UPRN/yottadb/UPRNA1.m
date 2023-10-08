@@ -1,7 +1,8 @@
-UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc) ;Additional preformatting routine [ 08/02/2023  11:55 AM ]
+UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc,adtown,adepth) ;Additional preformatting routine [ 08/02/2023  11:55 AM ]
 	;
 	N i
-f153A ;Flat in location
+	s adtown=$g(adtowm)
+f153A ;Move some thngs around
 	i adloc'="",adstreet'="",adbuild'="",(adbno=""!(adflat="")) d
 	. i $$isflat^UPRNU(adloc) d
 	. . I adloc?1l.l1" "1n.n.l d
@@ -32,6 +33,7 @@ f153c	;Street is building
 f153d	;"at"
 	i $p(adbuild," ",$l(adbuild," "))="at" d
 	. s adbuild=$p(adbuild," ",0,$l(adbuild," ")-1)
+	;	
 F154 ;Building is number flat range
 	i adflat="",adbno="",adstreet'="",adbuild?1n.n.1"-"1l1"-"1l d
 	. s adbno=$p(adbuild,"-",1)_$p(adbuild,"-",2,3)
@@ -57,7 +59,7 @@ f156 ;
 	;
 	;	
 	i adflat="",adbuild'="",'$D(^UPRNX("X3",ZONE,adbuild)) d
-	. i adbuild'[" ",$e(adbuild,$l(adbuild))?1n d
+	. i adbuild'[" ",adbuild'["/",$e(adbuild,$l(adbuild))?1n d
 	. . s done=0
 	. . f i=$l(adbuild):-1:1 d  q:done
 	. . . i $e(adbuild,i)'?1n d
@@ -128,6 +130,34 @@ f156 ;
 	i adbno="",$p(adbuild," ",$l(adbuild," "))?1n.n.l d
 	. s adbno=$p(adbuild," ",$l(adbuild," "))
 	. s adbuild=$p(adbuild," ",0,$l(adbuild," ")-1)
+	i adflat?1"ground/"1n.n d
+	. s adflat=$tr(adflat,"/"," ") 
+	;	
+	n xflat
+	s xflat=$$tr^UPRNL(adflat," no "," ") 
+	n house,thouse
+	s house=$$house^UPRNC($p(xflat," "))
+	s thouse=$$house^UPRNC($p(adbuild," ",$l(adbuild," ")))
+	i adflat[" no ",adbuild="",$p(xflat," ",$l(xflat," "))?1n.n.l d
+	. s adbuild=$p(xflat," ",0,$l(xflat," ")-1)
+	. s adflat=$p(xflat," ",$l(xflat," "))
+	I adbuild'="",house'="",thouse="",$p(xflat," ",2)?1n.n.l d
+	. s adbuild=adbuild_" "_$p(adflat," ")
+	. s adflat=$p(xflat," ",2)
+	e  i adbuild="",adbno="",adstreet'="" d
+	. i $D(^UPRNX("X3",ZONE,adstreet_" "_house)) d
+	. . s adbuild=adstreet_" "_house
+	. . s adflat=$p(xflat," ",2,20)
+	. . s adstreet=""
+	i adbno="",adflat'="",adbuild'="",adeploc="",'$D(^UPRNX("X.STR",ZONE,adstreet)),$D(^UPRNS("TOWN",adstreet)) d
+	. s adeploc=adstreet
+	. s adstreet=""
+	I adloc="",adeploc="",adtown="",'$D(^UPRNX("X.STR",ZONE,adstreet)),$D(^UPRNS("TOWN",adstreet)) d
+	. s adloc=adstreet
+	. s adstreet=""
+	i adepth'="",adstreet="",adbno="" d
+	. s adstreet=adepth
+	. s adepth=""
 	Q
 change(glob,node,from,to)    ;
 	n nodes

@@ -67,8 +67,6 @@ setind ;Sets indexes
 	d setind1
 	i flat["/"!(bno["/") d
 	. s xflat=flat,xbno=bno
-	. s flat=$tr(flat,"/","-")
-	. s bno=$tr(bno,"/","-")
 	. d setind1
 	. s flat=xflat,bno=xbno
 	. quit

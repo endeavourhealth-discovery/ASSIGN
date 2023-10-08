@@ -116,3 +116,38 @@
 116	West Glamorgan		Wales	"365,500"		
 117	Neath Port Talbot		Wales			
 118	Swansea		Wales			
+119	Aberdeenshire		Scotland			
+120	Angus		Scotland			
+121	Argyllshire		Scotland			
+122	Ayrshire		Scotland			
+123	Banffshire		Scotland			
+124	Berwickshire		Scotland			
+125	Buteshire		Scotland			
+126	Caithness		Scotland			
+127	Clackmannanshire		Scotland			
+128	Dumfriesshire		Scotland			
+129	Dunbartonshire		Scotland			
+130	East Lothian		Scotland			
+131	Fife		Scotland			
+132	Inverness-shire		Scotland			
+133	Kincardineshire		Scotland			
+134	Kinross-shire		Scotland			
+135	Kirkcudbrightshire		Scotland			
+136	Lanarkshire		Scotland			
+137	Midlothian		Scotland			
+138	Moray		Scotland			
+139	Nairnshire		Scotland			
+140	Orkney		Scotland			
+141	Peebleshire		Scotland			
+142	Perthshire		Scotland			
+143	Renfrewshire		Scotland			
+144	Ross and Cromarty		Scotland			
+145	Roxburghshire		Scotland			
+146	Selkirkshire		Scotland			
+147	Shetland		Scotland			
+148	Stirlingshire		Scotland			
+149	Sutherland		Scotland			
+150	West Lothian		Scotland			
+151	Wigtownshire		Scotland			
+151	South Ayrshire		Scotland			
+152	North Ayrshire		Scotland			
