@@ -131,7 +131,7 @@ setind1 ;Sets indexes
 	. . set ^UPRNX("X3",ZONE,pbuild,flat,post,uprn,table,key)=""
 	. do indexstr("BLD",build)
 	. i pbuild'=build do indexstr("BLD",pbuild)
-	i build'="",flat'="",street'="" d
+	i build'="",street'="" d
 	. set ^UPRNX("X2",build,street,flat,post,bno,uprn,table,key)=""
 	I flat'="",bno'="",street'="",build'="" d
 	. S ^UPRNX("X4",post,street,bno,flat,build,uprn,table,key)=""
@@ -142,7 +142,7 @@ setind1 ;Sets indexes
 	. if flat'="" d
 	. . set ^UPRNX("X3",ZONE,org,flat,post,uprn,table,key)=""
 	. . do indexstr("BLD",org)
-	I street'="",bno'="",build'="",flat'="" d
+	I street'="",build'="" d
 	. S ^UPRNX("X5A",post,street,build,flat,bno,uprn,table,key)=""
 	. i 'same d
 	. . S ^UPRNX("X5A",post,pstreet,pbuild,flat,bno,uprn,table,key)=""
@@ -151,6 +151,8 @@ setind1 ;Sets indexes
 	. . s ^UPRNX("X5",post,pstreet_" "_deploc,bno,pbuild,flat,uprn,table,key)=""
 	. I pdepth'="" d
 	. . s ^UPRNX("X5",post,pdepth_" "_pstreet,bno,pbuild,flat,uprn,table,key)=""
+	I town'="",street'="",bno'="" d
+	. s ^UPRNX("X6",street,bno,town,build,flat,uprn,table,key)=""
 eind q
 indexstr(index,term)         ;Indexes street or building etc
 	n i,word

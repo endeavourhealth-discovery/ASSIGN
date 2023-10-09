@@ -72,18 +72,8 @@ f1 d spelchk(.address)
 	;	
 	;	
 	;get the post code from the last field
-	set length=$length(address,d)
-	set post=$$lc^UPRNL($p(address,d,length))
-	set post=$tr(post," ") ;Remove spaces
+	d addlines
 	;	
-	i '$$validp^UPRN(post) do
-	. S p=""
-	. F i=$l(address)-10:1:$l(address) s p=p_$e(address,i)
-	. S x=$$TR^LIB($p(p," ",$l(p," ")-1,$l(p," "))," ","")
-	. I $$validp^UPRN(x) s post=x quit
-	. s x=$p(p," ",$l(p," "))
-	. I $$validp^UPRN(x) s post=x
-	. quit
 	;	
 	i $D(^UPRNS("TOWN",post)) s post=""
 	;	
@@ -91,12 +81,24 @@ f1 d spelchk(.address)
 	;Use lines before the city if present
 	;addlines is number of address lines to format
 	;
-	d addlines
+	;	
 	i adflat="",adbuild="",adstreet="" d  q
 	. S ^TUPRN($J,"INVALID")=""
 	d fields
 	q
 addlines ;Gets address lines
+		set length=$length(address,d)
+	set post=$$lc^UPRNL($p(address,d,length))
+	set post=$tr(post," ") ;Remove spaces
+	;	
+	i '$$validp^UPRN(post) do
+	. S p="",post=""
+	. F i=$l(address)-10:1:$l(address) s p=p_$e(address,i)
+	. S x=$$TR^LIB($p(p," ",$l(p," ")-1,$l(p," "))," ","")
+	. I $$validp^UPRN(x) s post=x quit
+	. s x=$p(p," ",$l(p," "))
+	. I $$validp^UPRN(x) s post=x
+	. quit
 	n parts
 	s parts=$l(address,"~")
 	s tempadd=""
@@ -104,7 +106,7 @@ addlines ;Gets address lines
 	. s part=$p(address,"~",i)
 	. I $D(^UPRNS("CITY",part)) s address=$p(address,"~",0,i-1)_"~"_$p(address,"~",i+1,20)
 	. I $D(^UPRNS("COUNTY",part)) s address=$p(address,"~",0,i-1)_"~"_$p(address,"~",i+1,20)
-	S addlines=$l(address,"~")-1
+	S addlines=$s(post'="":$l(address,"~")-1,1:$l(address,"~"))
 	;	
 f3 ;too many address lines may be duplicate post code
 	i addlines>2 d

@@ -158,6 +158,10 @@ f156 ;
 	i adepth'="",adstreet="",adbno="" d
 	. s adstreet=adepth
 	. s adepth=""
+	i adbuild?1n.n1"("1n.n1l1")",adflat="",adbno="" d
+	. s adbno=$p(adbuild,"(")
+	. s adflat=$p($p(adbuild,"(",2),")")
+	. s adbuild=""
 	Q
 change(glob,node,from,to)    ;
 	n nodes

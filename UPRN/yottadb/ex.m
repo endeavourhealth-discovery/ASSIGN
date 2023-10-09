@@ -4,7 +4,7 @@ ex	;
 	i post="" q
 	K ^x
 	M ^x=^UPRNX("X5",$$lc^UPRNL($tr(post," ")))
-	d ^G
+	d GLOB^G("^x")
 	g 5
 	Q
 x1(post)	;
