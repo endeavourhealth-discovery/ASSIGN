@@ -1,10 +1,8 @@
 ASSURE ;
-	S ^ADNO=1
-	D ^UPRNTEST("0","5.4","","/mnt/c/Users/david/CloudStation/msm/SHARED/ABP/Assurance")
+	D IMPORT("LONDON")
 	Q
 IMPORT(source) ;
 	d files(source)
-	K ^UPRNI("D")
 	D UNMATCHED(source)
 	D MATCHED(source)
 	Q
@@ -25,9 +23,10 @@ MATCHED(source) ;
 	n file,rec,del,adno,header,uprn
 	s file=^UPRNF("matched",source)
 	I file="" q
+	k ^X
 	u 0 w !,"Importing "_file_"..."
 	s del=$c(9)
-	o file
+	o file:readonly
 	s adno=$O(^UPRNI("D",""),-1)
 	i source="SCOT" u file r header
 	for  u file r rec  q:$zeof  d
@@ -38,6 +37,10 @@ MATCHED(source) ;
 	. . i uprn'="" S ^UPRNI("M",source,adno)=uprn
 	. i source="SCOT" d  
 	. . S ^UPRNI("D",adno)=$$scotm($$csv^UPRNU(rec))
+	. i source="LONDON" d
+	. . S ^UPRNI("D",adno)=$p(rec,"~")
+	. . I $p(rec,"~",2)'="" d
+	. . . S ^UPRNI("M","4.2.1",adno)=$p(rec,"~",2)
 	c file
 	Q
 UNMATCHED(source) ;
@@ -71,4 +74,21 @@ scotm(rec) ;
 	f var="saon","paon","street","locality","town","county","post" d
 	. i @var'="" s addr=addr_$s(addr'="":",",1:"")_$$lt^UPRNL(@var)
 	q addr
+result(from,to) ;
+		n adno,file,uprn,class,row,d,rec
+		s adno=from
+		s file="/mnt/c/temp/Results.txt"
+		s d=$c(9)
+		o file:newversion
+		s adno=from-1
+		s row=0
+		for  s adno=$O(^UPRNI("D",adno)) q:adno=""  q:(adno>to)  d
+		. s row=row+1
+		. i '(adno#1000) u 0 w !,adno
+		. s uprn=$G(^UPRNI("M","5.4.3",adno))
+		. s class=$s(uprn'="":^UPRN("CLASS",uprn),1:"")
+		. s rec=row_d_^UPRNI("D",adno)_d_uprn_d_class
+		. u file w rec,!
+		c file
+		q
 	;	

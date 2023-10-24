@@ -19,9 +19,9 @@ DIS W !,NEXT,"=",@NEXT
 	G NEXT
 OUT Q
 GLOB(GLOB) 	;
-		S A=GLOB_"("""""""")"
-		S NEXT=$Q(@A)
+		S NEXT=$Q(@GLOB)
 		I NEXT="" W !,"Undefined" q
+		W !,NEXT,"=",@NEXT
 		s ND=1
 		G NEXT
 	;

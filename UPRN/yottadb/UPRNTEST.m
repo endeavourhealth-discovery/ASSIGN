@@ -1,4 +1,4 @@
-UPRNTEST(vold,vnew,from,to,every) ;Command line for processing a batch of adresses [ 07/28/2023  11:17 AM ]
+UPRNTEST(vold,vnew,from,to,every,unmatched,diffout) ;Command line for processing a batch of adresses [ 07/28/2023  11:17 AM ]
 	;	
 	K ^UPRNI("stats")
 	K ^UPRNI("M",vnew)
@@ -7,8 +7,9 @@ UPRNTEST(vold,vnew,from,to,every) ;Command line for processing a batch of adress
 	S from=$g(from)
 	s to=$g(to)
 	i to="" s to=1000000000
-	d match(vold,vnew,from,to,$g(every))
-	d out(vold,vnew,from,to,$g(every))
+	d match(vnew,from,to,$g(every),$g(unmatched))
+	if '$g(diffout) q
+	d out(vold,vnew,from,to,$g(every),$g(diffout))
 	q
 stat(total,matched,oldmatched,same,nomatch,nownot,diff,nowmatch)          ;
 	n var
@@ -25,45 +26,48 @@ stats ;End of run stats
 	. w !,stat,"= ",^(stat)
 	S total=^UPRNI("stats","total")
 	s matched=^UPRNI("stats","matched")
-	w !,$j(matched/total*100,1,2)_" %"
+	S invalid=$G(^UPRNI("stats","invalid"))
+	w !,$j(matched/(total-invalid)*100,1,2)_" %"
 	;	
 	q
 	;
-out(vold,vnew,from,to,every)   ;Processes a batch of addresses for a list of areas
+out(vold,vnew,from,to,every,diffout)   ;Processes a batch of addresses for a list of areas
 	N diff,file,d,i,adno,bestuprn,bestalg,bestmatch,bestclass,olduprn,same,nownot,nowmatch,nomatch,adrec
-	n bestaddr,oldaddr,oldalg,oldmatch,oldclass,total,matched,oldmatched,export
-	S diff=$tr(vold,".","_")_"-"_$tr(vnew,".","_")_"-diff.txt"
-	s file=^UPRNF("assurancepath")_"/"_"Diff-"_$TR(vold,".","_")_"-"_$TR(vnew,".","_")_".txt"
-	O file:newversion
-	;Set File delimiter
-	set d="~"
-	;	
+	n bestaddr,oldaddr,oldalg,oldmatch,oldclass,total,matched,oldmatched,export,txt
+	s d=$c(9)
+	I $G(diffout) d
+	. S diff=$tr(vold,".","_")_"-"_$tr(vnew,".","_")_"-diff.txt"
+	. s file=^UPRNF("assurancepath")_"/"_"Diff-"_$TR(vold,".","_")_"-"_$TR(vnew,".","_")_".txt"
+	. O file:newversion
+	. u file
+	. w "Number",d
+	. w "Candidate",d
+	. w vnew_" best uprn",d
+	. w vnew_" best class",d
+	. w vnew_" best algorithm",d
+	. w vnew_" best quality",d
+	. f i=1:1:3 w vnew_" best abp addrress "_i,d
+	. I vold'="" d
+	. . w vold_" uprn",d
+	. . w vold_" class",d
+	. . w vold_" algorithm",d
+	. . w vold_" quality",d
+	. . f i=1:1:3 w vold_" abp address "_i,d
+	. . w "Same match",d
+	. . w "Unmatched both",d
+	. W vnew_" unmatched",d
+	. w "Different match",d
+	. w vnew_" match"
+	. w !
+	. u 0 w !,"Exporting .."
+	;
 	K ^UPRNI("stats")
 	;Initiate the counts
-	s d=$c(9)
-	u file
-	w "Number",d
-	w "Candidate",d
-	w vnew_" best uprn",d
-	w vnew_" best class",d
-	w vnew_" best algorithm",d
-	w vnew_" best quality",d
-	f i=1:1:3 w vnew_" best abp addrress "_i,d
-	w vold_" uprn",d
-	w vold_" class",d
-	w vold_" algorithm",d
-	w vold_" quality",d
-	f i=1:1:3 w vold_" abp address "_i,d
-	w "Same match",d
-	w "Unmatched both",d
-	W vnew_" unmatched",d
-	w "Different match",d
-	w vnew_" match"
-	w !
+	;	
 	;
-	s total=0,matched=0,export=0
+	s total=0,matched=0,export=0,txt=""
 	s adno=$g(from)
-	u 0 w !,"Exporting .."
+	;	
 	s to=$g(to,1000000000)
 	for  set adno=$O(^UPRNI("D",adno)) q:adno=""  q:(adno>to)  d
 	. i $g(every) i (adno#every) q
@@ -74,7 +78,7 @@ out(vold,vnew,from,to,every)   ;Processes a batch of addresses for a list of are
 	. s matched=0
 	. s bestuprn=$G(^UPRNI("M",vnew,adno))
 	. i bestuprn'="" s matched=1
-	. s olduprn=$G(^UPRNI("M",vold,adno))
+	. i vold'="" s olduprn=$G(^UPRNI("M",vold,adno))
 	. i olduprn'="" s oldmatched=1
 	. s same=0,nomatch=0,nownot=0,diff=0,nowmatch=0
 	. i olduprn="",bestuprn="" d
@@ -87,24 +91,32 @@ out(vold,vnew,from,to,every)   ;Processes a batch of addresses for a list of are
 	. . s nowmatch=1
 	. i olduprn'="",bestuprn'="",olduprn=bestuprn d
 	. . s same=1
-	. d stat(1,matched,oldmatched,same,nomatch,nownot,diff,nowmatch)
-	. I same q
 	. i bestuprn'="" d alg(vnew,adno,bestuprn,.bestalg,.bestmatch,.bestclass)
+	. i bestalg'="" s ^MATCHES(bestalg)=$g(^MATCHES(bestalg))+1,^MATCHES1(bestalg,adno)=""
+	. d stat(1,matched,oldmatched,same,nomatch,nownot,diff,nowmatch)      
+	. i '$g(diffout) q
+	. i '$g(every) I same q
 	. i bestuprn'="" d addr(bestuprn,.bestaddr)
 	. i olduprn'="" d addr(olduprn,.oldaddr)
 	. i olduprn'="" d alg(vold,adno,olduprn,.oldalg,.oldmatch,.oldclass)
-	. u file w adno,d,adrec,d
-	. W bestuprn,d,bestclass,d,bestalg,d,bestmatch,d
-	. f i=1:1:3 w $g(bestaddr(i)),d
-	. w olduprn,d,oldclass,d,oldalg,d,oldmatch,d
-	. f i=1:1:3 w $g(oldaddr(i)),d
-	. w same,d,nomatch,d,nownot,d,diff,d,nowmatch,d	
-	. w !
+	. s txt=adno_d_$tr(adrec,"""")_d
+	. s txt=txt_bestuprn_d_bestclass_d_bestalg_d_bestmatch_d
+	. f i=1:1:3 d
+	. . s txt=txt_$g(bestaddr(i))_d
+	. i vold'="" d
+	. . s txt=txt_olduprn_d_oldclass_d_oldalg_d_oldmatch_d
+	. . f i=1:1:3 d
+	. . . s txt=txt_$g(oldaddr(i))_d
+	. . s txt=txt_same_d_nomatch_d
+	. s txt=txt_nownot_d_diff_d_nowmatch_d
+	. u file w txt,!
 	. s export=export+1
-	c file
+	i $g(diffout) d
+	. i txt'="" u file w txt
+	. c file
 	d stats
 	q
-match(vold,vnew,from,to,every)	;Runs the batch match
+match(vnew,from,to,every,unmatched)	;Runs the batch match
 	;	
 	n xh,start,d,adno,begin,total,end,uprn,matched,unfile
 	s unfile=^UPRNF("assurancepath")_"/"_"unmatched-"_from_"-"_$TR(vnew,".","_")_".txt"
@@ -117,30 +129,27 @@ match(vold,vnew,from,to,every)	;Runs the batch match
 	s matched=0
 	for  set adno=$O(^UPRNI("D",adno)) q:adno=""  q:(adno>to)  d
 	. S ^ADNO=adno
-	. i '(adno#5000) d
-	. . ;c unfile
-	. . ;s unfile=^UPRNF("assurancepath")_"/"_"unmatched-"_adno_"-"_$TR(vnew,".","_")_".txt"
-	. . ;o unfile:newversion
-	. ;u 0 w !,adno
 	. i $g(every) i (adno#every) q
 	. s start=$p($h,",",2)
 	. d tomatch^UPRN(adno,vnew) ;Match 1 address
 	. s total=total+1
 	. S matched=0
 	. s end=$p($h,",",2)
+	. ;i (end-start>0) u 0 w !,adno," ",end-start," ",^UPRNI("D",adno)
 	. i $D(^TUPRN($J,"MATCHED")) D
 	. . s matched=1
 	. . s uprn=$o(^TUPRN($J,"MATCHED",""))
 	. . S ^UPRNI("M",vnew,adno)=uprn
 	. . m ^UPRNI("M",vnew,adno)=^TUPRN($J,"MATCHED",uprn)
 	. e  d
-	. . u unfile w adno,$c(9),^UPRNI("D",adno),!
-	. d stat(total,matched)
+	. . i unmatched u unfile w adno,$c(9),^UPRNI("D",adno),!
+	. d stat(1,matched)
 	. i '(total#200) d
 	. . d stats
 	. i $D(^TUPRN($J,"INVALID")) d  q
 	. . S ^UPRNI("stats","invalid")=$G(^UPRNI("stats","invalid"))+1
 	c unfile
+	d stats
 	;	
 	q
 	;

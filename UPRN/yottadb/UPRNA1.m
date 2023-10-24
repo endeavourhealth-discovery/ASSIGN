@@ -26,10 +26,11 @@ f153b	;
 f153c	;Street is building
 	i adbuild="",adflat="" d
 	. I '$D(^UPRNX("X.STR",ZONE,adstreet)),$D(^UPRNS("HOUSE",$p(adstreet," ",$l(adstreet," ")))) D
-	. . I $D(^UPRNX("X.BLD",ZONE,$p(adstreet," ",0,$l(adstreet," ")-1))) d
+	. . I $D(^UPRNX("X.BLD",ZONE,$p(adstreet," ",0,$l(adstreet," ")-1)))!($D(^UPRNS("HOUSE",adstreet))) d
 	. . . s adbuild=adstreet
 	. . . s adflat=adbno
 	. . . s adstreet="",adbno=""
+	. . . ;
 f153d	;"at"
 	i $p(adbuild," ",$l(adbuild," "))="at" d
 	. s adbuild=$p(adbuild," ",0,$l(adbuild," ")-1)
@@ -127,12 +128,20 @@ f156 ;
 	. . i $D(^UPRNX("X.BLD",ZONE,adstreet)) d
 	. . . S adbuild=adstreet
 	. . . s adstreet=""
+	. e  I adeploc="",adloc="",$D(^UPRNS("TOWN",adstreet)) d
+	. . s adtown=adstreet
+	. . s adstreet=""
 	i adbno="",$p(adbuild," ",$l(adbuild," "))?1n.n.l d
 	. s adbno=$p(adbuild," ",$l(adbuild," "))
 	. s adbuild=$p(adbuild," ",0,$l(adbuild," ")-1)
 	i adflat?1"ground/"1n.n d
 	. s adflat=$tr(adflat,"/"," ") 
-	;	
+	i adflat?1"no "1n.n.e d
+	. s adflat=$p(adflat," ",2,20)
+	;
+	i adbuild?1"no "1n.n.l1" "1l.l,adflat="" d
+	. s adflat=$p(adbuild," ",2)
+	. s adbuild=$p(adbuild," ",3,10)
 	n xflat
 	s xflat=$$tr^UPRNL(adflat," no "," ") 
 	n house,thouse
@@ -158,10 +167,23 @@ f156 ;
 	i adepth'="",adstreet="",adbno="" d
 	. s adstreet=adepth
 	. s adepth=""
-	i adbuild?1n.n1"("1n.n1l1")",adflat="",adbno="" d
+	i adbuild?1n.n.l1"("1n.n1l1")",adflat="",adbno="" d
 	. s adbno=$p(adbuild,"(")
 	. s adflat=$p($p(adbuild,"(",2),")")
 	. s adbuild=""
+	d fixfbns(adflat,.adbuild,adbno,.adstreet)
+	q
+fixfbns(adflat,adbuild,adbno,adstreet)	;
+	n i,xbuild,done
+	i adflat="",adbuild="",adbno="",adstreet[" ",'$D(^UPRNX("X.STR",ZONE,adstreet))  d
+	. s done=0
+	. s xbuild=""
+	. f i=1:1:$l(adstreet," ") d  q:done
+	. . s xbuild=$p(adstreet," ",1,i)
+	. . I $D(^UPRNX("X.BLD",ZONE,xbuild)) d
+	. . . s adbuild=xbuild
+	. . . s adstreet=$p(adstreet,xbuild_" ",2,10)
+	. . . s done=1
 	Q
 change(glob,node,from,to)    ;
 	n nodes

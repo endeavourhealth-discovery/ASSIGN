@@ -60,9 +60,6 @@ REENT for  s uprn=$O(^UPRN("U",uprn)) q:uprn=""  d
 	. . . s i=i+1
 	. . . I '(i#10000) w i," "
 	q
-	;
-	q
-	;
 setind ;Sets indexes
 	d setind1
 	i flat["/"!(bno["/") d
@@ -127,6 +124,7 @@ setind1 ;Sets indexes
 	. i pstreet'=street do indexstr("STR",pstreet)
 	i build'="" d
 	. set ^UPRNX("X3",ZONE,build,flat,post,uprn,table,key)=""
+	. set ^UPRNX("X3",ZONE,$tr(build," "),flat,post,uprn,table,key)=""
 	. i 'same d
 	. . set ^UPRNX("X3",ZONE,pbuild,flat,post,uprn,table,key)=""
 	. do indexstr("BLD",build)
@@ -153,14 +151,19 @@ setind1 ;Sets indexes
 	. . s ^UPRNX("X5",post,pdepth_" "_pstreet,bno,pbuild,flat,uprn,table,key)=""
 	I town'="",street'="",bno'="" d
 	. s ^UPRNX("X6",street,bno,town,build,flat,uprn,table,key)=""
+	I build'="" d
+	. i town'="" d
+	. . S ^UPRNX("X7",$tr(build," "),town,uprn,table,key)=""
+	. I loc'="" d
+	. . S ^UPRNX("X7",$tr(build," "),town,uprn,table,key)=""
 eind q
 indexstr(index,term)         ;Indexes street or building etc
 	n i,word
 	S ^UPRNX("X."_index,ZONE,term)=term
 	f i=1:1:$l(term," ") d
 	. s word=$p(term," ",i)
-	. i word="" q
-	. S ^UPRNX("X.W",word)=""
+	. i $L(word)<5 q
+	. S ^UPRNX("X.W",ZONE,word)=""
 	q
 isok(uprn)        ;
 	n (uprn)

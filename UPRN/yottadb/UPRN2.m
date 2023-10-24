@@ -465,5 +465,6 @@ degree(degree)     ;Returns the text of the degree to which it matches
 	i degree["p" s result=$s(result'="":result_" ",1:"")_"partial match"
 	I degree["v" s result=$s(result'="":result_" ",1:"")_"level based match"
 	I degree["xd" s result=$s(result'="":result_" ",1:"")_"level based match"
+	I degree["r" s result=$s(result'="":result_" ",1:"")_"spelling corrected"
 	Q result
 	;

@@ -99,14 +99,15 @@ addlines ;Gets address lines
 	. s x=$p(p," ",$l(p," "))
 	. I $$validp^UPRN(x) s post=x
 	. quit
-	n parts
-	s parts=$l(address,"~")
+	I post'="" s address=$p(address,"~",1,$l(address,"~")-1)
 	s tempadd=""
-	for i=$l(address,"~")-1:-1:3 d
+	for i=1:1:$l(address,"~") d
 	. s part=$p(address,"~",i)
-	. I $D(^UPRNS("CITY",part)) s address=$p(address,"~",0,i-1)_"~"_$p(address,"~",i+1,20)
-	. I $D(^UPRNS("COUNTY",part)) s address=$p(address,"~",0,i-1)_"~"_$p(address,"~",i+1,20)
-	S addlines=$s(post'="":$l(address,"~")-1,1:$l(address,"~"))
+	. i part="" q
+	. I $D(^UPRNS("CITY",part)) q
+	. I $D(^UPRNS("COUNTY",part)) q
+	. s tempadd=tempadd_$s(tempadd="":part,1:"~"_part)
+	S addlines=$l(tempadd,"~")
 	;	
 f3 ;too many address lines may be duplicate post code
 	i addlines>2 d
@@ -116,27 +117,7 @@ f3 ;too many address lines may be duplicate post code
 	. . . s addlines=i-1
 	. . . s address=$p(address,d,1,addlines+1)
 	;	
-f4 ;may have too many address lines number is alone in field 1
-	I addlines>2 d
-	. i $p(address,d,1)?1n.n."-".n,$p(address,d,2)?1l.e d
-	. . s $p(address,d,1)=$p(address,d,1)_" "_$p(address,d,2)
-	. . s address=$p(address,d,1)_d_$p(address,d,3,10)
-	. . s addlines=addlines-1
-	;	
-f5 ;Still too many, number s alone in field 2
-	i addlines>2 d
-	. i $p(address,d,2)?1n.n,$p(address,d,3)?1l.e d
-	. . s $p(address,d,2)=$p(address,d,2)_" "_$p(address,d,3)
-	. . s address=$p(address,d,1,2)_d_$p(address,d,4,10)
-	. . s addlines=addlines-1
-	;	
-f6 ;Duplicate street?
-	i addlines>2 d
-	. i $p($p(address,d,2)," ",2,10)=$p(address,d,3) d
-	. . s address=$p(address,d,1,2)_"~"_$p(address,d,4,10)
-	. . s addlines=addlines-1
-	;	
-	;	
+	;
 f7 ;Initialise address line variabs
 	;flat and building is line 1, number and street is line 2
 	i addlines=1 d
@@ -192,21 +173,21 @@ f11 i addlines=3 d
 	. s adstreet=$p(address,d,2)
 	. s adloc=$p(address,d,3)
 f12 i addlines=4 d
-	. s adbuild=$p(address,d,1)
-	. s adepth=$p(address,d,2)
+	. s adflat=$P(address,d,1)
+	. s adbuild=$p(address,d,2)
 	. s adstreet=$p(address,d,3)
 	. s adloc=$p(address,d,4)
 f13 i addlines=5 d
-	. s adbuild=$p(address,d,1)
-	. s adepth=$p(address,d,2)
-	. s adstreet=$p(address,d,3)
-	. s adeploc=$p(address,d,4)
+	. s adflat=$p(address,d,1)
+	. s adbuild=$p(address,d,2)
+	. s adepth=$p(address,d,3)
+	. s adstreet=$p(address,d,4)
 	. s adloc=$p(address,d,5)
 f14 i addlines=6 d
-	. s adbuild=$p(address,d,1)
-	. s adepth=$p(address,d,2)
-	. s adstreet=$p(address,d,3)
-	. s adeploc=$p(address,d,4)
+	. s adflat=$p(address,d,1)
+	. s adbuild=$p(address,d,2)
+	. s adepth=$p(address,d,3)
+	. s adstreet=$p(address,d,34)
 	. s adloc=$p(address,d,5)
 	. S adtown=$p(address,d,6)
 f15 i addlines=7 d
@@ -228,10 +209,10 @@ f16 f var="adflat","adbuild","adstreet","adepth","adeploc","adloc","adtown" d
 	;
 	q
 fields ;Attempt to correct
-		I $D(^UPRNX("X3",ZONE,adepth)),$D(^UPRNS("TOWN",adstreet)),adeploc="" d
-		. s adeploc=adstreet
-		. s adstreet=adepth
-		. s adepth=""
+	I $D(^UPRNX("X3",ZONE,adepth)),$D(^UPRNS("TOWN",adstreet)),adeploc="" d
+	. s adeploc=adstreet
+	. s adstreet=adepth
+	. s adepth=""
 	e  i adeploc'="" d
 	. i $$isroad(adeploc),'$$isroad(adstreet) d
 	. . i adstreet?1"no"1" "1n.n d
@@ -328,13 +309,12 @@ f35a ;Brackets
 	s address("originalbuild")=adbuild
 	i adbuild["(",$e(post,1,2)'="eh" d
 	. i adbuild["(l)" q
-	. S address("bracketed")=""
+	. S address("bracketed")=$p($p(adbuild,"(",2),")")
 	. s adbuild=$tr(adbuild,"("," ")
 	. s adbuild=$tr(adbuild,")","")
 	. s adbuild=$$lt^UPRNL($$tr^UPRNL(adbuild,"  "," "))
 	;			
-	if adflat="" do flatbld(.adflat,.adbuild,.adbno,.adstreet,post)
-	;
+	i adflat="" do flatbld(.adflat,.adbuild,.adepth,.adbno,.adstreet,.adeploc,.adloc,post)  
 	;
 	s address("oflat")=adflat
 	s adflat=$$fixflat(adflat)
@@ -625,7 +605,10 @@ f123 ;area in street
 	s adstreet=$$fixstr("X.STR",adstreet)
 	I adloc="",$l(adstreet," ")>1 d
 	. I '$d(^UPRNX("X.BLD",ZONE,adstreet))&('$D(^UPRNX("X.STR",ZONE,adstreet))) d
-	. . i $D(^UPRNS("TOWN",$p(adstreet," ",$l(adstreet," ")))) d
+	. . I $D(^UPRNS("TOWN",adstreet)) d
+	. . . s adloc=adstreet
+	. . . s adstreet=""
+	. . e  i $D(^UPRNS("TOWN",$p(adstreet," ",$l(adstreet," ")))) d
 	. . . s adloc=$p(adstreet," ",$l(adstreet," "))
 	. . . s adstreet=$p(adstreet," ",0,$l(adstreet," ")-1)
 	;	
@@ -747,8 +730,9 @@ f140 ;Shifts building to stree if its in street dictionary
 	. . . e  d
 	. . . . s adloc=adstreet
 	. . . s adstreet=adbuild
-	. . . s adbno=adflat
-	. . . s adflat=""
+	. . . i adflat?1n.n.e d
+	. . . . s adbno=adflat
+	. . . . s adflat=""
 	. . . s adbuild=""
 	;	
 f141 ;town in street
@@ -760,8 +744,11 @@ f141 ;town in street
 	. . . . s adloc=adstreet
 	. . . . I 'ISFLAT D
 	. . . . . s adstreet=adbuild
-	. . . . . s adbno=adflat
-	. . . . . s adflat="",adbuild=""
+	. . . . . i adflat?1n.n.l.e d
+	. . . . . . s adbno=adflat
+	. . . . . . s adflat="",adbuild=""
+	. . . . . e  d
+	. . . . . . s adbuild=adflat,adflat=""
 	. . . . E  D
 	. . . . . s adstreet=""
 	;	
@@ -910,9 +897,9 @@ getnum(term)       ;
 	. e  s rest=rest_$e(term,i)
 	q num_" "_rest
 	;	
-flatbld(adflat,adbuild,adbno,adstreet,adpost) ;
+flatbld(adflat,adbuild,adepth,adbno,adstreet,adeploc,adloc,adpost) ;
 	n tbuild
-	;	
+	;
 	i adstreet?1"flat"1n.n.l d  q
 	. s adflat=adstreet
 	. s adstreet=adbuild
@@ -925,6 +912,11 @@ flatbld(adflat,adbuild,adbno,adstreet,adpost) ;
 	i adbuild?1l1n.n d
 	. s adflat=adbuild
 	. s adbuild=""
+	;
+	i adbuild?1"no "1n.n1" ".e d
+	. s adflat=$p(adbuild," ",2)
+	. s adbuild=$p(adbuild," ",3,10)	
+	;	
 	;	
 	;	
 	i adbuild?1n.n." "1"flat".e d
@@ -1037,9 +1029,8 @@ f52 ;19- eagle house
 	. set adbuild=$p(adbuild," ",2,20)
 	;	
 f53 ;first floor flat or front flat
+		i adbuild[" no " s adbuild=$$tr^UPRNL(adbuild," no "," ")
 	if adbuild[" flat"!(adbuild[" room"),adflat="" do  q
-	. i adbuild[" no " d
-	. . s adbuild=$$tr^UPRNL(adbuild," no "," ")
 	. n i,flatfound,word,wordcount
 	. s flatfound=0,wordcount=$l(adbuild," ")
 	. F i=1:1:wordcount d  q:flatfound
@@ -1122,7 +1113,7 @@ numpos(text)       ;
 	;	
 numstr(adbno,adstreet,adflat,adbuild,adepth,adeploc,adloc,adtown,post) ;
 	;Right shift adepth which has number if possuble
-	i $e(post,1,2)="eh" d edinburgh^UPRNU(.adbuild,.adflat,.adbno,.adepth,.adstreet,post)
+	i $d(^UPRNS("EDINBURGHSTYLE",$e(post,1,2))) d edinburgh^UPRNU(.adbuild,.adflat,.adbno,.adepth,.adstreet,post)
 	i adepth?1n.n.l1" ".e,adbno="" d
 	. i '$D(^UPRNX("X.STR",ZONE,adstreet)) d
 	. . i adloc'="",adtown="" d
@@ -1162,20 +1153,20 @@ numstr(adbno,adstreet,adflat,adbuild,adepth,adeploc,adloc,adtown,post) ;
 	. . s adflat=$p(adepth,"flat ",2)
 	. . s adbno=$p(adepth," ",1)
 	. . s adepth=""
-f66 ;38 & 40 arthur street
+ns66 ;38 & 40 arthur street
 	i adstreet?1n.n1" "1"&"1" "1n.n1" "1l.e d
 	. s adbno=$p(adstreet," ",1)_"-"_$p(adstreet," ",3)
 	. s adstreet=$p(adstreet," ",4,40)
-f66a ;Off road
+ns66a ;Off road
 	i adstreet?1"off"1" "1l.e d
 	. i $d(^UPRNX("X.STR",ZONE,$p(adstreet," ",2,20))) d
-F66d . . s adstreet=$p(adstreet," ",2,20)
+	. . s adstreet=$p(adstreet," ",2,20)
 	;	
-f67 ;11 high street
+ns67 ;11 high street
 	if adstreet?1n.n1" "2l.e do
 	. set adbno=$p(adstreet," ",1)
 	. set adstreet=$p(adstreet," ",2,10)
-f68 . if adstreet?1"flat "1n.n.l1" "1l.e d
+	. if adstreet?1"flat "1n.n.l1" "1l.e d
 	. . i adflat="" d
 	. . . s adflat=$p(adstreet," ",1,2)
 	. . . s adstreet=$p(adstreet," ",3,20)
@@ -1183,74 +1174,74 @@ f68 . if adstreet?1"flat "1n.n.l1" "1l.e d
 	. . s adflat=adbno
 	. . s adbno=""
 	;	
-f69 ;100 S0oth
+ns69 ;100 S0oth
 	if adstreet?1n.n1" "1l.n.l.e d
 	. set adbno=$p(adstreet," ",1)
 	. set adstreet=$p(adstreet," ",2,10)
 	;	
-f70 ;123-15 dunlace road
+ns70 ;123-15 dunlace road
 	if adstreet?1n.n1"-"1n.n1" "1l.e do
 	. set adbno=$p(adstreet," ",1)
 	. set adstreet=$p(adstreet," ",2,20)
 	;	
-f71 ;11a high street
+ns71 ;11a high street
 	if adstreet?1n.n1l1" "1l.e do
 	. set adbno=$p(adstreet," ",1)
 	. set adstreet=$p(adstreet," ",2,20)
 	;	
-f72 ;14 - 16 lower clapton road
+ns72 ;14 - 16 lower clapton road
 	if adstreet?1n.n1" "1"-"1" "1n.n1" "1l.e do
 	. set adbno=$p(adstreet," ",1)_"-"_$p(adstreet," ",3)
 	. set adstreet=$p(adstreet," ",4,10)
 	;	
-f73 ;109- 111 Leytonstone road....;
+ns73 ;109- 111 Leytonstone road....;
 	if adstreet?1n.n1"-"1" "1n.n1" ".l.e do
 	. set adbno=$p(adstreet," ",1)_$p(adstreet," ",2)
 	. set adstreet=$p(adstreet," ",3,20)
 	;	
-f74 ;109a-111 Leytonstone road....;
+ns74 ;109a-111 Leytonstone road....;
 	if adstreet?1n.n1l1"-"1n.n1" "1l.e do
 	. set adbno=$p(adstreet," ",1)
 	. set adstreet=$p(adstreet," ",2,20)
 	;	
-f75 ;110haley road
+ns75 ;110haley road
 	if adstreet?1n.n2l.l1" "2l.e do
 	. n i
 	. f i=1:1 q:$e(adstreet,i)'?1n  d
 	. . set adbno=adbno_$e(adstreet,i)
 	. set adstreet=$p(adstreet,adbno,2,10)
 	;	
-f76 ;1a 
+ns76 ;1a 
 	if adstreet?1n.n1l do
 	. set adbno=adstreet
 	. set adstreet=""
 	;	
-f77 ;99 a high street
+ns77 ;99 a high street
 	if adstreet?1n.n1" "1l1" ".e do
-f78 . if $p(adstreet," ",2)="y" d
+	. if $p(adstreet," ",2)="y" d
 	. . set adbno=$p(adstreet," ",1)
 	. . set adstreet=$p(adstreet," ",2,20)
-f79 . e  d
+	. e  d
 	. . set adbno=$p(adstreet," ",1)_$p(adstreet," ",2)
 	. . set adstreet=$p(adstreet," ",3,20)
 	;	
-f80 ;9a-11b high street
+ns80 ;9a-11b high street
 	if adstreet?1n.n1l1"-"1n.n1l1" ".l.e do
 	. set adbno=$p(adstreet," ",1)
 	. set adstreet=$p(adstreet," ",2,20)
 	;	
 	;	
-f81 ;10-10a blurton road
+ns81 ;10-10a blurton road
 	if adstreet?1n.n1"-"1n.n1l1" "1l.e d
 	. set adbno=$P(adstreet," ",1)
 	. set adstreet=$p(adstreet," ",2,20)
 	;	
-f82 ;99- high street
+ns82 ;99- high street
 	if adstreet?1n.n1"-"1" "1l.e d
 	. set adbno=$p(adbuild,"-",1)
 	. set adstreet=$p(adstreet," ",2,20)
 	;	
-f83 ;westdown road 99
+ns83 ;westdown road 99
 	i $p(adstreet," ",$l(adstreet," "))?1n.n d
 	. s adbno=$p(adstreet," ",$l(adstreet," "))
 	. s adstreet=$p(adstreet," ",0,$l(adstreet," ")-1)
@@ -1268,13 +1259,13 @@ f83 ;westdown road 99
 	. . . s adbno=$p(adstreet," ",1)
 	. . . s adstreet=$p(adstreet," ",3,20)
 	;	
-f841 ;
+ns841 ;
 	i adbno="",adstreet?1n.n1"-"1n.n!(adstreet?1n.n1"/"1n.n) d
 	. s adbno=adstreet
 	. s adstreet=""
 	. i adloc'="" d
 	. . s adstreet=adloc,adloc=""
-f842	;Shift thorougfare to street as street rules are better than thorughtfare rules
+ns842	;Shift thorougfare to street as street rules are better than thorughtfare rules
 	i adepth'="" d
 	. I '$D(^UPRNX("X.STR",ZONE,adstreet)) d
 	. . i adtown="" d
@@ -1294,12 +1285,67 @@ f842	;Shift thorougfare to street as street rules are better than thorughtfare r
 	. s adbno=adflat
 	. s adflat=$p(adbuild,"flat ",2)
 	. s adbuild=""
-	;	
+	;
+	i adflat'="",adbno="",adepth="",adbuild?1n.n.l1" "1.e d
+	. I '$D(^UPRNX("X.BLD",ZONE,$p(adbuild," ",2,10))) d
+	. . s adbno=$p(adbuild," ")
+	. . s adepth=$p(adbuild," ",2,20)
+	. . s adbuild=""
+	i adflat="",adbno="",$p(adbuild," ",$l(adbuild," "))?1n.n.l d
+	. s adbno=$p(adbuild," ",$l(adbuild," "))
+	. s adbuild=$p(adbuild," ",0,$l(adbuild," ")-1)
+ns843 ;	
+	i adflat?1"no ".e d
+	. s adflat=$p(adflat,"no ",2,10)
+	i adbno="",adflat?1n.n.l1" "1l.e,adbuild'="",adepth="",adstreet'="" d
+	. i '$D(^UPRNX("X.STR",ZONE,adstreet)),$D(^UPRNX("X.STR",ZONE,adbuild)),$D(^UPRNS("TOWN",adstreet)) d
+	. . I adloc="",adeploc="" d
+	. . . s adloc=adstreet
+	. . . s adstreet=adbuild
+	. . . s adbuild=$p(adflat," ",2,10)
+	. . . s adflat=$p(adflat," ",1)
+	. . e  i adloc="" d
+	. . . s adloc=adeploc
+	. . . s adeploc=adstreet
+	. . . s adstreet=adbuild
+	. . . s adbuild=$p(adflat," ",2,10)
+	. . . s adflat=$p(adflat," ",1)
+	. . e  i adeploc="" d
+	. . . s adeploc=adstreet
+	. . . s adstreet=adbuild
+	. . . s adbuild=$p(adflat," ",2,10)
+	. . . s adflat=$p(adflat," ",1)
+ns900	;Move things to the right if they match
+	i adflat'="",adbuild'="",adepth="",adstreet'="",adbno="",adtown="" d
+	. I '$D(^UPRNX("X.STR",ZONE,adstreet)) d
+	. . I $D(^UPRNS("TOWN",adstreet))  d
+	. . . I '$D(^UPRNX("X.BLD",ZONE,adbuild)) d
+	. . . . I $D(^UPRNX("X.STR",ZONE,adbuild)) d
+	. . . . . i adloc="" s adloc=adstreet
+	. . . . . e  s adtown=adloc,adloc=adstreet
+	. . . . . i 'ISFLAT d
+	. . . . . . s adstreet=adbuild
+	. . . . . . s adbuild=adflat
+	. . . . . . s adflat=""
+	. . . . . e  d
+	. . . . . . s adstreet=adbuild
+	. . . . . . s adbuild=""
+	. . . . . . d fixfbn(.adflat,.adbuild,.adbno)
+	;
 	q
+	;
 	;	
-	;	
-	q
-	;	
+fixfbn(adflat,adbuild,adbno)	;
+	i adflat?1"flat "1n.n.l1" ".e d
+	. s adflat=$p(adflat,"flat ",2,10)
+	i adflat?1n.n.l1" ".e d
+	. i adbuild="" d
+	. . s adbuild=$p(adflat," ",2,10)
+	. . s adflat=$p(adflat," ")
+	. . i adbno="",$p(adbuild," ",$l(adbuild," "))?1n d
+	. . . s adbno=$p(adbuild," ",$l(adbuild," "))
+	. . . s adbuild=$p(adbuild," ",0,$l(adbuild," ")-1)
+	Q
 isroad(text)       ;
 	n i,word,road
 	s road=0

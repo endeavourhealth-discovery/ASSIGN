@@ -145,6 +145,16 @@ eqfb(tbuild,tflat,build,flat)          ;
 	q matched
 	;	
 	q
+eqflatnum(tflat,flat,tbno,bno) ;
+	n matched
+	s matched=0
+	i tbno?1n.n1l d
+	. i tbno*1=bno d
+	. . i flat[(" "_$p(tbno,tbno*1,2)_" ") d
+	. . . i flat[(" "_$tr(tflat,"-","/")) d
+	. . . . s matched=1
+	q matched
+	;	
 eqflat(tflat,flat) ;Are they equivalent flats?
 	n (tflat,flat)
 	f var="tflat","flat" d

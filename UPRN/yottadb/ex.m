@@ -1,6 +1,6 @@
 ex	;
 5	;
-	W !,"posr code : " r post
+	W !,"post code : " r post
 	i post="" q
 	K ^x
 	M ^x=^UPRNX("X5",$$lc^UPRNL($tr(post," ")))

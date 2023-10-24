@@ -1,6 +1,6 @@
 UPRNDIFF	;
-	s from="",to="",every="400"
-	D ^UPRNTEST("SCOT","5.4.3",from,to,every)
+	s from=^LONDON,to="",every="",out="",diffout=""
+	D ^UPRNTEST("","5.4.3",from,to,every,out,diffout)
 	q
 UNMATCHED(from,to) ;
 	n adno,file

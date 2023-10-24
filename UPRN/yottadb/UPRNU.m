@@ -64,6 +64,10 @@ edinburgh(adbuild,adflat,adbno,adepth,adstreet,post)	;
 	. . s adbno=$p(adbuild,"(")
 	. . s adflat=flat
 	. . s adbuild=""
+	e  i adbuild?1n.n1" "1n.n1"/"1n.n d
+	. s adbno=$p(adbuild," ")
+	. s adflat=$p(adbuild," ",2)
+	. s adbuild=""
 	q	
 	;
 isff(adflat,adbuild,adbno,adstreet,post)	;
@@ -345,6 +349,7 @@ equiv(test,tomatch,min,force,droproad)          ;Swaps drops and levenshtein
 	N otest,otomatch
 	s otest=test,otomatch=tomatch
 	i $p($tr(test," "),"(")=$p($tr(tomatch," "),"(") q 1
+	i test=""!(tomatch="") q 0
 cwm i $l(test)>7 i $e($tr(test," "),1,$l($tr(test," "))-1)=$e($tr(tomatch," "),1,$l($tr(tomatch," "))-1) q 1
 	d swap(.test,.tomatch)
 	d drop(.test,.tomatch)
@@ -396,6 +401,7 @@ eqlev(test,tomatch)          ;Equivalent by levenshtein test
 	i $tr(test," ")=$tr(tomatch," ") q 1
 	i $e(test)?1n,$e(tomatch)?1l q 0
 	i $e(tomatch)?1n,$e(test)?1l q 0
+	i $$tr^UPRNL($$tr^UPRNL(test,"rr","r"),"ss","s")=$$tr^UPRNL($$tr^UPRNL(tomatch,"rr","r"),"ss","s") q 1
 	i $$levensh($tr(test," "),$tr(tomatch," "),$g(min,10),$g(force)) q 1
 	s test=otest,tomatch=otomatch
 	i test'["ow" q 0
@@ -528,7 +534,7 @@ SETSWAPS ;
 fs f i=1:1:9 S ^UPRNS("FLATSUFNUM",$c(96+i))=i
 fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	;	
-	K ^UPRNS("ROAD")
+	K ^UPRNS("ROAD"),^UPRNS("HOUSE")
 	S ^UPRNS("NUMWORD",7)="seven"
 	K ^UPRNS("BESTFIT")
 	K ^UPRNS("CITY")
@@ -548,6 +554,11 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	S ^UPRNS("TRANSLATE","farm","ffermdy")=""
 	S ^UPRNS("TRANSLATE","hen","old")=""
 	S ^UPRNS("TRANSLATE","old","hen")=""
+	S ^UPRNS("TRANSLATE","fforrd")="ANY"
+	S ^UPRNS("TRANSLATE","ffordd","way")=""
+	S ^UPRNS("TRANSLATE","ffordd","lane")=""
+	S ^UPRNS("TRANSLATE","farm house","farm cottage")=""
+	S ^UPRNS("TRANSLATE","farm cottage","farm house")=""
 	n fix
 	s fix=1
 	S ^UPRNS("BESTFIT",fix)="Pe,Se,Ne,Be,Fev" s fix=fix+1
@@ -762,6 +773,8 @@ scots ;
 	S ^UPRNS("SCOTLEVEL","2/1")="e"
 	S ^UPRNS("SCOTLEVEL","2/2")="f"
 	S ^UPRNS("SCOTLEVEL","ground floor","0g")=""
+	f post="eh","dd","ph" d
+	. S ^UPRNS("EDINBURGHSTYLE",post)=""
 	s ^UPRNS("SCOTFLOORSIDE","1/1","1/f left")=""
 	S ^UPRNS("SCOTFLOORSIDE","1/1","first floor left")=""
 	S ^UPRNS("SCOTFLOORSIDE","1/2","1/f right","X")="1/r left"
@@ -772,6 +785,8 @@ scots ;
 	S ^UPRNS("SCOTFLOORSIDE","2/1","second floor left")=""
 	S ^UPRNS("SCOTFLOORSIDE","2/2","second floor right")=""
 	S ^UPRNS("SCOTFLOORSIDE","2/2","2/f right","X")="2/r left"
+	S ^UPRNS("SCOTFLOORSIDE","ground 2","g/f right")=""
+	S ^UPRNS("SCOTFLOORSIDE","ground 1","g/f left")=""
 	S ^UPRNS("CITY","london")=""
 	set ^UPRNS("CORRECT","1st")="first"
 	S ^UPRNS("CORRECT","bsemnt")="basement"
@@ -842,7 +857,7 @@ scots ;
 	S ^UPRNS("SWAP","nursing")="care"
 	S ^UPRNS("SWAP","upstairs")="first"
 	S ^UPRNS("SWAP","upper")="first"
-	;	
+	S ^UPRNS("SWAP","farmhouse")="farm cottage"
 	S ^UPRNS("CORRECT","cresent")="crescent"
 	S ^UPRNS("CORRECT","sttreet")="street"
 	S ^UPRNS("CORRECT","st")="street"
@@ -885,7 +900,8 @@ scots ;
 	S ^UPRNS("RESIDENTIAL","house")=""
 	S ^UPRNS("RESIDENTIAL","lodge")=""
 	S ^UPRNS("RESIDENTIAL","farmhouse")=""
-	F text="house","farm","farmhouse","cottage","lodge","cott","manor","hall" d
+	S ^UPRNS("RESIDENTIAL","dwelling")=""
+	F text="dwelling","croft","bothy","house","farm","farmhouse","cottage","cottages","lodge","cott","manor","hall" d
 	. s ^UPRNS("HOUSE",text)=""
 	f text="villas","road","street","avenue","court","square","drive","way" d
 	. S ^UPRNS("ROAD",text)=""
@@ -1039,6 +1055,7 @@ MPART(test,tomatch,mincount)         ;
 	. I word'="" I $D(^UPRNS("ROAD",word))!($D(^UPRNS("BUILDING",word))) q
 	. f j=i:1:$l(@to," ") d
 	. . set tword=$p(@to," ",j)
+	. . i tword=word s count=count+1
 	. . i tword'="",$D(^UPRNS("ROAD",tword))!($d(^UPRNS("BUILDING",word))) q
 	. . I $$levensh(word,tword) d
 	. . . set count=count+1
