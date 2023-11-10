@@ -20,6 +20,7 @@ RTNS ;
 	; VPRJRSP.m
 	; VPRJRUT.m
 	; XLFUTL.m
+	; _WHOME.m
 	; *EOR
 	;	
 STT ;
@@ -55,7 +56,7 @@ STT ;
 	. if $zsystem'=0 S q=1
 	. quit
 	if q=1 W !,"Something went wrong!" quit
-	s ro=$p($p($zro,"(",2)," ")
+	s ro=$p($p($p($zro,"(",2)," "),")")
 	W !,"The routines have been downloaded from github.com"
 	W !,"Do you want to copy the routines to: "
 YN W !,ro," (y/n)?"
@@ -74,7 +75,7 @@ PREREQ(rtn)
 	set cmd="wget -q -P /tmp/dev ""https://raw.githubusercontent.com/endeavourhealth-discovery/uprn-match/master/UPRN/yottadb/"_rtn_""""
 	zsystem cmd
 	if $zsystem'=0 q 1
-	s ro=$p($p($zro,"(",2)," ")
+	s ro=$p($p($p($zro,"(",2)," "),")")
 	s cmd="cp /tmp/dev/"_rtn_" "_ro
 	w !,cmd
 	zsystem cmd
