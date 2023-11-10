@@ -21,6 +21,8 @@ RTNS ;
 	; VPRJRUT.m
 	; XLFUTL.m
 	; _WHOME.m
+	; START.m
+	; REG2.m
 	; *EOR
 	;	
 STT ;
