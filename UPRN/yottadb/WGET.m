@@ -27,6 +27,7 @@ RTNS ;
 	; EWEBRC4.m
 	; PAWK.m
 	; DS.m
+	; GFIND.m
 	; *EOR
 	;	
 STT ;
