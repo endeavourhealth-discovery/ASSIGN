@@ -23,6 +23,10 @@ RTNS ;
 	; _WHOME.m
 	; START.m
 	; REG2.m
+	; FS.m
+	; EWEBRC4.m
+	; PAWK.m
+	; DS.m
 	; *EOR
 	;	
 STT ;
