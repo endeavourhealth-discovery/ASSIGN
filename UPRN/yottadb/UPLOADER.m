@@ -24,7 +24,18 @@ OUTPUT(result,arguments)
 	f  s id=$o(^UPLOADER(un,id)) q:id=""  do
 	. S rec=^(id)
 	. s adr=$p(rec,"~",1),uprn=$piece(rec,"~",2),json=$p(rec,"~",3)
-	. s h="<td>"_id_"</td><td>"_uprn_"</td><td>"_adr_"</td><td>"_json_"</td><tr>"
+	. set rec=$get(^UPLOADER(un,id,"U"))
+	. set coo=$piece(rec,"~",7)
+	. set lat=$p(coo,",",3),lng=$p(coo,",",4)
+	. s adr=$$IN^LIB(adr)
+	. s pcode=$p(adr,",",$l(adr,",")),pcode=$$UC^LIB(pcode)
+	. s $p(adr,",",$l(adr,","))=pcode
+	. set href="<a href=""/srv/mappinner/L3.html?lat="_lat_"&lng="_lng_"&uprn="_uprn_"&adr="_adr_""">map</a>"
+	. if lat="" s href=""
+	. k b
+	. D DECODE^VPRJSON($name(json),$name(b),$name(err))
+	. set zuprn=$get(b("UPRN"))
+	. s h="<td>"_id_"</td><td>"_uprn_"</td><td>"_adr_"</td><td>"_json_"</td><td>"_href_"</td><tr>"
 	. D H(h)
 	. quit
 	D H("</table>")

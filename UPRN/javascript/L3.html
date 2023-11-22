@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Map Example</title>
+    <!-- Include Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+
+        #map {
+            height: 60vh; /* Adjusted map height */
+            width: 100%;
+        }
+
+        #info {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="info">
+        <p id="address"></p>
+        <p id="uprn"></p>
+    </div>
+
+    <div id="map"></div>
+
+    <script>
+        // Function to parse the query string and extract latitude, longitude, uprn, and address
+        function getParamsFromQueryString() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var lat = urlParams.get('lat');
+            var lng = urlParams.get('lng');
+            var uprn = urlParams.get('uprn');
+            var adr = urlParams.get('adr');
+
+            return { lat: lat, lng: lng, uprn: uprn, adr: adr };
+        }
+
+        var map;
+
+        // Function to initialize the map
+        function initializeMap() {
+            var defaultLocation = { lat: 54.7023545, lng: -3.2765753 }; // Default location (UK)
+
+            // Use the coordinates from the query string, or default to the UK
+            var coordinates = getParamsFromQueryString() || defaultLocation;
+
+            map = L.map('map').setView([coordinates.lat, coordinates.lng], 15); // Adjusted zoom level
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add a marker for the specified coordinates
+            var marker = L.marker([coordinates.lat, coordinates.lng]).addTo(map);
+
+            // Display address and uprn
+            document.getElementById('address').textContent = 'Address: ' + coordinates.adr;
+            document.getElementById('uprn').textContent = 'UPRN: ' + coordinates.uprn;
+        }
+
+        // Show the map on load
+        window.addEventListener('load', function () {
+            initializeMap();
+        });
+    </script>
+</body>
+</html>
