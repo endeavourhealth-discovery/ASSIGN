@@ -66,8 +66,9 @@ STT ;
 	s ro=$p($p($p($zro,"(",2)," "),")")
 	W !,"The routines have been downloaded from github.com"
 	W !,"Do you want to copy the routines to: "
-YN W !,ro," (y/n)?"
-	read yn#1
+YN  W !,ro," (y/n)?"
+	IF $GET(ASK)="" read yn#1
+	ELSE  set yn="y"
 	set yn=$$LC^LIB(yn)
 	if "\y\n\"'[("\"_yn_"\") G YN
 	if yn="n" quit
