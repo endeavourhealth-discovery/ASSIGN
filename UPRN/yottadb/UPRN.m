@@ -2860,10 +2860,11 @@ matched ;
 	q
 remcom ;removes duplicate commercial match
 	n uprn,table,key
+	K ^TUPRN($J,"COMMERCIAL")
 	I $D(^TCUPRN($J,"MATCHED")),$D(^TUPRN($J,"MATCHED")) D
 	. K ^TCUPRN($J,"MATCHED")
 	. Q
-	e  d
+	e  if $data(^TCUPRN($job)) d
 	. M ^TUPRN($J)=^TCUPRN($J)
 	. s ^TUPRN($J,"COMMERCIAL")=1
 	Q
