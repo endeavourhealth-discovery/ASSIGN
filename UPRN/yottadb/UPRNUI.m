@@ -45,9 +45,7 @@ LOGIN(result,arguments) ;
  kill ^TMP($J)
  I '$$IP() D H("<B>sorry</B>") G XBYE
  d H("<html>")
- d H("<form action=""https://apiuprn.discoverydataservice.net:8443/check/login"" method=""post"">")
- ;http://10.0.101.22:9080
- ;d H("<form action=""http://10.0.101.22:9080/check/login"" method=""post"">")
+ d H("<form action="""_$GET(^ICONFIG("URL"))_"/check/login"" method=""post"">")
  d H("<table border=1>")
  d H("<td>UserName:</td><td><input type=""text"" name=""username"" /></td><tr>")
  d H("<td>Password:</td><td><input type=""password"" name=""pwd"" /></td><tr>")

@@ -142,7 +142,7 @@ CURL(ADR) ;
  S ADR=$$TR^LIB(ADR," ","%20")
  S ADR=$$TR^LIB(ADR,"'","%27")
  U 0 W !,ADR
- S URL="https://"_^ICONFIG("BASE")_":8443/api2/getinfo?adrec="_ADR_" > /tmp/curl.txt"
+ S URL="https://"_^ICONFIG("BASE")_"/api2/getinfo?adrec="_ADR_" > /tmp/curl.txt"
  S CMD="curl -s -u "_^U_":"_^P_" "_URL
  zsystem CMD
  S J=""
