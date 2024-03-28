@@ -1,4 +1,4 @@
-RALF ; ; 3/9/21 1:03pm
+RALF ; ; 3/28/24 3:15pm
  D STT("b786234a-edfd-4424-b87f-d0ea7ee8949b","/opt/files/qpost-test.txt")
  QUIT
  
@@ -65,7 +65,7 @@ GETRALFS(file,userid)
  .S str=$$STRIP^UPRNUI2(str)
  .I str=$c(13) quit
  .if str["------WebKitFormBoundary" set qf=1 quit
- .if $E(str,1,28)="----------------------------" s qf=1 quit
+ .if $E(str,1,26)="----------------------------" s qf=1 quit
  .S ZID=$$TR^LIB($P(str,$C(9),1),"""","")
  .;U 0 W !,ZID
  .I ZID=""!(ZID=$C(13)) QUIT
@@ -75,7 +75,7 @@ GETRALFS(file,userid)
  .s json=^temp($j,1)
  .K B,C
  .D DECODE^VPRJSON($name(json),$name(B),$name(C))
- .S UPRN=$GET(B("UPRN"))
+ .S UPRN=$GET(B("BestMatch","UPRN"))
  .S ^TLIST($J,ZID)=UPRN
  .; cache the json response
  .S ^TLIST($J,ZID,"J")=^temp($j,1)
