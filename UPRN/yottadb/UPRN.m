@@ -140,6 +140,19 @@ ADRQUAL(rec)         ;
 	set length=$length(rec,"~")
 	set post=$$lc^UPRNL($p(rec,"~",length))
 	set post=$tr(post," ") ;Remove spaces
+	;
+	if '$$validp(post) do
+	. new pc,l,ok
+	. set l=$l(rec," "),pc=$p(rec," ",l)
+	. set ok=0
+	. ; hu36tr
+	. if $$validp(pc) s rec=$p(rec," ",1,(l-1))_"~"_$p(rec," ",l),post=pc,ok=1
+	. if 'ok do
+	. . ; hu3 6tr
+	. . set pc=$$TR^LIB($p(rec," ",(l-1),l)," ","")
+	. . if $$validp(pc) s rec=$p(rec," ",1,(l-2))_"~"_pc,post=pc
+	. quit
+	;
 	i post="" d
 	. S ^TUPRN($J,"POSTCODE")="Missing post code"
 	E  d

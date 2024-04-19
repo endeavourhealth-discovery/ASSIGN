@@ -82,7 +82,7 @@ etrail s adrec=$p(adrec,"~",1,i)
  ;Checks for library update
  I '$D(^UPRNS("DROPSUFFIX")) D SETSWAPS^UPRNU
  ;Checks quality of address
- D ADRQUAL^UPRN(adrec)
+ D ADRQUAL^UPRN(.adrec)
  I '$D(^TUPRN($J,"INVALID")) D
  . D MATCHONE^UPRN(adrec,$g(orgpost))
  E  D
