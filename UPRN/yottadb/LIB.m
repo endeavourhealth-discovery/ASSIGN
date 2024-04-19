@@ -23,7 +23,7 @@ LC(ZX) ;Lower Case Conversion
  Q ZX
  ;
 LT(ZX) ;Leading and trailing spaces
- F  Q:$E(ZX)'=" "  S ZX=$E(ZX,2,255)
+ F  Q:$E(ZX)'=" "  S ZX=$E(ZX,2,25500)
  F  Q:$E(ZX,$L(ZX))'=" "  S ZX=$E(ZX,1,$L(ZX)-1)
  Q ZX
  ;
@@ -258,7 +258,7 @@ TR(ZX,ZY,ZZ) ;Extrinsix function to translate a string [ 01/19/92  5:03 PM ]
  ;ZZis the string to tranlsate to
  N ZW
  S ZW=0
- FOR  S ZW=$F(ZX,ZY,ZW) Q:ZW=0  S ZW=ZW-$L(ZY)-1 S ZX=$E(ZX,0,ZW)_ZZ_$E(ZX,ZW+$L(ZY)+1,200),ZW=ZW+$L(ZZ)+1
+ FOR  S ZW=$F(ZX,ZY,ZW) Q:ZW=0  S ZW=ZW-$L(ZY)-1 S ZX=$E(ZX,0,ZW)_ZZ_$E(ZX,ZW+$L(ZY)+1,50000),ZW=ZW+$L(ZZ)+1
  Q ZX
 AK(ROW,COL,CLR) ;Any key
  N K
