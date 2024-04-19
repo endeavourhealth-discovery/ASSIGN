@@ -57,6 +57,7 @@ A write !,"Select a data package? "
 	f  s z=$o(b(x,"versions",z)) q:z=""  do
 	. write !,z," supplyType: ",b(x,"versions",z,"supplyType")
 	. write " created on: ",b(x,"versions",z,"createdOn")
+	. write " id: ",b(x,"versions",z,"id")
 	. quit
 	;	
 B write !,"Select a version? "
