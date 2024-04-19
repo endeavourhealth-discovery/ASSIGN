@@ -1,4 +1,4 @@
-UPRNDDS ; ; 4/10/24 10:40am
+UPRNDDS ; ; 4/15/24 3:38pm
  quit
  
 SETUP S ^%W(17.6001,"B","GET","api/getcsv","GETCSV2^UPRNDDS",77)=""
@@ -20,8 +20,8 @@ TESTCSV2 ;
  s a("ids")="123"
  D GETCSV2(.r,.a)
  write !,^TMP($J,1)
- D GETCSV(.r,.a)
- write !,^TMP($J,1)
+ ;D GETCSV(.r,.a)
+ ;write !,^TMP($J,1)
  quit
  
 GETCSV2(result,arguments) ;
@@ -73,11 +73,19 @@ GETCSV2(result,arguments) ;
  s csv=LOCALITY_del_NUMBER_del_ORG_del_POSTCODE_del_STREET_del_TOWN
  set csv=csv_del_ALG_del_QUAL_del_MATPATBUILD_del_MATPATFLAT_del
  s csv=csv_MATPATNUMBER_del_MATPATPSTCDE_del_MATPATSTRT_del
+ S QUALITY=$GET(^TUPRN($J,"INVALID"))
  s csv=csv_QUALITY_del_$g(LAT)_del_$g(LONG)_del_$g(POINT)_del_$g(X)_del_$g(Y)_del_$g(CLASS)_del_UPRN
  S ALGVERSION=$GET(^ICONFIG("ALG-VERSION"))
  S EPOCH=$GET(^ICONFIG("EPOCH-PIPELINE"))
  S csv=csv_del_ALGVERSION_del_EPOCH
  s ^TMP($J,1)=csv
+ ; abp address fields
+ ;s zflat=$p(rec,"~",15),zbuild=$p(rec,"~",16),zbno=$p(rec,"~",17)
+ ;s zdepth=$p(rec,"~",18),zstreet=$p(rec,19),zdeploc=$p(rec,"~",20)
+ ;s zloc=$p(rec,"~",21),ztown=$p(rec,"~",22),zpost=$p(rec,"~",23)
+ ;s zorg=$p(rec,"~",24)
+ set abp=$p(rec,del,15,99)
+ s ^TMP($J,2)=abp
  set result("mime")="text/plain, */*"
  set result=$na(^TMP($j))
  quit
@@ -197,6 +205,16 @@ BLOCK()
  set patterns=building_"~"_flat_"~"_number_"~"_street_"~"_postcode
  set organisation=""
  set rec=uprn_"~"_algorithm_"~"_classcode_"~"_qualifier_"~"_organisation_"~"_patterns_"~"_lat_"~"_long_"~"_x_"~"_y
+ 
+ if zok do
+ .D GETABP^UPRNU(uprn,table,key,.zflat,.zbuild,.zbno,.zdepth,.zstreet,.zdeploc,.zloc,.ztown,.zpost,.zorg)
+ .f var="zbuild","zdepth","zstreet","zdeploc","zloc","ztown" d
+ .. i @var'="" s @var=$$in^UPRNL(@var)
+ .. quit
+ .s zpost=$$repost^UPRN2(zpost)
+ .set rec=rec_"~"_zflat_"~"_zbuild_"~"_zbno_"~"_zdepth_"~"_zstreet_"~"_zdeploc_"~"_zloc_"~"_ztown_"~"_zpost_"~"_zorg
+ .quit
+ 
  quit rec
  
 MATCHED(best,commerce,data,patterns) 
