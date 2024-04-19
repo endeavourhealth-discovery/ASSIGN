@@ -31,6 +31,7 @@ STT ;
  .quit
  
  if q=1 w !,"something went wrong downloading the routines from git" quit
+ do LOAD
  do ALL
  
  quit
@@ -98,7 +99,7 @@ DUMP(g,rtn)
  i g="^ME" set f=d_rtn_".me"
  ;w !,f r *y
  close f
- o f:(newversion)
+ o f:(newversion:stream:nowrap:chset="M")
  
  s l=""
  f  s l=$o(@g@(rtn,l)) q:l=""  do
@@ -126,7 +127,7 @@ LOAD ;
  .set rtn=$p(x,"/",z)
  .if $e(rtn,1,2)="XV" quit
  .do SAVE(x,"^ME")
- .w !,rtn r *y
+ .w !,rtn
  .quit
  quit
  
@@ -138,7 +139,7 @@ SAVE(f,glob) ;
  set rtn=$p(f,"/",z)
  w !,rtn
  close f
- o f:(readonly)
+ o f:(readonly:nowrap:chset="M")
  f  u f r str q:$zeof  do
  .use 0 w !,str
  .set str=$$TR^LIB(str,$c(9),"")
