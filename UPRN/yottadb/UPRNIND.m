@@ -1,5 +1,6 @@
 UPRNIND ;Rebuilds all the UPRN indexes [ 05/22/2023  11:42 AM ]
 	n
+	set $ZINT="I $$JOBEXAM^UPRNIND($ZPOS)"
 	S ^STATS("START")=$H
 	s d="~"
 	K ^UPRNX
@@ -34,6 +35,8 @@ UPC ;Checks for any parent child links
 	q
 	;
 INDMAIN ;Index on DPA table
+	;set $ZINT="I $$JOBEXAM^UPRNIND($ZPOS)"
+	SET ^STATS("INDMAIN",1)=$H
 	s i=1
 	s d="~"
 	s (uprn,key)=""
@@ -58,7 +61,8 @@ REENT for  s uprn=$O(^UPRN("U",uprn)) q:uprn=""  d
 	. . . s ptype=$p(rec,d,12)
 	. . . d setind
 	. . . s i=i+1
-	. . . I '(i#10000) w i," "
+	. . . I '(i#10000) set ^I=i w i," "
+	SET ^STATS("INDMAIN",2)=$H
 	q
 setind ;Sets indexes
 	d setind1
@@ -174,3 +178,21 @@ isok(uprn)        ;
 	i res="Y" q 1
 	q 0
 	;
+JOBEXAM(%ZPOS)
+	s idx=$o(^interupt(""),-1)+1
+	S ^interupt(idx)=$get(%ZPOS)
+	D LOG
+	QUIT
+
+LOG ;
+	S %D=$H,%I="exam"
+	S %TOP=$STACK(-1),%N=0
+	L ^LOG:10
+	I '$T QUIT
+	S ID=$I(^LOG)
+	F %LVL=0:1:%TOP S %N=%N+1,^LOG("log",ID,%D,$J,%I,"error","stack",%N)=$STACK(%LVL,"PLACE")_":"_$STACK(%LVL,"MCODE")
+	N %X,%Y
+	S %X="^LOG(""log"",ID,%D,$J,%I,""error"",""symbols"","
+	S %Y="%" F  M:$D(@%Y) @(%X_"%Y)="_%Y) S %Y=$O(@%Y) Q:%Y=""
+	L -^LOG
+	QUIT
