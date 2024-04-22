@@ -1,8 +1,8 @@
 UPRNDIFF	;
-	;d IMPORT^ASSURE("SCOT","FLAP")
+	;d IMPORT^ASSURE("SCOTNHS","NHS")
 	s from="",to="",every="",out="",diffout=1
-	;D ^UPRNTEST("FLAP","5.4.3",from,to,every,out,diffout)
-	D out^UPRNTEST("FLAP","5.4.3","","","",1)
+	D ^UPRNTEST("SCOTNHS","5.4.3",from,to,every,out,diffout)
+	D out^UPRNTEST("0","5.4.3","","","",1)
 	q
 UNMATCHED(from,to) ;
 	n adno,file

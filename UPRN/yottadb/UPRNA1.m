@@ -164,6 +164,13 @@ f156 ;
 	I adloc="",adeploc="",adtown="",'$D(^UPRNX("X.STR",ZONE,adstreet)),$D(^UPRNS("TOWN",adstreet)) d
 	. s adloc=adstreet
 	. s adstreet=""
+	I adflat?1n.n1" "1l.e,adtown="",adbno="",$D(^UPRNX("X.STR",ZONE,$p(adflat," ",2,10))) d
+	. I $D(^UPRNS("TOWN",adloc)) d
+	. . s adtown=adloc
+	. . s adloc=adstreet
+	. . s adstreet=$p(adflat," ",2,10)
+	. . s adbno=$p(adflat," ")
+	. . s adflat=""
 	i adepth'="",adstreet="",adbno="" d
 	. s adstreet=adepth
 	. s adepth=""
