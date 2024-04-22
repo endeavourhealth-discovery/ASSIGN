@@ -1,7 +1,7 @@
 UPRNC ;Additional aglorithms [ 08/01/2023  5:44 PM ]
 	;wELSH "f" "v"
 	;
-match79(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown) 	;
+match79(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown,tpost) 	;
 	;All post codes
 	n matched,uprn,table,key,matchrec,town
 	s matched=0

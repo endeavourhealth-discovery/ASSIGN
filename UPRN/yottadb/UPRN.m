@@ -864,7 +864,7 @@ match(original,adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,ad
 	I $D(^TUPRN($J,"MATCHED")) Q
 5200	;
 	s ALG="5200-"
-	s matches=$$match79^UPRNC(adstreet,adbno,adbuild,adflat,adepth,adeploc,adloc,adtown)
+	s matches=$$match79^UPRNC(adstreet,adbno,adbuild,adflat,adepth,adeploc,adloc,adtown,adpost)
 	I $D(^TUPRN($J,"MATCHED")) Q
 	Q
 	;	
