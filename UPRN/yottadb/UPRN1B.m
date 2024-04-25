@@ -5,7 +5,7 @@ STT(dir,did) ; deltas.
  ;S abp="/opt/all"
  new zid
  
- if $data(^DSYSTEM("COU",id)) write !,"change only update has already been processed" quit
+ if $data(^DSYSTEM("COU",did)) write !,"change only update has already been processed" quit
  set abp=dir
  
  W !,abp
