@@ -28,6 +28,15 @@ RTNS ;
  ; PAWK.m
  ; DS.m
  ; GFIND.m
+ ; SCOTDPA.m
+ ; GITDIFF.m
+ ; ABPAPI.m
+ ; ABPAPI2.m
+ ; SCOTOUT.m
+ ; PASSWD.m
+ ; UPLOADER.m
+ ; CURL3.m
+ ; CURL.m
  ; *EOR
  ;	
 STT ;

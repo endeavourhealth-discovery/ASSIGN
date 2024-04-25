@@ -1,5 +1,10 @@
 ABPAPI2 ; ; 4/16/24 12:46pm
  quit
+
+ORDERDETS(id) 
+ set x=$zsearch("/opt/all/"_id_"/*.fake")
+ set x=$zsearch("/opt/all/"_id_"/"_id_"-Order_Details.txt")
+ quit x
  
 PROCESS ;
  new cmd,f,str,cou,id,dir
@@ -16,14 +21,16 @@ PROCESS ;
  c f:delete
  ;w !
  ;zwr cou
- set id=""
+ set id="",uprnind=0
  set zt=$o(^RUN(""),-1)+1
  f  s id=$order(cou(id)) q:id=""  do
  .set dir="/opt/all/"_id_"/"
- .;; d STT^UPRN1B(dir,id)
+ .d STT^UPRN1B(dir,id)
+ .set uprnind=1
  .s ^RUN(zt)="d STT^UPRN1B("""_dir_""","""_id_""")"
  .s zt=zt+1
  .quit
+ D:uprnind ^UPRNIND
  quit
  
 DONE ; change only updates that have been processed previously
@@ -55,6 +62,7 @@ ALL ;
  new id
  kill b
  ;D EMPTY
+ if '$data(^ICONFIG("COU-NAME")) write !,"cou package name does not exists" quit
  s token=$$GETTOKEN^ABPAPI()
  S cmd="curl -s -H ""Authorization: Bearer "_token_""" ""https://api.os.uk/downloads/v1/dataPackages"""
  D RUN^ABPAPI(cmd)
@@ -66,7 +74,7 @@ ALL ;
  set cegutil=""
  f  s l=$o(b(l)) q:l=""  do
  .;w !,l," ",b(l,"id")," name: ",b(l,"name")
- .i b(l,"name")="SCOTLAND COU" s cegutil=l
+ .i b(l,"name")=^ICONFIG("COU-NAME") s cegutil=l
  .quit
  
  ;zwr b(cegutil,*)
@@ -79,6 +87,7 @@ ALL ;
  kill changes
  do COU(cegutil,.changes,.b)
  
+ I '$data(changes) write !,"no change only updates to download for ",^ICONFIG("COU-NAME") quit
  ;w !
  ;zwr changes
  ;w !
@@ -138,7 +147,8 @@ COU(cegutil,changes,b) ;
  s l=""
  f  s l=$o(b(cegutil,"versions",l)) q:l=""  do
  .set id=b(cegutil,"versions",l,"id")
- .if $d(^DSYSTEM("COU",id)) quit
+ .;if $d(^DSYSTEM("COU",id)) quit
+ .if $$ORDERDETS(id)'="" quit
  .merge changes(cegutil,"version",l)=b(cegutil,"versions",l)
  .quit
  quit

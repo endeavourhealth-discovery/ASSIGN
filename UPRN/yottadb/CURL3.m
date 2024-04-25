@@ -9,7 +9,7 @@ COGNITO(token) ;
  s y=$p(token,"Bearer ",2)
  S ^BEARER=token
  s p=$$DECODE^BASE64($p(y,".",2))
- i p["Vt5ScFwss" do
+ if $get(^ICONFIG("COGNITO-CHK"))'="",p[$get(^ICONFIG("COGNITO-CHK")) do
  .k b
  .D DECODE^VPRJSON($name(p),$name(b),$name(err))
  .set ZCOGID=$get(b("sub"))
