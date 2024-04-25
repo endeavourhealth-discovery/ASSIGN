@@ -57,22 +57,33 @@ TEST2 ;
  set z=$P($H,",",2)+120,^ZQZ(1,+$H)=z,^ZQZ(1,+$h,"RTN")="ALL^ABPAPI2"
  K ^ZQZ1(1,+$H)
  quit
- 
-TEST ;
- set ^ZQZ(1)="ABP change only updates"
- 
- set z=$P($H,",",2)+120,^ZQZ(1,+$H)=z,^ZQZ(1,+$h,"RTN")="PROCESS^ABPAPI2" K ^ZQZ1(1,+$H)
- 
- quit
- ;	
-ZQZ ;
+
+ZQZ1 ;
  new i
  ; run for the next 5 days
  kill ^ZQZ(1)
- set ^ZQZ(1)="ABP change only updates"
+ set ^ZQZ(1)="ABP downloads"
  f i=(+$H+1):1:(+$Horolog+5) do
- . S ^ZQZ(1,i)=$$TH^STDDATE("00:05")
- . set ^ZQZ(1,i,"RTN")="PROCESS^ABPAPI2"
+ . S ^ZQZ(1,i)=$$TH^STDDATE("22:05")
+ . set ^ZQZ(1,i,"RTN")="ALL^ABPAPI2"
+ . quit
+ quit
+ 
+TEST ;
+ set ^ZQZ(2)="ABP change only updates"
+ 
+ set z=$P($H,",",2)+120,^ZQZ(2,+$H)=z,^ZQZ(2,+$h,"RTN")="PROCESS^ABPAPI2" K ^ZQZ1(2,+$H)
+ 
+ quit
+ ;	
+ZQZ2 ;
+ new i
+ ; run for the next 5 days
+ kill ^ZQZ(2)
+ set ^ZQZ(2)="ABP change only updates"
+ f i=(+$H+1):1:(+$Horolog+5) do
+ . S ^ZQZ(2,i)=$$TH^STDDATE("00:05")
+ . set ^ZQZ(2,i,"RTN")="PROCESS^ABPAPI2"
  . quit
  quit
  ;	
