@@ -148,6 +148,8 @@ COU(cegutil,changes,b) ;
  f  s l=$o(b(cegutil,"versions",l)) q:l=""  do
  .set id=b(cegutil,"versions",l,"id")
  .;if $d(^DSYSTEM("COU",id)) quit
+ .set supply=$$UC^LIB(b(cegutil,"versions",l,"supplyType"))
+ .if supply="FULL" quit
  .if $$ORDERDETS(id)'="" quit
  .merge changes(cegutil,"version",l)=b(cegutil,"versions",l)
  .quit
