@@ -5,6 +5,7 @@ POURC ; ; 4/23/24 3:37pm
  ; $ydb_dist/mupip intrpt 18790 (where 18790 is $job)
 SERVICE ;
  new job,i,zi,qid
+ set $et="G ERROR^POURC"
  ;	
  S ^DSYSTEM("POURC")=$job
  set $ZINT="I $$JOBEXAM^POURC($ZPOS)"
@@ -48,7 +49,8 @@ RUN(qid,zzi) ;
  quit
  ;	
 MESS ;
- set ^ICONFIG("POURC","MESS","PROCESS^ABPAPI2")="Test ABP change only process finished ok"
+ set ^ICONFIG("POURC","MESS","PROCESS^ABPAPI2")="change only update process complete"
+ set ^ICONFIG("POURC","MESS","ALL^ABPAPI2")="osdatahub download complete"
  quit
  ;
  
@@ -112,4 +114,15 @@ LOG ;
  N %X,%Y
  S %X="^LOG(""log"",%D,$J,%I,""error"",""symbols"","
  S %Y="%" F  M:$D(@%Y) @(%X_"%Y)="_%Y) S %Y=$O(@%Y) Q:%Y=""
+ quit
+ 
+ERROR ;
+ set Zid=$o(^POURC(""),-1)+1
+ S %TOP=$STACK(-1),%N=0
+ S ^POURC(Zid,"error")=$zstatus
+ F %LVL=0:1:%TOP S %N=%N+1,^POURC(Zid,"error","stack",%N)=$STACK(%LVL,"PLACE")_":"_$STACK(%LVL,"MCODE")
+ N %X,%Y
+ set %X="^POURC(Zid,""error"",""symbols"","
+ S %Y="%" F  M:$D(@%Y) @(%X_"%Y)="_%Y) S %Y=$O(@%Y) Q:%Y=""
+ S ^KRUNNING("ABORT","POURC")=$H
  quit

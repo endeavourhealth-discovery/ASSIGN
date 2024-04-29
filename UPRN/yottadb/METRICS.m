@@ -1,6 +1,15 @@
 METRICS ; ; 4/25/24 2:53pm
  quit
- 
+
+NEXTQ(zid) ;
+ new h
+ set (h,qf)=""
+ f  s h=$o(^ZQZ(zid,h)) q:h=""  do  q:qf'=""
+ .I '$data(^ZQZ1(zid,h)) s qf=h
+ .quit
+ if qf="" s qf=$order(^ZQZ(zid,""),-1)
+ quit qf
+
 STT ;
  kill
  s token=$$GETTOKEN^ABPAPI()
@@ -36,15 +45,15 @@ STT ;
  ..quit
  .quit
  
- set nextdown=$o(^ZQZ(1,""),-1)
+ set nextdown=$$NEXTQ(1)
  set t1=$get(^ZQZ(1,nextdown))
  S status1="QUEUED"
- if $d(^ZQZ(1,nextdown)) set status1="COMPLETED"
+ if $d(^ZQZ1(1,nextdown)) set status1="COMPLETED"
  
- set nextupdate=$order(^ZQZ(2,""),-1)
+ set nextupdate=$$NEXTQ(2)
  set t2=$get(^ZQZ(2,nextupdate))
  set status2="QUEUED"
- if $d(^ZQZ(1,nextupdate)) set status2="COMPLETED"
+ if $d(^ZQZ1(2,nextupdate)) set status2="COMPLETED"
  
  W !,"next scheduled download run: ",$$HD^STDDATE(nextdown)," at ",$$HT^STDDATE(t1)," ",status1
  write !,"next scheduled database update run: ",$$HD^STDDATE(nextupdate)," at ",$$HT^STDDATE(t1)," ",status2
