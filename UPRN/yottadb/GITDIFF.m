@@ -14,7 +14,7 @@ STT ;
  s cmd="mkdir /tmp/git/; mkdir /tmp/git/diffs"
  zsystem cmd
  
- s cmd="rm /tmp/git/*.*"
+ s cmd="rm /tmp/git/*.*; rm /tmp/git/diffs/*.*"
  zsystem cmd
  
  D DECODE^VPRJSON($name(j),$name(b),$name(err))
