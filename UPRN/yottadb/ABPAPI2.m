@@ -59,7 +59,7 @@ EMPTY ; yeah, I could have done rm /tmp/all/*.*
  quit
  
 ALL ;
- new id
+ new id,hostname
  kill b
  ;D EMPTY
  if '$data(^ICONFIG("COU-NAME")) write !,"cou package name does not exists" quit
@@ -87,6 +87,8 @@ ALL ;
  kill changes
  do COU(cegutil,.changes,.b)
  
+ set hostname=$get(^ICONFIG("HOSTNAME"))
+ if '$d(changes) do SLACK^POURC("no change only updates to process ("_hostname_")")
  I '$data(changes) write !,"no change only updates to download for ",^ICONFIG("COU-NAME") quit
  ;w !
  ;zwr changes
@@ -99,13 +101,17 @@ ALL ;
  ;kill:$d(b) ^V
  merge ^V=changes(cegutil)
  
- set l=""
+ set l="",tot=0
  f  s l=$o(changes(cegutil,"version",l)) q:l=""  do
  .set url=changes(cegutil,"version",l,"url")
  .set id=changes(cegutil,"version",l,"id")
  .w !,url," ",id
  .d DOWNLOAD(url,id)
+ .set tot=tot+1
  .quit
+ 
+ do SLACK^POURC(tot_" change only updates ready to process ("_hostname_")")
+ 
  quit
  
  ;
