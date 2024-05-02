@@ -3,6 +3,7 @@ ASSURE ;
 IMPORT(source,vold) ;
 	d files(source,vold)
 	D UNMATCHED(source)
+	Q
 	D MATCHED(source,vold)
 	Q
 	;
@@ -10,10 +11,16 @@ files(source,vold) ;
 	n file
 	s file=$G(^UPRNF("matched",source))
 	u 0
+	;d matchfile
+	d unmatchfile
+	q
+matchfile ;
 	w !,source," ",vold," source matched file  ("_file_") :" r file
 	i file="" s file=$g(^UPRNF("matched",source))
 	O file:readonly
 	c file
+	q
+unmatchfile ;	
 	u 0
 	s ^UPRNF("matched",source)=file
 	s file=$G(^UPRNF("unmatched",source))
@@ -33,8 +40,10 @@ MATCHED(source,vold) ;
 	s del=$c(9)
 	o file:readonly
 	s adno=$O(^UPRNI("D",""),-1)
-	i source="SCOT" u file r header
+	i source["SCOT" u file r header
 	for  u file r rec  q:$zeof  d
+	. S rec=$tr(rec,"$",",")
+	. I $e(rec,$l(rec))="," s rec=$e(rec,1,$l(rec)-1)
 	. s adno=adno+1
 	. i source="WALES" d
 	. . s ^UPRNI("D",adno)=$p(rec,$c(9),1)
@@ -64,11 +73,16 @@ UNMATCHED(source) ;
 	s del=$c(9)
 	o file
 	s adno=$O(^UPRNI("D",""),-1)
-	i source="SCOT" u file r header
+	i source["SCOT" u file r header
 	for  u file r rec  q:$zeof  d
 	. s adno=adno+1
 	. i source="WALES" d
 	. . s ^UPRNI("D",adno)=$p(rec,$c(9),1)
+	. I source="SCOTNHS" d
+	. . s adno=$p(rec,",")
+	. . s rec=$p(rec,",",2,10)
+	. . s rec=$tr(rec,"$",",")
+	. . s ^UPRNI("D",adno)=rec
 	. i source="SCOT" d
 	. . s orec=rec
 	. . s rec=$$csv^UPRNU(rec)

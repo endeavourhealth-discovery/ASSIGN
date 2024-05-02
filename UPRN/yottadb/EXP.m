@@ -1,5 +1,5 @@
 EXP ; ; 9/4/23 9:49am
-STT      S START=$P($H,",",2)
+STT 
 	;W !,$h
 	;s adrec=^UPRNI("D",125520)
 	;s adrec=^UPRNI("D",124220)
@@ -10,7 +10,10 @@ STT      S START=$P($H,",",2)
 	;s adrec="1 Lewick st,Stratford,,,London,E153DD"
 	;s adrec="FLAT 1 BEAUCHIEF HOUSE 3, ST JULIAN TERRACE, TENBY, SA70 7BL"
 	;s adrec="PLOT 8, TALYGARN COURT, TALYGARN MANOR, TALYGARN, PONTYCLUN, CF72 9UH"
-	s adrec="8 WEST VICTORIA DOCK ROAD,PANMURE COURT,CITY QUAY, DUNDEE,DD1 3BH"
+	;s adrec="8 WEST VICTORIA DOCK ROAD,PANMURE COURT,CITY QUAY, DUNDEE,DD1 3BH"
+	;s adrec=^UPRNI("D",7078366)
+	;D ^ZLINK
+	S adrec=^UPRNI("D",3153)
 	W !,adrec,!
 	D SETSWAPS^UPRNU
 	D GETUPRN^UPRNMGR(adrec,"","","","","")

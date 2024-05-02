@@ -1,8 +1,22 @@
 UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc,adtown,adepth) ;Additional preformatting routine [ 08/02/2023  11:55 AM ]
 	;
 	N i
-	s adtown=$g(adtowm)
-f153A ;Move some thngs around
+	s adtown=$g(adtown)
+f153a ;Move some thngs around
+	i adtown="",adloc'="",adeploc="" d
+	. I '$D(^UPRNS("TOWN",adloc)) d
+	. . I $D(^UPRNS("TOWN",adstreet)) d
+	. . . s adtown=adeploc
+	. . . s adloc=adstreet
+	. . . s adstreet=""
+	. e  d
+	. . I $l(adstreet," ")>1,'$D(^UPRNX("X.STR",ZONE,adstreet)) d
+	. . . i $D(^UPRNS("TOWN",$p(adstreet," ",$l(adstreet," ")))) d
+	. . . . s adtown=adloc
+	. . . . s adloc=adeploc
+	. . . . i adloc="" s adloc=$p(adstreet," ",$l(adstreet," "))
+	. . . . e  s adeploc=$p(adstreet," ",$l(adstreet," "))
+	. . . . s adstreet=$p(adstreet," ",1,$l(adstreet," ")-1)
 	i adloc'="",adstreet'="",adbuild'="",(adbno=""!(adflat="")) d
 	. i $$isflat^UPRNU(adloc) d
 	. . I adloc?1l.l1" "1n.n.l d
@@ -16,6 +30,23 @@ f153A ;Move some thngs around
 	. . . . . s adstreet=xbuild
 	. . . . . s adloc=""
 	;
+f153a1	;
+	i adbuild?1n.n1"/"1n.n,adflat="" d
+	. s adflat=adbuild
+	. i adepth'="" d
+	. . s adbuild=adepth
+	. . s adepth=""
+	. e  d
+	. . s adbuild=""
+f153a2	;
+	I adbuild[" i v " s adbuild=$$tr^UPRNL(adbuild,"i v","iv")
+	i adbuild?1n.n1"-"1n.n.l.n!(adbuild?1n.n1"-"."g"."f".n),adflat="" d
+	. s adflat=adbuild
+	. i adepth'="" d
+	. . s adbuild=adepth
+	. . s adepth=""
+	. e  d
+	. . s adbuild=""
 f153b	;
 	i adflat?.n.l1" ".n,adbno="",adbuild="" d
 	. s adbno=$p(adflat," ",2)
@@ -60,7 +91,7 @@ f156 ;
 	;
 	;	
 	i adflat="",adbuild'="",'$D(^UPRNX("X3",ZONE,adbuild)) d
-	. i adbuild'[" ",adbuild'["/",$e(adbuild,$l(adbuild))?1n d
+	. i adbuild'[" ",adbuild'["/",adbuild'["-",$e(adbuild,$l(adbuild))?1n d
 	. . s done=0
 	. . f i=$l(adbuild):-1:1 d  q:done
 	. . . i $e(adbuild,i)'?1n d
@@ -174,10 +205,18 @@ f156 ;
 	i adepth'="",adstreet="",adbno="" d
 	. s adstreet=adepth
 	. s adepth=""
-	i adbuild?1n.n.l1"("1n.n1l1")",adflat="",adbno="" d
-	. s adbno=$p(adbuild,"(")
+	i adbuild?1n.n.l." "1"("1n.n.1l.n1")".e,adflat="",adbno="" d
+	. s adbno=$p(adbuild,"(")*1
 	. s adflat=$p($p(adbuild,"(",2),")")
-	. s adbuild=""
+	. s adbuild=$$lt^UPRNL($p(adbuild,")",2))
+	. I adstreet="",$D(^UPRNX("X.STR",ZONE,adbuild)) d
+	. . s adstreet=adbuild
+	. . s adbuild=""
+	i adflat?1l.l1" "1"flat "1n.n.l,adbuild="" d
+	. s adbuild=$p(adflat," ")
+	. s adflat=$p(adflat,"flat ",2)
+	;Glasgow ground floors
+	i adflat?1"0"1"/".e s adflat=$e(adflat,2,200)
 	d fixfbns(adflat,.adbuild,adbno,.adstreet)
 	q
 fixfbns(adflat,adbuild,adbno,adstreet)	;

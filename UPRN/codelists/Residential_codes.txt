@@ -209,9 +209,9 @@ Y	CR02PO	Post Office	C	R	2	PO	Commercial	Retail	Retail Service Agent	Post Office
 	CR05	Petrol Filling Station	C	R	5		Commercial	Retail	Petrol Filling Station	
 Y	CR06	Public House / Bar / Nightclub	C	R	6		Commercial	Retail	Public House / Bar / Nightclub	
 	CR07	Restaurant / Cafeteria	C	R	7		Commercial	Retail	Restaurant / Cafeteria	
-	CR08	Shop / Showroom	C	R	8		Commercial	Retail	Shop / Showroom	
+?	CR08	Shop / Showroom	C	R	8		Commercial	Retail	Shop / Showroom	
 	CR08GC	Garden Centre	C	R	8	GC	 	Retail	Shop / Showroom	Garden Centre
-	CR09	Other Licensed Premise / Vendor	C	R	9		Commercial	Retail	Other Licensed Premise / Vendor	
+?	CR09	Other Licensed Premise / Vendor	C	R	9		Commercial	Retail	Other Licensed Premise / Vendor	
 	CR10	Fast Food Outlet / Takeaway (Hot / Cold)	C	R	10		Commercial	Retail	Fast Food Outlet / Takeaway (Hot / Cold)	
 	CR11	Automated Teller Machine (ATM)	C	R	11		Commercial	Retail	Automated Teller Machine (ATM)	
 E	CS	Storage Land	C	S			Commercial	Storage Land		
@@ -236,7 +236,7 @@ N	CT04AE	Air Freight Terminal	C	T	4	AE	Commercial	Transport	Goods Freight Handli
 N	CT04CF	Container Freight	C	T	4	CF	Commercial	Transport	Goods Freight Handling / Terminal	Container Freight
 N	CT04RH	Road Freight Transport	C	T	4	RH	Commercial	Transport	Goods Freight Handling / Terminal	Road Freight Transport
 N	CT04RT	Rail Freight Transport	C	T	4	RT	Commercial	Transport	Goods Freight Handling / Terminal	Rail Freight Transport
- 	CT05	Marina	C	T	5		Commercial	Transport	Marina	
+	CT05	Marina	C	T	5		Commercial	Transport	Marina	
 Y	CT06	Mooring	C	T	6		Commercial	Transport	Mooring	
 N	CT07	Railway Asset	C	T	7		Commercial	Transport	Railway Asset	
 N	CT08	Station / Interchange / Terminal / Halt	C	T	8		Commercial	Transport	Station / Interchange / Terminal / Halt	

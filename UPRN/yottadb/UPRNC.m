@@ -1,6 +1,128 @@
 UPRNC ;Additional aglorithms [ 08/01/2023  5:44 PM ]
 	;wELSH "f" "v"
 	;
+match83(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown,tpost) 	;
+		;scottish combined flat numbers in candidate
+	n matches
+	s matches=""	
+	i tflat?1n.n1"/"1n.n,tbno="" d
+	. S ALG="5400-match83a"
+	. s matches=$$match62^UPRN(tpost,tstreet,$p(tflat,"/",2),tbuild,$p(tflat,"/")*1,tloc,tdeploc)
+	I matches q matches
+	i tflat?1n.n1"-"1n.n1"f"1n.n,tbno="" d  i matches q matches
+	. i tstreet="",tbuild'="" d
+	. . s tstreet=tbuild,tbuild=""
+	. S ALG="5400-match83b"
+	. s matches=$$match62^UPRN(tpost,tstreet,$p(tflat,"-",1),tbuild,$p(tflat,"-",2),tloc,tdeploc)
+	i tflat?1n.n1"-"1"f"1n.n,tbno="" d
+	. n tbuildtran
+	. s tbuildtran=$$translate(tbuild,1)
+	. i tbuildtran'=tbuild d
+	. . s matches=$$match62^UPRN(tpost,tbuildtran,$p(tflat,"-",1),tstreet,$p($tr(tflat,"f",""),"-",2),tloc,tdeploc)
+	i matches q matches
+	i tflat?1n.n1"-"1n.n."f".n,tbno="" d
+	. i tstreet="",tbuild'="" d
+	. . s tstreet=tbuild,tbuild="" 
+	. S ALG="5400-match83c"
+	. s matches=$$match83a(tstreet,$p(tflat,"-",1),tbuild,$p(tflat,"-",2),tdepth,tloc,ttown)
+	q matches
+match83a(tstreet,tbno,tbuild,tflat,tdepth,tloc,ttown) 	;
+	n matched,uprn,table,key,adpart,flat,build,bno,street,depth,rec
+	S matched=""
+	for adpart=ttown,tloc d  q:matched
+	. s uprn=""
+	. for  s uprn=$O(^UPRNX("X8",tstreet,tbno,adpart,uprn)) q:uprn=""  d  q:matched
+	. . s (table,key)=""
+	. . for  s table=$O(^UPRNX("X8",tstreet,tbno,adpart,uprn,table)) q:table=""  d  q:matched
+	. . . for  s key=$O(^UPRNX("X8",tstreet,tbno,adpart,uprn,table,key)) q:key=""  d  q:matched
+	. . . . s rec=^UPRN("U",uprn,table,key)
+	. . . . s flat=$p(rec,"~",1),build=$p(rec,"~",2)
+	. . . . s bno=$p(rec,"~",3),depth=$p(rec,"~",4)
+	. . . . s street=$p(rec,"~",5)
+	. . . . i flat=tflat,tbno=bno,build=tbuild,depth=tdepth do
+	. . . . . s matchrec="Pi,Se,Ne,Be,Fe"
+	. . . . . s $p(ALG,"-",2)="match83a"
+	. . . . . s matched=$$set^UPRN(uprn,table,key)
+	q matched
+	;
+match81(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown,tpost) 	;
+	n matched,uprn,table,key,adpart,table,key,post,near,street,bno,build,org,depth,rec,flat
+	s post="",matched=0
+	for  s post=$O(^UPRNX("X3",ZONE,tstreet,tbno,post)) q:post=""  d  Q:matched
+	. s near=$$justarea^UPRN(post,tpost)
+	. i near="" q
+	. s (uprn,table,key)=""
+	. for  s uprn=$O(^UPRNX("X3",ZONE,tstreet,tbno,post,uprn)) q:uprn=""  d  q:matched
+	. . for  s table=$o(^UPRNX("X3",ZONE,tstreet,tbno,post,uprn,table)) q:table=""  d  q:matched
+	. . . for  s key=$o(^UPRNX("X3",ZONE,tstreet,tbno,post,uprn,table,key)) q:key=""  d  q:matched
+	. . . . s rec=^UPRN("U",uprn,table,key)
+	. . . . s flat=$p(rec,"~",1),build=$p(rec,"~",2)
+	. . . . s bno=$p(rec,"~",3),depth=$p(rec,"~",4)
+	. . . . s street=$p(rec,"~",5),org=$p(rec,"~",10)
+	. . . . i org'="",$$carehome(org)=$$carehome(tbuild) d
+	. . . . . S $P(ALG,"-",2)="match81"
+	. . . . . s matchrec="Pp,Se,Ne,Be,Fe"
+	. . . . . s matched=$$set^UPRN(uprn,table,key)
+	q matched
+match80(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown,tpost) 	;
+	n matched,uprn,table,key,adpart,table,key,sub
+	i tpost'="" q ""
+	s matched=0
+	for adpart=ttown,tloc d  q:matched
+	. s sub=tbno
+	. I tbno'="" s uprn=$O(^UPRNX("X8",tstreet,tbno,adpart,""))
+	. e  s uprn=$O(^UPRNX("X8",tstreet,tbuild,adpart,"")),sub=tbuild
+	. i uprn'="" d
+	. . i $O(^UPRNX("X8",tstreet,sub,adpart,uprn))'="" q
+	. . s (table,key)=""
+	. . for  s table=$O(^UPRNX("X8",tstreet,sub,adpart,uprn,table)) q:table=""  d  q:matched
+	. . . for  s key=$O(^UPRNX("X8",tstreet,sub,adpart,uprn,table,key)) q:key=""  d  q:matched
+	. . . . s matched=$$match80a(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown,tpost,uprn,table,key)
+	. i matched q
+	. s uprn=$O(^UPRNX("X8",tbuild,tflat,adpart,""))
+	. i uprn'="" d
+	. . i $O(^UPRNX("X8",tbuild,tflat,adpart,uprn))'="" q
+	. . s (table,key)=""
+	. . for  s table=$O(^UPRNX("X8",tbuild,tflat,adpart,uprn,table)) q:table=""  d  q:matched
+	. . . for  s key=$O(^UPRNX("X8",tbuild,tflat,adpart,uprn,table,key)) q:key=""  d  q:matched
+	. . . . s matched=$$match80a(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown,tpost,uprn,table,key)
+	q matched
+	;
+	;
+	;			
+match80a(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown,tpost,uprn,table,key)	;	
+	n matched,rec,bno,flat,street,build,depth,org
+	s matched=0
+	s rec=^UPRN("U",uprn,table,key)
+	s flat=$p(rec,"~",1),build=$p(rec,"~",2)
+	s bno=$p(rec,"~",3),depth=$p(rec,"~",4)
+	s street=$p(rec,"~",5),org=$p(rec,"~",10)
+	s $p(ALG,"-",2)="match80"
+	if (street=tstreet&(bno=tbno)) d
+	. i flat'=tflat!(build'=tbuild) q
+	. s matchrec="Pi,Se,Ne,Be,Fe"
+	. s matched=$$set^UPRN(uprn,table,key)
+	if (build=tstreet&(flat=tbno)) d
+	. i tflat'=""!(tbuild'="") q
+	. s matchrec="Pi,S<B,N>F,Be,Fe"
+	. s matched=$$set^UPRN(uprn,table,key)
+	i depth=tstreet&(bno=tbno) d
+	. i flat'=tflat!(build'=tbuild) q
+	. s matchrec="Pi,Se,Ne,Be,Fe"
+	. s matched=$$set^UPRN(uprn,table,key)
+	i street=tbuild,bno=tflat d
+	. i tbno'=""!(tstreet'="") q
+	. s matchrec="Pi,S<B,N<F,B<S,F>N"
+	. s matched=$$set^UPRN(uprn,table,key)
+	q matched
+	;
+carehome(term)	;
+	n i
+	f i=$l(term," "):-1:2 d
+	. i $D(^UPRNS("CARE HOME",$p(term," ",i,$l(term," ")))) d  q
+	. . s term=$p(term," ",0,i-1)
+	q term
+	;		
 match79(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown,tpost) 	;
 	;All post codes
 	n matched,uprn,table,key,matchrec,town
@@ -169,9 +291,10 @@ match72(tpost,tstreet,tbno,tbuild,tflat)         ;
 	Q $G(^TUPRN($J,"MATCHED"))
 match70(tpost,tstreet,tbno,tbuild,tflat)         ;
 	I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,"")),tflat'="" d
-	. s $p(ALG,"-",2)="match70"
-	. s matchrec="Pe,Se,Ne,Be,Fc"
-	. s matched=$$setuprns^UPRN("X5",tpost,tstreet,tbno,tbuild,"")
+	. i $o(^UPRNX("X5",tpost,tstreet,tbno,tbuild,""))="" d
+	. . s $p(ALG,"-",2)="match70"
+	. . s matchrec="Pe,Se,Ne,Be,Fc"
+	. . s matched=$$setuprns^UPRN("X5",tpost,tstreet,tbno,tbuild,"")
 	Q $G(^TUPRN($J,"MATCHED"))
 	;	
 match69(tpost,tstreet,tbno,tbuild,tflat)         ;
@@ -372,7 +495,7 @@ match63(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc)     ;
 	;
 	i matched q matched
 	;Dig out street from building and number from flat if building is stret
-	i tbno="" d
+	i tbno="" d  i matched q matched
 	. I $D(^UPRNX("X.STR",ZONE,tbuild)) d
 	. . I '$D(^UPRNX("X.STR",ZONE,tstreet)) d
 	. . . I $p(tflat," ",$l(tflat," "))?1n.n.l d
@@ -381,8 +504,19 @@ match63(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc)     ;
 	. . . . . s matchrec="Pe,S<B,N<F,B>S,Fd"
 	. . . . . S $P(ALG,"-",2)="match63c"
 	. . . . . s matched=$$setuprns^UPRN("X5",tpost,tbuild,tstno,"","")
+	;
 	q matched
 	;
+translate(term,option) 	;
+		n i,q,from,to
+		f i=1:1:$l(term," ") d
+		. s from=$p(term," ",i)
+		. i $d(^UPRNS("TRANSLATE",from)) d
+		. . s to=""
+		. . f q=1:1:option s to=$o(^UPRNS("TRANSLATE",from,to)) q:to=""
+		. . i to="" q
+		. . s $p(term," ",i)=to
+		q term
 match61(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth) 
 	;post code, street and number, street has 'es'
 	;Or street is town and levenstein flat and building
@@ -457,7 +591,7 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	s bno=$p(rec,"~",3),depth=$p(rec,"~",4)
 	s street=$p(rec,"~",5),deploc=$p(rec,"~",6)
 	S loc=$p(rec,"~",7),town=$p(rec,"~",8),org=$p(rec,"~",10)
-	s fe=(tflat=flat),be=(tbuild=build),se=(tstreet=street),ne=(tbno=bno)
+	s fe=(tflat=flat),be=(tbuild=build),se=$tr(tstreet,"-"," ")=$tr(street,"-"," "),ne=(tbno=bno)
 	s house="",fhouse=""
 	s tres=0,res=0
 	i build'="" s house=$$house($p(build," ",$l(build," ")))
@@ -474,6 +608,9 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	. . i $$equiv^UPRNU($$tr^UPRNL(tdepth_" "_thouse,thouse,house),build) d
 	. . . s matchrec="Pe,Sd,Ne,B<Dp,Fe",alg="a7"
 	. . . d probable
+	i fe,be,'ne,'se,tbuild?4l.l,tstreet="",tloc=street,depth="",tdepth="",tdeploc="",deploc="",tbno="",bno'="" d
+	. s matchrec="Pe,Se,Ni,Be,Fe",alg="a118"
+	. d possible
 	i fe,be,ne,'se,$D(^UPRNS("ROAD",$p(tstreet," ",$l(tstreet," ")))) D  i probable q 0
 	. i $$equiv^UPRNU($p(tstreet," ",0,$l(tstreet," ")-1),street,5,1) d
 	. . s matchrec="Pe,Sp,Ne,Be,Fe",alg="a33"
@@ -516,10 +653,33 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	. s common=$$common(build,tbuild)
 	. i common'="",$p(build,common_" ",2)=house d
 	. . s matchrec="Pe,Sd,Ne,Bp,Fe",alg="a11" d probable
+	i 'fe,be,se,ne,$$flateq^UPRNU(tflat,flat) d  i matched q 1
+	. s matched=$$m61("Pe,Se,Ne,Be,Fe","a124")
+	i 'fe,'be,se,'ne,build?1n.n1"/"1n.n,tbno_tflat=build d  i matched q 1
+	. s matched=$$m61("Pe,Se,N>B,B<FN,F>B","a125")
+	i 'fe,be,se,'ne,tflat?1n.n1"/"1n.n d
+	. i $p(tflat,"/",2)=bno,$$flateq^UPRNU($p(tflat,"/"),flat) d
+	. . s alg="a112"
+	. . s matchrec="Pe,Se,N<F,Be,Fe"
+	. . d probable
+	i 'fe,be,se,'ne,tflat?1n.n1"-"1n.n.l1n.n d  i matched q 1
+	. i $p(tflat,"-")=bno,$p(tflat,"-",2)=flat d
+	. . s matched=$$m61("Pe,Se,N<F,Be,Fe","a114")
+	i 'fe,'be,'se,'ne,build=(tbno_" "_tstreet),tbuild="",(tloc=town!(ttown=town)) d  i matched q 1
+	. i $$flateq^UPRNU(tflat,flat) d
+	. . s matchrec="Pe,Si,N>S,B>S,Fe"
+	. . s matched=$$m61(matchrec,"a113")
+	I 'fe,be,se,ne,$G(^UPRNS("SCOTLEVEL",flat))=tflat d  i matched q 1
+	. s matched=$$m61("Pe,De,Ne,Be,Fe","a121")
 	i fe,'be,'ne,se,bno="",$d(^UPRNS("SCOTLEVEL",build,tbno)) d  i matched q 1
 	. s matched=$$m61("Pe,Se,N>B,B<N,Fe","a17")
 	i 'fe,be,'ne,'se,tbuild'="",tflat=bno,flat="",street'="",tdepth=street d  i matched q 1
 	. s matched=$$m61("Pe,S<D,N<F,Be,F>N","a43")
+	i 'fe,be,'ne,'se,$D(^UPRNS("ROAD",$p(tstreet," ",$l(tstreet," ")))) D  i probable q 0
+	. i $p(tstreet," ",0,$l(tstreet," ")-1)=$p(street," ",0,$l(street," ")-1) d
+	. . i tflat["-",bno=$p(tflat,"-"),$$flateq^UPRNU($p(tflat,"-",2),flat) d
+	. . . s matchrec="Pe,Sp,Ne,Be,Fe",alg="a109"
+	. . . d probable
 	i 'fe,'be,'ne,se,tbno_" "_tbuild=build,tflat'="",tflat=bno d  q 0
 	. s matchrec="Pe,Se,N<F,B<BN,F>N",alg="a46"
 	. d probable
@@ -553,7 +713,7 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	. s matched=$$m61("Pe,Si,Ne,Be,Fe","a15")
 	i fe,be,'ne,tbuild'="",tdepth=street,tbno="" s matchrec="Pe,Se,Ni,Be,Fe",alg="a9" d probable q 0
 	i fe,ne,street'="",tstreet_" "_tbuild=build,bno="" s matchrec="Pe,Si,Ne,B<BS,Fe",alg="a10" d probable q 0
-	i fe,ne,tbuild'="",thouse="",tbuild[tstreet d  i probable q 0
+	i fe,ne,tbuild'="",thouse="",tbuild[tstreet,tbuild'=street d  i probable q 0
 	. s common=$$common(build,tbuild)
 	. i common'="",$p(build,common_" ",2)=house d
 	. . s matchrec="Pe,Sd,Ne,Bp,Fe",alg="a12"
@@ -669,25 +829,27 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	. s matchrec="Pe,Se,Ne,B<L,Fp",alg="63"
 	. d probable
 	i 'fe,'be,ne,se,tloc_" "_tbuild=flat d  q 0
-	. s matchrec="Pe,Se,Ne,Bi<F<LB",alg="64"
+	. s matchrec="Pe,Se,Ne,Bi<F<LB",alg="a64"
 	. d possible
 	i 'fe,'be,ne,'se,tstreet=flat,tloc'="",$$nohouse^UPRNC(build)=tloc d  q 0
-	. s matchrec="Pe,S>F,Ne,B<Lp,F<S",alg="65"
+	. s matchrec="Pe,S>F,Ne,B<Lp,F<S",alg="a65"
 	. d possible
 	i fe,'be,ne,'se,tbuild'="",thouse=tbuild,street="",$$nohouse^UPRNC(build)=(tstreet_" "_tloc) d  q 0
-	. S matchrec="Pe,S>B,Ne,B<SL,Fe",alg="66"
+	. S matchrec="Pe,S>B,Ne,B<SL,Fe",alg="a66"
 	. d possible
 	i 'fe,'be,ne,se,$$MPART^UPRNU(tbuild,flat),build=tloc,street="" d  q 0
-	. S matchrec="Pe,Se,Ne,B<L,F<Bp",alg="67"
+	. S matchrec="Pe,Se,Ne,B<L,F<Bp",alg="a67"
 	. d possible
+	I 'fe,'be,'ne,'se,tflat=bno,flat="",tbuild'="",tstreet'="",build="",tbno="",street[" ",$p(tbuild," ")=$p(street," "),$$MPART^UPRNU(tbuild_" "_tstreet,street,$l(street," ")-1) do  i matched q 1
+	. s matched=$$m61("Pe,S<Bf,N<F,B>S,F>N","a115")
 	i fe,'be,ne,'se,tbuild'="",thouse=tbuild,tstreet=build d  q 0
-	. s matchrec="Pe,Si,Ne,B<S,Fe",alg="68"
+	. s matchrec="Pe,Si,Ne,B<S,Fe",alg="a68"
 	. d probable
 	i 'fe,'be,ne,se,tflat?1l.l,flat="",tbuild="",bno="",street="",tloc=loc!(tloc=town),$$equiv^UPRNU(tflat,build,5,3) d  q 0
-	. s matchrec="Pe,Se,Ne,B<Fl,F>B",alg="69"
+	. s matchrec="Pe,Se,Ne,B<Fl,F>B",alg="a69"
 	. d possible
 	i 'fe,'be,'ne,se,tflat?1l.l,tbno'="",tbno=flat,tbuild="",bno="",street="",tloc=loc!(tloc=town),$$equiv^UPRNU(tflat,build,5,3) do  i matched q 1
-	. s matched=$$m61("Pe,Se,N<F,B<F,F<N","90")
+	. s matched=$$m61("Pe,Se,N<F,B<F,F<N","a90")
 	i 'fe,'be,'ne,'se,tflat="",tbuild="",bno="",street'="",tstreet'="",tloc=loc!(tloc=town),tbno=flat,$$equiv^UPRNU(tstreet,build) d  i matched q 1
 	. s matched=$$m61("Pe,Si,N>F,B<S,F<N","a70")
 	i 'fe,'be,ne,se,$tr(tflat,"-. ")=$tr(flat,"-. "),$$MPART^UPRNU(tbuild,build) d  i matched q 1
@@ -703,44 +865,57 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	i 'fe,'be,'ne,'se,flat="",build="",tflat=bno,$$MPART^UPRNU(tbuild,street),(tstreet=deploc!(tstreet=loc)) d  i matched q 1
 	. s matched=$$m61("Pe,S<B,N>F,B>S,F>N","a81")
 	i fe,be,ne,'se,$$MPART^UPRNU(tstreet,street) d  q 0
-	. s matchred="Pe,Sp,Ne,Be,Fe",alg="82"
+	. s matchrec="Pe,Sp,Ne,Be,Fe",alg="a82"
 	. d probable
 	i fe,be,ne,'se,$l(street," ")>1,tstreet[street d  q 0
-	. s matchrec="Pe,Sp,Ne,Be,Fe",alg="83"
+	. s matchrec="Pe,Sp,Ne,Be,Fe",alg="a83"
 	. d probable
 	i fe,'be,ne,'se,tflat="",tbuild="",build'="",$$equiv^UPRNU(tstreet,build,5,2) d  q 0
-	. s matchrec="Pe,Si,Ne,B<S,Fe",alg="84"
+	. s matchrec="Pe,Si,Ne,B<S,Fe",alg="a84"
 	. d possible
 	i fe,'be,ne,'se,bno'="",street="",tstreet'="",tstreet=loc d  q 0
-	. s matchrec="Pe,S>L,Ne,Bd,Fe",alg="85"
+	. s matchrec="Pe,S>L,Ne,Bd,Fe",alg="a85"
 	. d possible
 	i 'fe,'be,'ne,se,$$parse(tflat,tbuild,tbno,flat,bno) d  q 0
-	. s matchrec="Pe,Se,N<Bp,B>N,F<NFp",alg="86"
+	. s matchrec="Pe,Se,N<Bp,B>N,F<NFp",alg="a86"
 	. d possible
 	i fe,be,ne,'se,tbuild'="",tstreet'="",'$D(^UPRNX("X.STR",ZONE,tstreet)) d  q 0
-	. s matchrec="Pe,Sdi,Ne,Be,Fe",alg="91"
+	. s matchrec="Pe,Sdi,Ne,Be,Fe",alg="a91"
 	. d possible
 	i 'fe,'be,'ne,se,tbno'="",tbuild'="",tbuild_" "_tbno=build,tflat=bno d  i matched q 1
-	. s matched=$$m61("Pe,Se,N<F,B<BN,F>N","92")
+	. s matched=$$m61("Pe,Se,N<F,B<BN,F>N","a92")
 	i fe,'be,ne,se,tbuild'="",build'="" d  q:matched 1 q:probable 0
 	. n mincount
 	. s mincount=$s($l(tbuild," ")>$l(build," "):$l(tbuild," ")-1,1:$l(build," ")-1)
 	. i $p(tbuild," ",1,mincount)=build d  q
-	. . s matchrec="Se,Ne,Bp,Fe",alg="93"
+	. . s matchrec="Se,Ne,Bp,Fe",alg="a93"
 	. . d probable
 	. i $$MPART^UPRNU(tbuild,build,mincount) d
-	. . s matchrec="Se,Ne,Bp,Fe",alg="94"
+	. . s matchrec="Se,Ne,Bp,Fe",alg="a94"
 	. . d possible
 	i 'fe,be,'ne,se,tflat="",flat'="",tbno'="",bno="",tbno=flat,tbuild=build d  q 0
-	. s matchrec="Pe,Se,N>F,Be,F<N",alg="95"
+	. s matchrec="Pe,Se,N>F,Be,F<N",alg="a95"
 	. d probable
+	i ne,'se,'fe,'be,tdepth=street,depth="",tbuild="",flat="",$d(^UPRNS("TOWN",tstreet)) d  i matched q 0
+	. i tflat?1l.l,$$equiv^UPRNU(tflat,build) d
+	. . s matched=$$m61("Pe,Se,Ne,Bl,Fe","a116")
 	;	
+	i fe,ne,'be,'se,street="",town'="",tloc=town,depth=tdepth,build'="",$$equiv^UPRNU(build,tbuild) d
+	. s matchrec="Pe,Si,Ne,Bl,Fe",alg="a119"
+	. d probable
+	i 'fe,'be,'se,ne,tflat="",tbuild'="",tloc'="",tbuild=flat,build=tloc,town=ttown,depth="",tdepth="",street="" d
+	. s matchrec="Pe,Sd,Ne,B<L,F<B",alg="a120"
+	. d possible
 	i street=tstreet,bno="",build=tbno,tbuild="",tflat[" " s matched=$$match61x() i matched q 1
 	;	
 	I tbuild=street,tbuild'="" D m61d i matched q 1
 	i tbno="",tflat?1n.n.l1" "1l.e,street=$p(tflat," ",2,10) d m61e i matched q 1
 	i flat="",tflat'="",tflat=build,tbno=bno,tstreet=street s matchrec="Pe,Se,Ne,B<F,F>B",alg="z" s matched=$$m61set() q 1 ;ABP missing house name
+	i 'fe,se,'ne,'be,build?1n.n1l,tbno?1n.n,bno="",tbno*1=(build*1),$G(^UPRNS("SCOTLEVEL",tflat))=$p(build,build*1,2) d  I matched Q 1
+	. s matched=$$m61("Pe,Se,N>B,B<FN,F>B","a122")
 	;	
+	i 'fe,be,se,ne,flat'="",tflat'="",$$flateq^UPRNU(tflat,flat) d  i matched q 1
+	. s matched=$$m61("Pe,Se,Ne,Be,Fe","a123")
 	s pstreet=$$plural^UPRNU(street)
 	i pstreet'=tstreet,street'="" d  i matched q 1
 	. i tbuild="",tbno=flat  d m61f i matched q
@@ -764,7 +939,7 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	i tbno="",bno'="",tflat=flat D  i matched q 1
 	. s $p(matchrec,",",3)="Ni"
 	. s $p(matchrec,",",5)="Fe"
-	. I $$equiv^UPRNU(street,tstreet,5,2),$$equiv^UPRNU(build,tbuild,5,3) s $p(matchrec,2,5)="Sl,Ni,Bp,Fe",alg="gg" s matched=$$m61set() q
+	. I $$equiv^UPRNU(street,tstreet,5,2),$$equiv^UPRNU(build,tbuild,5,3) s $p(matchrec,",",2,5)="Sl,Ni,Bp,Fe",alg="gg" s matched=$$m61set() q
 	i flat=tflat,bno="",tbno'="",tbuild["r-o",build=$p(tbuild," r-o"),$$equiv^UPRNU(tstreet,street) s $p(matchrec,",",2,5)="Se,Nd,Be,Fe",alg="y" s matched=$$m61set() i matched q 1
 	i street="",build'="",tbno=flat,tstreet=build,tbuild="",flat=""  s matchrec="Pe,Si,Ni,Be,Fe",alg="ggc" s matched=$$m61set() i matched q 1
 	i street="",build'="",bno'="",tbno=flat,tstreet=build,tbuild="",tflat="" s matchrec="Pe,Si,Ni,Be,Fe",alg="ggb"  s matched=$$m61set() i matched q 1
@@ -772,7 +947,7 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	I tflat'="",tflat=flat,tbuild'="",tbno="",$D(^UPRNS("TOWN",tstreet)),$$equiv^UPRNU(tbuild,build,8) s matchrec="Pe,Si,Ni,Bl,Fe",alg="h" s matched=$$m61set() i matched q 1
 	I tflat="",flat="",bno="",tbno="",tstreet'="",street="",tbuild="",$$equiv^UPRNU(tstreet,build,8,1) s matchrec="Pe,S>B,Ne,Bf,Fe",alg="f" s matched=$$m61set() i matched q 1
 	I tflat="",tbuild="",street="",bno="",flat="",build'="" d  i matched q 1
-	. d flatbld^UPRNA(.flat,.build,.tbno,.street,tpost)
+	. d flatbld^UPRNA(.flat,.build,.tbno,.street)
 	. i tbno=flat,$$equiv^UPRNU(tstreet,build,8),tdeploc=loc s matchrec="Pe,Sl>B,N>B,Bf,Ff",alg="e" s matched=$$m61set() i matched q
 	i tflat="",tbuild="",bno="",tbno'="" d  i matched q 1
 	. I flat=tbno,$$equiv^UPRNU(build,tstreet,6,1),loc=tloc S matchrec="Pe,Sl>B,N>F,Bl,Fe",alg="d" s matched=$$m61set() q
@@ -807,7 +982,6 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	i thouse'="",house'="",tdepth=build,tstreet=loc s matchrec="Pe,Se,Ne,Bp,Fe",alg="zo" s matched=$$m61set() i matched q 1
 	n flatless
 	s flatless=$$tr^UPRNL(tflat," flat","")
-	i bno?1n.n,bno=$p(tflat," "),flat=$p(flatless," ",2,20),build=tbuild,street=tstreet s matchrec="Pe,Se,Ne,Be,Fe",alg="zl" s matched=$$m61set() i matched q 1
 	i $p(tbuild," ",$l(tbuild," "))="no" s tbuild=$p(tbuild," no")
 	n thouse2
 	S thouse2=""
@@ -846,7 +1020,7 @@ m61(matchrec,alg) ;
 	q $$m61set()			
 m61set()	;
 	s $p(ALG,"-",2)="match61"_alg
-	q $$set^UPRN(uprn,table,key);	
+	q $$set^UPRN(uprn,table,key,1);	
 match61x()	;
 	; tstreet=street, bno="",tbuild="",build=tbno,tflat[" " and tflat last word is flat
 	n matched

@@ -1,8 +1,10 @@
 UPRNDIFF	;
 	;d IMPORT^ASSURE("SCOTNHS","NHS")
-	s from="",to="",every="",out="",diffout=1
-	D ^UPRNTEST("SCOTNHS","5.4.3",from,to,every,out,diffout)
-	D out^UPRNTEST("0","5.4.3","","","",1)
+	;s from=^TEST("START"),to=^TEST("END"),every="",out="",diffout=1
+	s from="",to="",diffonly=1
+	;s from="1000000",to="1500000",diffonly=1
+	D ^UPRNTEST("5.4.3","5.5.0",from,to,diffonly)
+	;d out^UPRNTEST("5.4.3","5.5.0",from,to,diffonly)
 	q
 UNMATCHED(from,to) ;
 	n adno,file

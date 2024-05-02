@@ -21,7 +21,7 @@ bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
 	d bestfitb
 	i $g(^TUPRN($J,"MATCHED")) Q
 	d bestfitc
-210120 d bestfitd
+	d bestfitd
 	d bestfito
 	i $g(^TUPRN($J,"MATCHED")) Q
 	d bestfitf
@@ -442,6 +442,9 @@ bestfitf ;Judge between a flat building match and a number street match
 	. I $D(^UPRNX("X5",tpost,tstreet,"",tbuild,tflat)) d
 	. . s matchrec="Pe,Se,Nd,Be,Fe"
 	. . s ^TBEST($J,matchrec,"",tbuild,tflat)=""
+	. e  I $D(^UPRNX("X5",tpost,tstreet,"",tbno_" "_tbuild,tflat)) d
+	. . s matchrec="Pe,Se,N>B,Bf,Fe"
+	. . s ^TBEST($J,matchrec,"",tbno_" "_tbuild,tflat)=""
 	I tbuild="",tflat="",tbno'="" d
 	. s parent=0
 	. s flat=""
@@ -545,8 +548,9 @@ whichb(matchrec,tpost,tstreet,tbno,tbuild,tflat)        ;
 	s build="",best="",count=0,mcount=0
 	for  s build=$O(^TBEST($J,matchrec,tbno,build)) q:build=""  d
 	. s mcount=$$mcount(build,tbuild)
-	. d ahead(matchrec,tbno,tbuild,tflat,build)
-	. S ^TORDER($j,matchrec,"B",mcount,build)=""
+	. i mcount>0 d
+	. . d ahead(matchrec,tbno,tbuild,tflat,build)
+	. . S ^TORDER($j,matchrec,"B",mcount,build)=""
 	s count=""
 	for  s count=$O(^TORDER($j,matchrec,"B",count),-1) q:count=""  d  q:matched
 	. s build=""
