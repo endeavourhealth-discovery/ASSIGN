@@ -56,7 +56,7 @@ STT ;
  if $d(^ZQZ1(2,nextupdate)) set status2="COMPLETED"
  
  W !,"next scheduled download run: ",$$HD^STDDATE(nextdown)," at ",$$HT^STDDATE(t1)," ",status1
- write !,"next scheduled database update run: ",$$HD^STDDATE(nextupdate)," at ",$$HT^STDDATE(t1)," ",status2
+ write !,"next scheduled database update run: ",$$HD^STDDATE(nextupdate)," at ",$$HT^STDDATE(t2)," ",status2
  
  w !,"last index run:"
  set start=$get(^STATS("START"))
