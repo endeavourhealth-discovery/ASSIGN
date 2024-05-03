@@ -63,9 +63,9 @@ TEST2 ;
 ZQZ1 ;
  new i
  ; run for the next 5 days
- kill ^ZQZ(1)
+ ;kill ^ZQZ(1)
  set ^ZQZ(1)="ABP downloads"
- f i=(+$H+1):1:(+$Horolog+5) do
+ f i=(+$H+1):1:(+$Horolog+200) do
  . S ^ZQZ(1,i)=$$TH^STDDATE("22:05")
  . set ^ZQZ(1,i,"RTN")="ALL^ABPAPI2"
  . quit
