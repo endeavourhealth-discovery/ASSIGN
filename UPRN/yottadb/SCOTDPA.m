@@ -1,4 +1,4 @@
-SCOTDPA ; ; 4/17/24 11:40am
+SCOTDPA ; ; 5/2/24 9:15am
  quit
  
 QUEUE ;
@@ -36,9 +36,9 @@ QUEUE ;
 THREAD ;
  new i
  K ^GO
- ;K ^OUT
- ;K ^ZI
- ;K ^UQUAL
+ K ^OUT
+ K ^ZI
+ K ^UQUAL
  f i=1:1:$o(^Q(""),-1) do
  . job GO(i):(out="/dev/null")
  . quit
@@ -91,13 +91,13 @@ GO(q) ;
  set $et="G ERROR^SCOTDPA"
  ;k ^OUT(q)
  set ^GO(q)=$job
- ; add this line back in if starting from fresh
- ;set ^ZI(q,2)=$$HT^STDDATE($P($H,",",2))
+ ; add this line back in if starting from scratch
+ set ^ZI(q,2)=$$HT^STDDATE($P($H,",",2))
  set id="",t=1
  f  s id=$order(^Q(q,id)) q:id=""  do
  .i t#100=0 w !,t
  .; if starting a fresh - remember to remove this line
- .I $data(^OUT(q,id)) quit
+ .;I $data(^OUT(q,id)) quit
  .set ^ZI(q)=t
  .set address=^Q(q,id)
  .set naddress=$$TR^LIB(address,"$",",")
