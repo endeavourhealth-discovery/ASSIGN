@@ -791,16 +791,56 @@ scots ;
 	S ^UPRNS("SCOTFLOORSIDE","1/2","first floor right")=""
 	s ^UPRNS("SCOTFLOORSIDE","0/1","g/f left")=""
 	S ^UPRNS("SCOTFLOORSIDE","0/2","g/f right","X")="0/r left"
+	S ^UPRNS("SCOTFLOORSIDE","0/2","g/r")=""
+	S ^UPRNS("SCOTFLOORSIDE","0/1","g/l")=""
+	S ^UPRNS("SCOTFLOORSIDE","0/2","g-r")=""
+	S ^UPRNS("SCOTFLOORSIDE","0/1","g-l")=""
 	s ^UPRNS("SCOTFLOORSIDE","/1","g/f left")=""
 	S ^UPRNS("SCOTFLOORSIDE","/2","g/f right","X")="0/r left"
 	s ^UPRNS("SCOTFLOORSIDE","/1","g/l")=""
 	S ^UPRNS("SCOTFLOORSIDE","/2","g/r")=""
+	S ^UPRNS("SCOTFLOORSIDE","/2","g/r")=""
+	S ^UPRNS("SCOTFLOORSIDE","/1","g/l")=""
+	S ^UPRNS("SCOTFLOORSIDE","/2","g-r")=""
+	S ^UPRNS("SCOTFLOORSIDE","/1","g-l")=""
+	s ^UPRNS("SCOTFLOORSIDE","g/l","/l")=""
+	S ^UPRNS("SCOTFLOORSIDE","g/r","/2")=""
+	S ^UPRNS("SCOTFLOORSIDE","g-l","/l")=""
+	S ^UPRNS("SCOTFLOORSIDE","g-r","/2")=""
+	s ^UPRNS("SCOTFLOORSIDE","1-l","1/1")=""
+	S ^UPRNS("SCOTFLOORSIDE","1-r","1/2")=""
+	S ^UPRNS("SCOTFLOORSIDE","1/1","1-l")=""
+	S ^UPRNS("SCOTFLOORSIDE","1/2","2-r")=""
+	;	
 	s ^UPRNS("SCOTFLOORSIDE","2/1","2/f left")=""
 	S ^UPRNS("SCOTFLOORSIDE","2/1","second floor left")=""
 	S ^UPRNS("SCOTFLOORSIDE","2/2","second floor right")=""
 	S ^UPRNS("SCOTFLOORSIDE","2/2","2/f right","X")="2/r left"
 	S ^UPRNS("SCOTFLOORSIDE","ground 2","g/f right")=""
 	S ^UPRNS("SCOTFLOORSIDE","ground 1","g/f left")=""
+	S ^UPRNS("SCOTFLOORSIDE","l/1/1","1st left")=""
+	S ^UPRNS("SCOTFLOORSIDE","1st left","l/1/1")=""
+	S ^UPRNS("SCOTFLOORSIDE","first left","l/1/1")=""
+	S ^UPRNS("SCOTFLOORSIDE","l/1/2","2nd left")=""
+	S ^UPRNS("SCOTFLOORSIDE","second left","l/1/2")=""
+	S ^UPRNS("SCOTFLOORSIDE","2nd left","l/1/2")=""
+	S ^UPRNS("SCOTFLOORSIDE","r/1/1","1st right")=""
+	S ^UPRNS("SCOTFLOORSIDE","1st right","r/1/1")=""
+	S ^UPRNS("SCOTFLOORSIDE","r/1/2","2nd right")=""
+	S ^UPRNS("SCOTFLOORSIDE","2nd right","r/1/2")=""
+	S ^UPRNS("SCOTFLOORSIDE","1fl","1/1")=""
+	S ^UPRNS("SCOTFLOORSIDE","1fr","1/2")=""
+	S ^UPRNS("SCOTFLOORSIDE","2fl","2/1")=""
+	S ^UPRNS("SCOTFLOORSIDE","2fr","2/2")=""
+	S ^UPRNS("SCOTFLOORSIDE","3fl","3/1")=""
+	S ^UPRNS("SCOTFLOORSIDE","3fr","3/2")=""
+	;	
+	S ^UPRNS("SCOTFLOORSIDE","1fl","1f1")=""
+	S ^UPRNS("SCOTFLOORSIDE","1fr","1f2")=""
+	S ^UPRNS("SCOTFLOORSIDE","2fl","2f1")=""
+	S ^UPRNS("SCOTFLOORSIDE","2fr","2f2")=""
+	S ^UPRNS("SCOTFLOORSIDE","3fl","3f1")=""
+	S ^UPRNS("SCOTFLOORSIDE","3fr","3f2")=""
 	S ^UPRNS("CITY","london")=""
 	set ^UPRNS("CORRECT","1st")="first"
 	S ^UPRNS("CORRECT","bsemnt")="basement"
@@ -845,6 +885,7 @@ scots ;
 	S ^UPRNS("CORRECT","almhouse")="almshouse"
 	S ^UPRNS("CORRECT","bldg")="building"
 	S ^UPRNS("CORRECT","bldgs")="buildings"
+	S ^UPRNS("CORRECT","rod")="road"
 	S ^UPRNS("CORRECT","cosmopolitian")="cosmopolitan"
 	S ^UPRNS("CORRECT","est")="estate"
 	S ^UPRNS("CORRECT","crt")="court"
@@ -916,6 +957,8 @@ scots ;
 	S ^UPRNS("DROP","basement ")=""
 	s ^UPRNS("DROP"," house")=""
 	S ^UPRNS("DROP","moorings")=""
+	S ^UPRNS("DROP","by")=""
+	S ^UPRNS("DROP","ar")=""
 	S ^UPRNS("CORRECT","acenue")="avenue"
 	S ^UPRNS("CORRECT","cott")="cottage"
 	S ^UPRNS("RESIDENTIAL","cottage")=""
@@ -1008,33 +1051,46 @@ flatend ;Flat at end
 	i $l(text," ")>1 i $d(^UPRNS("FLAT",$p(text," ",$l(text," ")))) q $p(text," ",1,$l(text," ")-1)
 	i text="0/0" s text=""
 	q text
+flatcalc(flat,with) ;
+		s flat=$tr(flat,"-","/")
+		i flat?1"pf"1n.n s flat=$tr(flat,"p","g")
+		i flat?1"0"1n.n q (flat*1)
+		i flat?1"f"1n.n q ($e(flat,2,10)*1)
+		i flat?1n.n1"-"1n.n q $tr(flat,"-","/")
+		i flat?1n.n1"/".n1"f".n d  q flat
+		. i with["f" s flat=$tr(flat,"/") q
+		. s flat=$tr($tr(flat,"-","/"),"f")
+		. i flat?1n.n1"/" s flat=(flat*1)
+		i flat?1n.n1"f" do  q flat
+		. i with["f" q
+		. s flat=(flat*1)
+		i flat?1n.n1"f"1"r" q (flat*1_"/"_2)
+		i flat?1n.n1"f"1"l" q (flat*1_"/"_1)
+		i flat?1n.n1"/"1"r" q ($p(flat,"/")_"/"_2)	
+		i flat?1n.n1"/"1"l" q ($p(flat,"/")_"/"_1)	
+		i flat?1n.n1"/"1l q ($p(flat,"/")_$p(flat,"/",2))
+		i flat?1"ground "1n.n q ("/"_$p(flat," ",2))
+		i flat?1"0"1"/"1n.n q ("/"_$p(flat,"/",2))
+		i flat?1"g "1n.n q ("/"_$p(flat,"/",2))
+		i flat?1"g"1"/l" q "/1"
+		i flat?1"g"1"/r" q "/2"
+		i flat?1"g"1"0"1n.n q ("/"_($p(flat,"g",2)*1))
+		i flat?1n.n1"r" d  q flat
+		. i with'["r" s flat=(flat*1_"/2")
+		i flat?1n.n1"l" d  q flat
+		. i with'["l" s flat=(flat*1_"/1")
+		q flat
 flateq(from,to) ;
 		n i,ok,nfrom,nto
 		s ok=0
 		i from=to q 1
-		i from?1l.l1n.n,to?1l.l1n.n d
-		. s (nfrom,nto)=""
-		. f i=1:1:$l(from) i $e(from,i)?1n  s nfrom=i
-		. f i=1:1:$l(to) i $e(to,i)?1n s nto=i
-		. I $G(^UPRNS("SCOTLEVEL",$e(from,1,nfrom-1)))=$G(^UPRNS("SCOTLEVEL",$E(to,1,nto-1))) d
-		. . i $e(from,nfrom,$l(from))=$e(to,nto,$l(to)) s ok=1
-		i ok q 1
-		i from?1"0"1n.n,to?1"/"1n.n do
-		. i from*1=$p(to,"/",2)*1 s ok=1 q
-		i from?1"0".n1"/"1n.n,to["-" d
-		. i $g(^UPRNS("SCOTLEVEL",$p(to,"-")))=(from*1),$p(from,"/",2)=$p(to,"-",2) s ok=1
-		i from?1"0"1"/"1n.n,to?1"/"1n.n,$p(from,"/",2)=$p(to,"/",2) q 1
-		i from'="",to'="" i $G(^UPRNS("SCOTLEVEL",from))=to q 1
-		i to?1"/"1n.n,from?1"0-"1n.n,$p(from,"-",2)*1=($p(to,"/",2)*1) q 1
-		i to?1"/"1n.n,from?1n.n,from*1=($p(to,"/",2)*1) q 1
-		i to?1"g/"1n.n,from?1"0-"1n.n,$p(from,"-",2)*1=($p(to,"/",2)*1) q 1
-		i from?1"/"1n.n,to?1"ground "1n.n i $p(from,"/",2)*1=($p(to," ",2)*1) q 1 
-		i from?1"/"1n.n,to?1"g "1n.n i $p(from,"/",2)*1=($p(to," ",2)*1) q 1 
-		i from?1"/"1n.n,to?1"g/"1n.n i $p(from,"/",2)*1=($p(to,"/",2)*1) q 1 
-		i from?1"/"1n.n,to?1n.n,$p(from,"/",2)*1=(to*1) q 1
+		s from=$$flatcalc(from,to)
+		s to=$$flatcalc(to,from)
+		i from=to q 1
 		i $D(^UPRNS("SCOTFLOORSIDE",from,to)) q 1
-	;		
-	;		
+		i from?1n.n,to?1"/"1n.n,from=$p(to,"/",2) q 1
+		i from?1"/"1n.n,to?1n.n,to=$p(from,"/",2) q 1
+		Q 0		
 		q ok
 isflat(text) 
 	n word,isflat,first

@@ -1188,6 +1188,19 @@ numstr(adbno,adstreet,adflat,adbuild,adepth,adeploc,adloc,adtown,post) ;
 	i adstreet?1n.n3l.l d
 	. s adstreet=$$getnum(adstreet)
 	;
+	i adbuild?1n.n1" f"1n.n1" "1l.e d
+	. i adbno="" d
+	. . i adstreet'="" d
+	. . . d streetshift(.adstreet,.adeploc,.adloc,.adtown)
+	. . . i adstreet="" d
+	. . . . s adstreet=$p(adbuild," ",3,10)
+	. . . . s adflat=$p(adbuild," ",2),adbno=$p(adbuild," "),adbuild=""
+	. . . e  i adepth="" d
+	. . . . s adepth=$p(adbuild," ",3,10)
+	. . . . s adflat=$p(adbuild," ",2)
+	. . . . s adbno=$p(adbuild," "),adbuild=""
+	. . . e  do
+	. . . . s adflat=$p(adbuild," ",1,2),adbuild=$p(adbuild," ",3,10)
 	i adbuild?1n.n1" "1n.n1"f"1n.n d
 	. i adbno="",adflat="" d
 	. . s adbno=$p(adbuild," ")
@@ -1393,6 +1406,18 @@ ns900	;Move things to the right if they match
 	. . . . . . d fixfbn(.adflat,.adbuild,.adbno)
 	;
 	q
+streetshift(adstreet,adeploc,adloc,adtown) ;
+		i adeploc="",adloc="",$D(^UPRNS("TOWN",adstreet)) d
+		. s adtown=adstreet,adstreet=""
+		e  i adloc'="",adtown="",$D(^UPRNS("TOWN",adloc))  d
+		. s adtown=adloc,adloc=""
+		. i adeploc="" s adloc=adstreet,adstreet=""
+		. e  s adloc=adeploc,adeploc=adstreet,adstreet=""
+		e  i adeploc="",adloc="" d
+		. s adloc=adstreet,adstreet=""
+		e  i adeploc="" d
+		. s adeploc=adstreet,adstreet=""
+		q
 	;
 	;	
 fixfbn(adflat,adbuild,adbno)	;

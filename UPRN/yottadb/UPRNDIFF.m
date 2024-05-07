@@ -2,8 +2,8 @@ UPRNDIFF	;
 	;d IMPORT^ASSURE("SCOTNHS","NHS")
 	;s from=^TEST("START"),to=^TEST("END"),every="",out="",diffout=1
 	s from="",to="",diffonly=1
-	;s from="1000000",to="1500000",diffonly=1
-	D ^UPRNTEST("5.4.3","5.5.0",from,to,diffonly)
+	;s from="10715787",to="10730971",diffonly=1
+	D ^UPRNTEST("5.4.3","5.5.1",from,to,diffonly)
 	;d out^UPRNTEST("5.4.3","5.5.0",from,to,diffonly)
 	q
 UNMATCHED(from,to) ;

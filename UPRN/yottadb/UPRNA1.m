@@ -2,10 +2,11 @@ UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc,adtown,adepth) ;Additional pr
 	;
 	N i
 	s adtown=$g(adtown)
+	i adflat="c/o" s adflat=""
 f153a ;Move some thngs around
 	i adtown="",adloc'="",adeploc="" d
 	. I '$D(^UPRNS("TOWN",adloc)) d
-	. . I $D(^UPRNS("TOWN",adstreet)) d
+	. . I $D(^UPRNS("TOWN",adstreet)),'$D(^UPRNX("X.STR",ZONE,adstreet)) d
 	. . . s adtown=adeploc
 	. . . s adloc=adstreet
 	. . . s adstreet=""
@@ -17,6 +18,7 @@ f153a ;Move some thngs around
 	. . . . i adloc="" s adloc=$p(adstreet," ",$l(adstreet," "))
 	. . . . e  s adeploc=$p(adstreet," ",$l(adstreet," "))
 	. . . . s adstreet=$p(adstreet," ",1,$l(adstreet," ")-1)
+	. . . . I $d(^UPRNS("DROP",adstreet)) s adstreet=""
 	i adloc'="",adstreet'="",adbuild'="",(adbno=""!(adflat="")) d
 	. i $$isflat^UPRNU(adloc) d
 	. . I adloc?1l.l1" "1n.n.l d

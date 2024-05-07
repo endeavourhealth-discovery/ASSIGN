@@ -74,6 +74,7 @@ setind1 ;Sets indexes
 	s ZONE=$e(post,1)
 	i town'="" S ^UPRNS("TOWN",town)=""
 	i loc'="" S ^UPRNS("TOWN",loc)=""
+	i town'="" s town=$$correct^UPRNU(town)
 	i flat?1"0/".e!(flat?1"0-".e) s flat=$e(flat,2,$l(flat))
 	i $l(street," ")>6 q
 	i $l(build," ")>6 q

@@ -63,6 +63,10 @@ match81(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown,tpost) 	;
 	. . . . . S $P(ALG,"-",2)="match81"
 	. . . . . s matchrec="Pp,Se,Ne,Be,Fe"
 	. . . . . s matched=$$set^UPRN(uprn,table,key)
+	. . . . i flat="",build=tflat,tflat'="",tbuild="" d
+	. . . . . s matchrec="Pp,Se,Ne,Be,Fe"
+	. . . . . s $p(ALG,"-",2)="match81a"
+	. . . . . s matched=$$set^UPRN(uprn,table,key)
 	q matched
 match80(tstreet,tbno,tbuild,tflat,tdepth,tdeploc,tloc,ttown,tpost) 	;
 	n matched,uprn,table,key,adpart,table,key,sub
@@ -906,6 +910,23 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	i 'fe,'be,'se,ne,tflat="",tbuild'="",tloc'="",tbuild=flat,build=tloc,town=ttown,depth="",tdepth="",street="" d
 	. s matchrec="Pe,Sd,Ne,B<L,F<B",alg="a120"
 	. d possible
+	i 'fe,'ne,se,'be,flat="",bno="" d  i matched q 1
+	. i build?1n.n1"/"1n.n d
+	. . i $p(build,"/")=tbno,$$flateq^UPRNU(tflat,$p(build,"/",2)) d
+	. . . s matched=$$m61("Pe,Se,Ne,be,Fe","a125")
+	i 'fe,be,se,ne,bno="",flat'="",tflat'="",$$flateq^UPRNU(tflat,flat) d  i matched q 1
+	. s matched=$$m61("Pe,Se,Ne,Be,Fl","a126")
+	i 'fe,'be,se,ne,flat="",tbuild="",$$flateq^UPRNU(tflat,build) d  i matched q 1
+	. s matched=$$m61("Pe,Se,Ne,B<Fl,F>B","a126")
+	i 'fe,be,'ne,se,tflat?1n.n1"/"1n.n d  i matched q 1
+	. i $p(tflat,"/")=bno,$p(tflat,"/",2)=flat d
+	. . s matchrec="Pe,Se,N<F,Be,Fe",alg="a127" d probable
+	i 'fe,'be,'se,ne,tflat?1n.n1"/"1n.n,flat="",build=tflat,street=tbuild d
+	. s matchrec="Pe,S<B,Ne,B<F,Fe",alg="a128" d probable
+	i 'fe,'be,ne,se,tbuild'="",tflat'="",build'="",flat'="",$$equiv^UPRNU(tbuild_" "_tflat,build_" "_flat) d  i matched q 1
+	. s matched=$$m61("Pe,Se,Ne,Bl,Fl","a129")
+	i 'fe,'se,ne,'be,tflat'="",flat="",tflat=build,tstreet="",tbuild'="",$$equiv^UPRNU(tbuild,street) d  i matched q 1
+	. s matched=$$m61("Pe,S<B,Ne,B>S,F>B","a130")
 	i street=tstreet,bno="",build=tbno,tbuild="",tflat[" " s matched=$$match61x() i matched q 1
 	;	
 	I tbuild=street,tbuild'="" D m61d i matched q 1

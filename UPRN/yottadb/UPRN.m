@@ -2685,7 +2685,7 @@ mflat(tpost,tstreet,tbno,tbuild,tflat,flat,approx)         ;
 	. s scotflat=$p(tflat,"/")_"-"_($p(tflat,"/",2)*1)_" "_$e(tflat,$l(tflat))
 	. I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,scotflat)) d
 	. . s flat=scotflat,approx="e",matched=1
-	I tflat?1n1"/"1n,$D(^UPRNS("SCOTFLOORSIDE",tflat)) d  i matched q 1
+	I $D(^UPRNS("SCOTFLOORSIDE",tflat)) d  i matched q 1
 	. s flat=""
 	. for  s flat=$O(^UPRNS("SCOTFLOORSIDE",tflat,flat)) q:flat=""  d  i matched q
 	. . I '$D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,flat)) q
@@ -2749,12 +2749,15 @@ mflat(tpost,tstreet,tbno,tbuild,tflat,flat,approx)         ;
 	i matched q 1
 	;	
 	q matched
-	;
+	;S
 	;
 mflat1(tflat,flat,approx) ;Matches two flats
 	n matched,tflatno
 	s matched=0
 	;5-6
+	i tflat?1"f"1n.e,flat'?1"f".e s tflat=$e(tflat,2,50)
+	i tflat=flat d  q 1
+	. s approx="e"
 	i flat?1n.n1"-"1n.n,tflat?1n.n1"-"1n.n d
 	. i $p(tflat,"-")*1=($p(flat,"-")*1),$p(tflat,"-",2)*1=$p(flat,"-",2)*1 d  q
 	. . s matched=1

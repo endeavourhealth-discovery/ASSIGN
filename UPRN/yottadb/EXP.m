@@ -13,7 +13,7 @@ STT
 	;s adrec="8 WEST VICTORIA DOCK ROAD,PANMURE COURT,CITY QUAY, DUNDEE,DD1 3BH"
 	;s adrec=^UPRNI("D",7078366)
 	;D ^ZLINK
-	S adrec=^UPRNI("D",3153)
+	S adrec=^UPRNI("D",10721575)
 	W !,adrec,!
 	D SETSWAPS^UPRNU
 	D GETUPRN^UPRNMGR(adrec,"","","","","")
