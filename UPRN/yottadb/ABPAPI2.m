@@ -88,8 +88,8 @@ ALL ;
  do COU(cegutil,.changes,.b)
  
  set hostname=$get(^ICONFIG("HOSTNAME"))
- if '$d(changes) do SLACK^POURC("no change only updates to process ("_hostname_")")
- I '$data(changes) write !,"no change only updates to download for ",^ICONFIG("COU-NAME") quit
+ if '$d(changes) do SLACK^POURC("nothing new to download from os api ("_hostname_")")
+ I '$data(changes) write !,"nothing new to download from os api ",^ICONFIG("COU-NAME") quit
  ;w !
  ;zwr changes
  ;w !
