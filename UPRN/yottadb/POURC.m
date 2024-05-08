@@ -42,7 +42,7 @@ RUN(qid,zzi) ;
  if rtn'="" do  quit
  . do @rtn
  . set ^ZQZ1(qid,zzi)=$Horolog
- . D SLACK($get(^ICONFIG("POURC","MESS",rtn),"?"))
+ . D SLACK($get(^ICONFIG("POURC","MESS",rtn)))
  . quit
  ; belt and braces
  set ^ZQZ1(qid,zzi)=$Horolog
@@ -91,6 +91,7 @@ ZQZ2 ;
  ;	
 SLACK(text) ;
  new json,cmd,webhookurl
+ if text="" quit
  set webhookurl=$get(^ICONFIG("POURC","SLACK"))
  if webhookurl="" quit
  set json="{""text"":"""_text_"""}"
