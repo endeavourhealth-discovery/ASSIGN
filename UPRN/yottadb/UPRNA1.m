@@ -220,6 +220,14 @@ f156 ;
 	;Glasgow ground floors
 	i adflat?1"0"1"/".e s adflat=$e(adflat,2,200)
 	d fixfbns(adflat,.adbuild,adbno,.adstreet)
+	;another street shift if bad street
+	i adeploc="",adloc="",adtown="",'$D(^UPRNS("TOWN",adstreet)) d
+	. I adstreet[" " d
+	. . I $D(^UPRNX("X.STR",ZONE,$p(adstreet," "))) d
+	. . . I $D(^UPRNS("TOWN",$p(adstreet," ",2))) d
+	. . . . s adloc=$p(adstreet," ",2)
+	. . . . s adtown=$p(adstreet," ",3,10)
+	. . . . s adstreet=$p(adstreet," ")
 	q
 fixfbns(adflat,adbuild,adbno,adstreet)	;
 	n i,xbuild,done
