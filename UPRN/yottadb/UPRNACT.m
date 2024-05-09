@@ -45,6 +45,7 @@ JSON(REC) ;
  N JS,TXT,FILE,DAT,D,T,HD,HT
  S JS=""
  S DAT=$P(REC,"~",1)
+ if DAT="?" quit ""
  S D=$P(DAT,","),T=$P(DAT,",",2)
  S HD=$$HD^STDDATE(D),HT=$$HT^STDDATE(T)
  ;S HD="1",HT="2"
