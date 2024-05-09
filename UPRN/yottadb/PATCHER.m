@@ -1,4 +1,4 @@
-PATCHER ; ; 5/2/24 11:32am
+PATCHER ; ; 5/9/24 11:29am
  quit
  
 STT() ;
@@ -12,6 +12,24 @@ YN read yn#1
  set yn=$$LC^LIB(yn)
  if "\y\n\"'[("\"_yn_"\") G YN
  quit yn
+ 
+C ; RAN IN LIVE 9.5.2024
+ ; ABP AUTO DOWNLOADS
+ new yn,rtn,d
+ set yn=$$STT()
+ i yn="n" quit
+ kill d
+ set d("ABPAPI2.m")=""
+ set d("ASSURE.m")=""
+ set d("METRICS.m")=""
+ set d("NEL.m")=""
+ ; check if POURC is running in the background?
+ set d("POURC.m")=""
+ set d("RALF.m")=""
+ set d("SCOTDPA.m")=""
+ set d("VUE.m")=""
+ do GO(.d)
+ quit
  
 DEV0355 ; deploy 5.5.0 to DEV03
  new yn,rtn,d
