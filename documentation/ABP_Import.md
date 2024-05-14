@@ -20,16 +20,19 @@ A routine called ABPAPI2.m has been written to download an OS package and apply 
 Before running ABPAPI2 you'll need to update a global called ^ICONFIG with some credentials, that allows ABPAPI2 to download the files from the OS web site
 
 Access your yottadb system:
-
+```
 su fred
 cd /home/fred/
 /usr/local/lib/yottadb/latest/ydb
+```
 
-set ^ICONFIG("COU-NAME")="Blah" (the name of the os data package that you want to download)
-set ^ICONFIG("HUB","KEY")="Blah" (the API key from the os datahub site)
-set ^ICONFIG("HUB","SECRET")="Blah" (the secret from the os datahub site)
+```
+set ^ICONFIG("COU-NAME")="Blah"
+set ^ICONFIG("HUB","KEY")="Blah"
+set ^ICONFIG("HUB","SECRET")="Blah"
 
 D ALL^ABPAPI2
+```
 
 ALL^ABPAPI2 downloads the zip files, unzips, then converts the raw csv files, that were previously unzipped, into a version that can be imported into the mumps database:  
 
