@@ -33,3 +33,4 @@ Please note that the Mumps ASSIGN source code is undergoing continuous changes, 
 - [Automated ABP processing](./ABP_Auto.md)
 - [Using VS Code to run and debug your Mumps and Python code](./VSCode.md)
 - [Using the ASSIGN API](./ASSIGN_Api.md)
+- [Other stuff](./Other_stuff.md)
