@@ -1,5 +1,10 @@
 # Installing ASSIGN and the mumps web services
 
+Some of the instructions in this guide are derived from:
+```
+https://docs.yottadb.com/Plugins/ydbwebserver.html#tls-set-up-on-yottadb
+```
+
 ```
 adduser fred
 adduser fred sudo
@@ -62,6 +67,7 @@ D STT^WGET
 H (hang out of mumps)
 ```
 
+Find out the hash of your key password using the maskpass utility:
 ```
 $ydb_dist/plugin/ydbcrypt/maskpass <<< 'monkey1234' | cut -d ":" -f2 | tr -d ' '
 4CFFF47AA338C3AA24E0
@@ -77,7 +83,9 @@ job START^VPRJREQ(9080,"","dev")
 To test that the web services are running OK:
 
 In a browser navigate to:
+```
 https://192.168.0.41:9080/
+```
 
 Or, at a linux prompt run this curl command:
 ```

@@ -43,14 +43,21 @@ If everythiong goes to plan, you should be able to find the csv files in /opt/al
 
 ## IMPORTING THE ADDRESS BASE PREMIUM FILES INTO MUMPS
 
-Download Residential_codes.txt, Counties.txt, Saints.txt from the ASSIGN repository:  
-https://github.com/endeavourhealth-discovery/ASSIGN/tree/master/UPRN/codelists  
+Download Residential_codes.txt, Counties.txt, Saints.txt from the ASSIGN repository:
+``` 
+https://github.com/endeavourhealth-discovery/ASSIGN/tree/master/UPRN/codelists
+```
+  
 Copy Residential_codes.txt, Counties.txt, Saints.txt to /tmp/
 Move the downloaded csv's to /tmp/ 
 
+```
 su fred
 cd /home/fred/
 /usr/local/lib/yottadb/latest/ydb
+```
 
-Then, run this command to import the csv files into the mumps database:
+Finally, run this command to import the csv files into the mumps database:
+```
 D IMPORT^UPRN1A("/tmp/")
+```
