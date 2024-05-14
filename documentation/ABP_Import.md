@@ -17,7 +17,7 @@ https://osdatahub.os.uk/
 ## DOWNLOADING THE ADDRESS BASE PREMIUM FILES
 
 A routine called ABPAPI2.m has been written to download an OS package and apply the ABP files to the database
-Before running ABPAPI2 you'll need to update a global called ^ICONFIG with some credentials, that allows ABPAPI2 to download the files from the OS web site
+Before running ABPAPI2 you'll need to update a global called ^ICONFIG with some credentials, that allows ABPAPI2 to download the files from the OS REST interface
 
 Access your yottadb system:
 ```
@@ -42,7 +42,7 @@ ID24_LPI_Records.csv
 ID21_BLPU_Records.csv,  
 ID15_StreetDesc_Records.csv
 
-If everythiong goes to plan, you should be able to find the csv files in /opt/all/
+If everything goes to plan, you should be able to find the csv files in /opt/all/
 
 ## IMPORTING THE ADDRESS BASE PREMIUM FILES INTO MUMPS
 
