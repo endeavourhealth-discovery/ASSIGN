@@ -13,14 +13,15 @@ STT
 	;s adrec="8 WEST VICTORIA DOCK ROAD,PANMURE COURT,CITY QUAY, DUNDEE,DD1 3BH"
 	;s adrec=^UPRNI("D",7078366)
 	;D ^ZLINK
-	S adrec=^UPRNI("D",10422861)
+	s adno=585789
+	S adrec=^UPRNI("D",adno)
+	S ^ADNO=adno
 	W !,adrec,!
 	D SETSWAPS^UPRNU
 	D GETUPRN^UPRNMGR(adrec,"","","","","")
-	s uprn=$O(^TUPRN($J,"MATCHED",""))
-	K ^DLS
-	i uprn'="" M ^DLS=^UPRN("U",uprn)
-	S END=$P($H,",",2)
-	;W !,"All ",END-START
-	K ^TIMING
+	s apiuprn=$O(^TUPRN($J,"MATCHED",""))
+	;d tomatch^UPRN(adno,"5.5.1") ;Match 1 address
+	;s directuprn=$O(^TUPRN($J,"MATCHED",""))
+	w !,"getuprn : ",apiuprn
+	;w !,"tomatch : ",directuprn,!
 	q

@@ -117,16 +117,22 @@ SETBP(FILE,LINE,CONDITION)        	;Set Breakpoint
 CLEARBP(FILE,LINE)      	;Clear Breakpoint
 	N ROUTINE,ZBPOS,BP
 	S ROUTINE=$$RNAME(FILE)
+	;	
 	I ROUTINE="" ZB -* D REFRESHBP Q     ;Clear all Breakpoints
-	IF LINE="" D  Q
-	. D REFRESHBP
-	. S BP="" F  S BP=$O(^%MDEBUG($J,"BP",BP)) Q:BP=""  D
-	. . I BP[("^"_ROUTINE) S ZBPOS="-"_BP ZB @ZBPOS
-	. D REFRESHBP
+	IF LINE="" D BREAKPOINTS Q
 	S ZBPOS="-+"_LINE_"^"_ROUTINE
 	ZB:$T(@$E(ZBPOS,2,99))'="" @ZBPOS
 	D REFRESHBP
 	Q
+BREAKPOINTS ;
+	N $ZTRAP
+	s $ZTRAP="ZGOTO NBP"
+	D REFRESHBP
+	S BP=""
+NBP	S BP=$O(^%MDEBUG($J,"BP",BP)) Q:BP=""
+	I BP[("^"_ROUTINE) S ZBPOS="-"_BP ZB @ZBPOS
+	D REFRESHBP
+	G NBP
 GETVAR(%EXPRESSION)		;Get Variable-Content or Expression-Value an pass it to Editor
 	N $ZT
 	S $ZT="G GETVAR1^"_$T(+0)

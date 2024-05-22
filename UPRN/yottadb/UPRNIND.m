@@ -1,4 +1,5 @@
 UPRNIND ;Rebuilds all the UPRN indexes [ 05/22/2023  11:42 AM ]
+	;5.5.2
 	n
 	S ^STATS("START")=$H
 	s d="~"
@@ -12,6 +13,7 @@ GO ;Next the post office DPA table
 	D INDMAIN
 	;
 	;
+	d SETSWAPS^UPRNU
 	;Next the local authority LPI table
 	S ^STATS("END")=$H
 	Q
@@ -76,8 +78,6 @@ setind1 ;Sets indexes
 	i loc'="" S ^UPRNS("TOWN",loc)=""
 	i town'="" s town=$$correct^UPRNU(town)
 	i flat?1"0/".e!(flat?1"0-".e) s flat=$e(flat,2,$l(flat))
-	i $l(street," ")>6 q
-	i $l(build," ")>6 q
 	s pstreet=$$plural^UPRNU(street)
 	s pbuild=$$plural^UPRNU(build)
 	s pdepth=$$plural^UPRNU(depth)
@@ -155,20 +155,20 @@ setind1 ;Sets indexes
 	. s ^UPRNX("X6",street,bno,town,build,flat,uprn,table,key)=""
 	I build'="" d
 	. i town'="" d
-	. . S ^UPRNX("X7",$tr(build," "),town,uprn,table,key)=""
+	. . S ^UPRNX("X7",$tr(build," "),flat,town,uprn,table,key)=""
 	. I loc'="" d
-	. . S ^UPRNX("X7",$tr(build," "),loc,uprn,table,key)=""
+	. . S ^UPRNX("X7",$tr(build," "),flat,loc,uprn,table,key)=""
 	i town'="" d
-	. i bno'="",street'="" d
+	. i street'="" d
 	. . S ^UPRNX("X8",street,bno,town,uprn,table,key)=""
-	. i flat'="",build'="" d
+	. i build'="" d
 	. . S ^UPRNX("X8",build,flat,town,uprn,table,key)=""
-	. I bno'="",depth'="" d
+	. I depth'="" d
 	. . S ^UPRNX("X8",depth,bno,town,uprn,table,key)=""
 	i loc'="" d
-	. i bno'="",street'="" d
+	. i street'="" d
 	. . S ^UPRNX("X8",street,bno,loc,uprn,table,key)=""
-	. i flat'="",build'="" d
+	. i build'="" d
 	. . S ^UPRNX("X8",build,flat,loc,uprn,table,key)=""
 eind q
 indexstr(index,term)         ;Indexes street or building etc

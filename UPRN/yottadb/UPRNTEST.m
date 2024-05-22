@@ -11,13 +11,6 @@ UPRNTEST(vold,vnew,from,to,diffonly) ;Command line for processing a batch of adr
 	d match(vold,vnew,from,to)
 	d out(vold,vnew,from,to,$g(diffonly))
 	q
-stat(total,matched,oldmatched,same,nomatch,nownot,diff,nowmatch)          ;
-	n var
-	f var="total","matched","oldmatched","same","nomatch","nownot","diff","nowmatch" d
-	. i $g(@var) d
-	. . s ^UPRNI("stats",var)=$G(^UPRNI("stats",var))+1
-	i $d(^TUPRN($J,"OUTOFAREA")) d
-	. s ^UPRNI("stats","out of area")=$g(^UPRNI("stats","out of area"))+1
 	q
 	;		
 stats ;End of run stats
@@ -49,13 +42,14 @@ out(vold,vnew,from,to,diffonly)   ;Processes a batch of addresses for a list of 
 	. u file
 	. w "Number or UARN",d
 	. w "Candidate",d
-	. w vnew_" Assign uprn",d
-	. w vnew_" Assign class",d
-	. w vnew_" Assign algorithm",d
-	. w vnew_" Assign quality",d
-	. f i=1:1:3 w vnew_" Assign abp addrress "_i,d
+	. w vnew_" uprn",d
 	. I vold'="" d
 	. . w vold_" uprn",d
+	. w vnew_" class",d
+	. w vnew_" algorithm",d
+	. w vnew_" quality",d
+	. f i=1:1:3 w vnew_" abp addrress "_i,d
+	. I vold'="" d
 	. . w vold_" class",d
 	. . w vold_" algorithm",d
 	. . w vold_" quality",d
@@ -106,7 +100,7 @@ out(vold,vnew,from,to,diffonly)   ;Processes a batch of addresses for a list of 
 	. . s same=1
 	. i bestuprn'="" d alg(vnew,adno,bestuprn,.bestalg,.bestmatch,.bestclass)
 	. i bestalg'="" s ^MATCHES(bestalg)=$g(^MATCHES(bestalg))+1,^MATCHES1(bestalg,adno)=""
-	. d stat(1,matched,oldmatched,same,nomatch,nownot,diff,nowmatch)
+	. d stat(1,matched,same,nomatch,nownot,diff,nowmatch)
 	. i bestuprn="" d
 	. . u unfile w adno,$c(9),^UPRNI("D",adno),!      
 	. s row=row+1
@@ -119,11 +113,11 @@ out(vold,vnew,from,to,diffonly)   ;Processes a batch of addresses for a list of 
 	. . s txt=txt_adno_d_$tr(adrec,"""")_d
 	. e  d
 	. . s txt=txt_uarn_d_$tr(adrec,"")_d
-	. s txt=txt_bestuprn_d_bestclass_d_bestalg_d_bestmatch_d
+	. s txt=txt_bestuprn_d_olduprn_d_bestclass_d_bestalg_d_bestmatch_d
 	. f i=1:1:3 d
 	. . s txt=txt_$g(bestaddr(i))_d
 	. i vold'="" d
-	. . s txt=txt_olduprn_d_oldclass_d_oldalg_d_oldmatch_d
+	. . s txt=txt_oldclass_d_oldalg_d_oldmatch_d
 	. . f i=1:1:3 d
 	. . . s txt=txt_$g(oldaddr(i))_d
 	. . s txt=txt_same_d_nomatch_d
@@ -137,10 +131,18 @@ out(vold,vnew,from,to,diffonly)   ;Processes a batch of addresses for a list of 
 	c unfile
 	d stats
 	q
+stat(total,matched,same,nomatch,nownot,diff,nowmatch)          ;
+	n var
+	f var="total","matched","same","nomatch","nownot","diff","nowmatch" d
+	. i $g(@var) d
+	. . s ^UPRNI("stats",var)=$G(^UPRNI("stats",var))+1
+	i $d(^TUPRN($J,"OUTOFAREA")) d
+	. s ^UPRNI("stats","out of area")=$g(^UPRNI("stats","out of area"))+1
+	Q
 match(vold,vnew,from,to)	;Runs the batch match
-	;	
+	K ^UPRNI("stats")
 	n xh,start,d,adno,begin,total,end,uprn,matched,unfile,olduprn,diff
-	n batch,batchmatch,batchstart
+	n batch,batchmatch,batchstart,nownot,nomatch,same,nowmatch
 	s xh=$p($H,",",2)
 	set adno=from
 	set batchstart=from
@@ -150,6 +152,7 @@ match(vold,vnew,from,to)	;Runs the batch match
 	s matched=0,batch=1,batchmatch=0
 	for  set adno=$O(^UPRNI("D",adno)) q:adno=""  q:(adno>to)  d
 	. S ^ADNO=adno
+	. S diff="",olduprn="",uprn="",nownot="",nomatch="",same="",matched="",nowmatch=""
 	. s start=$p($h,",",2)
 	. d tomatch^UPRN(adno,vnew) ;Match 1 address
 	. s total=total+1
@@ -164,15 +167,20 @@ match(vold,vnew,from,to)	;Runs the batch match
 	. i $D(^TUPRN($J,"MATCHED")) D
 	. . s matched=1
 	. . s batchmatch=batchmatch+1
-	. . s olduprn=""
-	. . s diff=""
 	. . s uprn=$o(^TUPRN($J,"MATCHED",""))
-	. . i vold'="" d
-	. . . s olduprn=$G(^UPRNI("M",vold,adno))
-	. . . i olduprn'=uprn s diff=1
+	. . s matched=1
+	. i vold'="" d
+	. . s olduprn=$G(^UPRNI("M",vold,adno))
+	. i olduprn'=uprn,uprn'="",olduprn'="" s diff=1
+	. i uprn'="" s matched=1
+	. i uprn="",olduprn'="" s nownot=1
+	. i uprn="" s nomatch=1
+	. i uprn'="",olduprn="" s nowmatch=1
+	. i uprn'="",uprn=olduprn s same=1
+	. i uprn'="" d
 	. . S ^UPRNI("M",vnew,adno)=uprn
 	. . m ^UPRNI("M",vnew,adno)=^TUPRN($J,"MATCHED",uprn)
-	. d stat(1,matched,"","","","",diff)
+	. d stat(1,matched,same,nomatch,nownot,diff,nowmatch)
 	. i '(total#200) d
 	. . d stats
 	. i $D(^TUPRN($J,"INVALID")) d  q

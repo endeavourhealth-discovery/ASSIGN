@@ -2,8 +2,9 @@ UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc,adtown,adepth) ;Additional pr
 	;
 	N i
 	s adtown=$g(adtown)
-	i adflat="c/o" s adflat=""
+	;	
 f153a ;Move some thngs around
+	;		
 	i adtown="",adloc'="",adeploc="" d
 	. I '$D(^UPRNS("TOWN",adloc)) d
 	. . I $D(^UPRNS("TOWN",adstreet)),'$D(^UPRNX("X.STR",ZONE,adstreet)) d
@@ -11,8 +12,10 @@ f153a ;Move some thngs around
 	. . . s adloc=adstreet
 	. . . s adstreet=""
 	. e  d
-	. . I $l(adstreet," ")>1,'$D(^UPRNX("X.STR",ZONE,adstreet)) d
-	. . . i $D(^UPRNS("TOWN",$p(adstreet," ",$l(adstreet," ")))) d
+	. . I $l(adstreet," ")>1,'$D(^UPRNX("X.STR",ZONE,adstreet)),'$d(^UPRNX("X.BLD",ZONE,adstreet)) d
+	. . . n qtown
+	. . . s qtown=$p(adstreet," ",$l(adstreet," "))
+	. . . i '$D(^UPRNS("ROAD",qtown)),$D(^UPRNS("TOWN",qtown)) d
 	. . . . s adtown=adloc
 	. . . . s adloc=adeploc
 	. . . . i adloc="" s adloc=$p(adstreet," ",$l(adstreet," "))
@@ -219,7 +222,7 @@ f156 ;
 	. s adflat=$p(adflat,"flat ",2)
 	;Glasgow ground floors
 	i adflat?1"0"1"/".e s adflat=$e(adflat,2,200)
-	d fixfbns(adflat,.adbuild,adbno,.adstreet)
+	d fixfbns(.adflat,.adbuild,adbno,.adstreet)
 	;another street shift if bad street
 	i adeploc="",adloc="",adtown="",'$D(^UPRNS("TOWN",adstreet)) d
 	. I adstreet[" " d
@@ -228,6 +231,9 @@ f156 ;
 	. . . . s adloc=$p(adstreet," ",2)
 	. . . . s adtown=$p(adstreet," ",3,10)
 	. . . . s adstreet=$p(adstreet," ")
+	i adflat="",adbuild="",adepth="",adstreet'="",adstreet[" ",'$D(^UPRNX("X.STR",ZONE,adstreet)) d
+	. i $d(^UPRNS("HOUSE",$p(adstreet," ",$l(adstreet," ")))) d
+	. . i adflat="" s adbuild=adstreet,adflat=adbno,adstreet="",adbno=""
 	q
 fixfbns(adflat,adbuild,adbno,adstreet)	;
 	n i,xbuild,done
@@ -240,6 +246,8 @@ fixfbns(adflat,adbuild,adbno,adstreet)	;
 	. . . s adbuild=xbuild
 	. . . s adstreet=$p(adstreet,xbuild_" ",2,10)
 	. . . s done=1
+	I adflat="",$d(^UPRNS("SCOTFLOORSIDE",adbuild)) d
+	. s adflat=adbuild,adbuild=""
 	Q
 change(glob,node,from,to)    ;
 	n nodes

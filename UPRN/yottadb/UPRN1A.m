@@ -378,6 +378,7 @@ ds9 . S ^UPRN(ukey,uprn,"D",key,"O")=flat_d_build_d_bno_d_depth_d_street_d_deplo
 	. . s @var=$$LC^LIB(@var)
 yrep . F var="flat","build","depth","street","deploc","loc" d
 	. . s @var=$$welsh(@var)
+	. i flat?1"0/".e!(flat?1"0-".e) s flat=$e(flat,2,$l(flat))
 	. S newrec=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post_d_org_d_dep_d_ptype
 	. set street=$$correct^UPRNU(street)
 	. set bno=$$correct^UPRNU(bno)
@@ -465,6 +466,7 @@ IMPLPI ;Imports and indexes LPI file
 	. F var="flat","build","depth","street","deploc","loc" d
 	. . i @var="" q
 	. . s @var=$$welsh(@var)
+	. i flat?1"0/".e!(flat?1"0-".e) s flat=$e(flat,2,$l(flat))
 	. set newrec=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post
 	. set ^UPRN(ukey,uprn,"L",key)=flat_d_build_d_bno_d_depth_d_street_d_deploc_d_loc_d_town_d_post
 	. i level'="" S ^UPRN("L",uprn)=level

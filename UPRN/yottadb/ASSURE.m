@@ -3,37 +3,50 @@ ASSURE ;
 IMPORT(source,vold) ;
 	d files(source,vold)
 	D UNMATCHED(source)
-	Q
 	D MATCHED(source,vold)
+	D ALL(source,vold)
 	Q
 	;
 files(source,vold) ;	
 	n file
 	s file=$G(^UPRNF("matched",source))
 	u 0
-	;d matchfile
+	d matchfile
 	d unmatchfile
+	d allfile
 	q
 matchfile ;
 	w !,source," ",vold," source matched file  ("_file_") :" r file
 	i file="" s file=$g(^UPRNF("matched",source))
+	i file="" q
+	s ^UPRNF("matched",source)=file
 	O file:readonly
 	c file
 	q
 unmatchfile ;	
-	u 0
-	s ^UPRNF("matched",source)=file
+	u 0	
 	s file=$G(^UPRNF("unmatched",source))
 	w !,source," source unmatched file  ("_file_") :" r file
 	i file="" s file=$g(^UPRNF("unmatched",source))
+	i file="" q
 	o file:readonly
 	c file
 	s ^UPRNF("unmatched",source)=file
 	q
+allfile ;	
+	u 0
+	s file=$G(^UPRNF("all",source))
+	w !,source," source all file  ("_file_") :" r file
+	i file="" s file=$g(^UPRNF("all",source))
+	i file="" q
+	o file:readonly
+	c file
+	s ^UPRNF("all",source)=file
+	q
 	;	
 MATCHED(source,vold) ;
 	n file,rec,del,adno,header,uprn,uarn,scotno
-	s file=^UPRNF("matched",source)
+	s file=$g(^UPRNF("matched",source))
 	I file="" q
 	k ^X
 	u 0 w !,"Importing "_file_"..."
@@ -64,16 +77,32 @@ MATCHED(source,vold) ;
 	. . . S ^UPRNI("M","4.2.1",adno)=$p(rec,"~",2)
 	c file
 	Q
+ALL(source,version) 	;
+		n d,rec,file,adno,uprn,header
+		s d=$c(9)
+		s file=$G(^UPRNF("all",source))
+		i file="" q
+		O file
+		k ^UPRNI("M",version)
+		i source="5.5.1" u file r header
+		for  u file r rec  q:$zeof  d
+		. s adno=$p(rec,d,1)
+		. s uprn=$p(rec,d,2)
+		. i uprn'="" d
+		. . S ^UPRNI("M",version,adno)=uprn
+		c file
+		q
 UNMATCHED(source) ;
-	n file,rec,adno,del,orec
+	n file,rec,adno,del,orec,header
 	s file=""
-	s file=^UPRNF("unmatched",source)
+	s file=$g(^UPRNF("unmatched",source))
 	I file="" q
 	u 0 w !,"Importing "_file_"..."
 	s del=$c(9)
 	o file
 	s adno=$O(^UPRNI("D",""),-1)
 	i source["SCOT" u file r header
+	I source["PAUL" u file r header
 	for  u file r rec  q:$zeof  d
 	. s adno=adno+1
 	. i source="WALES" d
@@ -130,4 +159,36 @@ result(version,from,to) ;
 		i txt'="" u file w txt
 		c file
 		q
+compare(version)	;
+	n file,adno,d,uprn,addr,vuprn,address,table,key
+		k ^UPRNI("C","PAUL")
+		s file="/mnt/c/tmp/scot_seq_out.txt"
+		s d=$c(9)
+		o file:readonly
+		u file r rec
+		for  u file r rec  q:$zeof  d
+		. s adno=$p(rec,d)
+		. s uprn=$p(rec,d,2)
+		. s addr=$p(rec,d,3)
+		. S ^UPRNI("C","PAUL",adno)=uprn
+		c file
+		s adno=""
+		for  s adno=$O(^UPRNI("C","PAUL",adno)) q:adno=""  d
+		. s uprn=^UPRNI("C","PAUL",adno)
+		. S vuprn=$G(^UPRNI("M",version,adno))
+		. i uprn'=vuprn d
+		. . u 0 w !!,adno,"Pauls = ",uprn," ",version_" = ",vuprn," : ",^UPRNI("D",adno)
+		. . u 0 w !,"Pauls match :"
+		. . i uprn'="" d
+		. . . d getalladdr^UPRNU(uprn,.address)
+		. . . u 0 w address(1)
+		. . u 0 w !,"Current match :"
+		. . i vuprn'="" d
+		. . . s table=$O(^UPRNI("M",version,adno,""))
+		. . . s key=$O(^UPRNI("M",version,adno,table,""))
+		. . . u 0 w ^UPRN("U",vuprn,table,key,"O")
+		. . r t
+		q
+	;		
+	;	
 	;	

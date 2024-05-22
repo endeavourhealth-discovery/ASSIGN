@@ -1,5 +1,5 @@
 UPRNMGR ; ; 2/13/24 3:07pm
-	;Version 5.5.0
+	;Version 5.5.2
 	w !!,"A  - Run address match from file"
 	W !!,"B  - Export results "
 	W !!,"C  - Import Data "
@@ -75,7 +75,7 @@ GETUPRN(adrec,qpost,orgpost,country,summary,writejson,noassert) ;Returns the res
 	s adrec=$tr(adrec,",","~")
 trailing  ;Strips off trailing nulls
 	f i=$l(adrec,"~"):-1:1 q:$p(adrec,"~",i)'=""
-etrail s adrec=$p(adrec,"~",1,i)
+	s adrec=$p(adrec,"~",1,i)
 	s adrec=$tr(adrec,"""")
 	s adrec=$tr(adrec,$c(13))
 	s adrec=$tr(adrec,$c(10))
@@ -103,24 +103,6 @@ SUMMARY ;Summary result
 	d MATCHK(.json,1)
 	s json=json_"}"
 	w json
-	q
-	s json=json_"""Matched"":"
-	I $D(^TUPRN($J,"NOMATCH")) d  q
-	. s json=json_"false}"
-	i $D(^TUPRN($J,"MATCHED")) D
-	. s json=json_"true,"
-MATCHK(json,summary)       ;populates match details
-	s json=json_"""Matched"":"
-	S zok=1
-	i $data(^TUPRN($J,"NOMATCH")) s zok=0
-	i $data(^TUPRN($J,"OUTOFAREA")) s zok=0
-	i $data(^TUPRN($J,"INVALID")) S zok=0
-	;I $D(^TUPRN($J,"NOMATCH"))!($D(^TUPRN($J,"OUTOFAREA"))) D
-	i 'zok do
-	. s json=json_"false"
-	e  d
-	. s json=json_"true,"
-	. D MATCHED(1,$D(^TUPRN($J,"COMMERCIAL")))
 	Q
 MATCHED(best,commerce)  ;Matches either commercial or residential
 	n glob

@@ -20,7 +20,6 @@ bestfit(tpost,tstreet,tbno,tbuild,tflat,tloc)        ;
 	i $g(^TUPRN($J,"MATCHED")) Q
 	d bestfitb
 	i $g(^TUPRN($J,"MATCHED")) Q
-	d bestfitc
 	d bestfitd
 	d bestfito
 	i $g(^TUPRN($J,"MATCHED")) Q
@@ -157,6 +156,10 @@ eqflatnum(tflat,flat,tbno,bno) ;
 	;	
 eqflat(tflat,flat) ;Are they equivalent flats?
 	n (tflat,flat)
+	i $tr(tflat," ")=$tr(flat," ") q 1
+	i tflat?1n.n,flat'?1n.n q 0
+	i tflat?1n.n1"/"1n.n1"r",$tr(tflat,"r")=flat q 1
+	i tflat?1n.n1"/"1n.n1"l",$tr(tflat,"l")=flat q 1
 	f var="tflat","flat" d
 	. s @var=$$tr^UPRNL(@var,"&","and")
 	. i $p(@var," ",$l(@var," "))["floor" s @var=$p(@var," ",0,$l(@var," ")-1)
@@ -166,10 +169,6 @@ eqflat(tflat,flat) ;Are they equivalent flats?
 	d swap^UPRNU(.tflat,.flat)
 	d drop^UPRNU(.tflat,.flat)
 	i tflat=flat q 1
-	s count=0,wcount=$l(tflat," ")
-	f i=1:1:$l(tflat," ") d
-	. i (" "_flat_" ")[(" "_$p(tflat," ",i)_" ") s count=count+1
-	i count=wcount q 1
 	;Scottish problems
 	s equiv=0
 	i flat?1"/"1n.n s flat="0/"_$p(flat,"/",2)
@@ -430,10 +429,6 @@ bestfito ;
 	. . . i $$equiv^UPRNU(tbuild,flat_" "_build) d
 	. . . . s matchrec="Pe,Se,Ne,B>F,Fe"
 	. . . . s ^TBEST($J,matchrec,tbno,build,flat)=""
-	. i tflat'="" d
-	. . s flat=""
-	. . for  s flat=$O(^UPRNX("X5",tpost,tstreet,tbno,build,flat)) q:flat=""  d
-	. . . d fuzzy(tbno,tbuild,tflat,build,flat)
 	q
 	;	
 bestfitf ;Judge between a flat building match and a number street match
@@ -503,17 +498,6 @@ m1 i tbno'="" I '$$mno^UPRN(tpost,tstreet,tbno,.bno) Q
 	;	
 	q
 	;	
-fuzzy(tbno,tbuild,tflat,build,flat)         ;
-	;fuzzy match on buildings and flat
-	N test,count
-	s test=flat_" "_build
-	i $p(flat," ")=$p(tflat," ") d
-	. S count=$$mcount(tflat_" "_tbuild,flat_" "_build)
-	. i count>2 d
-	. . s matchrec="Pe,Se,Ne,Bp,Fp"
-	. . S ^TBEST($J,matchrec,tbno,build,flat)=""
-	. . S ^TORDER($J,matchrec,tbno,count,build,flat)=""
-	q
 whichno(matchrec,tpost,tstreet,tbno,tbuild,tflat)  ;
 	;Which is best number
 	k ^TORDER($J)
@@ -616,14 +600,9 @@ bestfitn          ;Fits with no building
 	. . . . s ^TBEST($j,matchrec,tbno,tbuild,tflat)=""
 	. . . . s ^TBEST($j,matchrec)=post
 	q
-	;	
 	;
-bestfitc ;Sibling flat with candidate flat suffix
-	i tflat?1n.n1l d
-	. I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,tflat*1)) d
-	. . s matchrec="Pe,Se,Ne,Be,Fc"
-	. . S ^TBEST($J,matchrec,tbno,tbuild,tflat*1)=""
-	q
+	;
+	;
 	;	
 	;
 bestfitd ;
