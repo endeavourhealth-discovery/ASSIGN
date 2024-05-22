@@ -103,6 +103,20 @@ SUMMARY ;Summary result
 	d MATCHK(.json,1)
 	s json=json_"}"
 	w json
+	q
+	;	
+MATCHK(json,summary)       ;populates match details
+	s json=json_"""Matched"":"
+	S zok=1
+	i $data(^TUPRN($J,"NOMATCH")) s zok=0
+	i $data(^TUPRN($J,"OUTOFAREA")) s zok=0
+	i $data(^TUPRN($J,"INVALID")) S zok=0
+	;I $D(^TUPRN($J,"NOMATCH"))!($D(^TUPRN($J,"OUTOFAREA"))) D
+	i 'zok do
+	. s json=json_"false"
+	e  d
+	. s json=json_"true,"
+	. D MATCHED(1,$D(^TUPRN($J,"COMMERCIAL")))
 	Q
 MATCHED(best,commerce)  ;Matches either commercial or residential
 	n glob
