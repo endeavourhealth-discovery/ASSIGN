@@ -12,6 +12,36 @@ YN read yn#1
  set yn=$$LC^LIB(yn)
  if "\y\n\"'[("\"_yn_"\") G YN
  quit yn
+
+D ; SCOT INSTANCE (5.5.2)
+ new yn,rtn,d
+ set yn=$$STT()
+ i yn="n" quit
+
+ ; copy all code lists to /tmp/
+ ;
+ ; because UPRN1A has been changed
+ ; this is a full import & index
+ ;
+ kill d
+ s d("UPRN.m")=""
+ s d("UPRN1A.m")=""
+ s d("UPRNA.m")=""
+ s d("UPRNA1.m")=""
+ s d("UPRNACT.m")=""
+ s d("UPRNB.m")=""
+ s d("UPRNC.m")=""
+ s d("UPRNDIFF.m")=""
+ s d("UPRNIND.m")=""
+ s d("UPRNMGR.m")=""
+ s d("UPRNTEST.m")=""
+ s d("UPRNU.m")=""
+ D GO(.d)
+ W !,"KILLING."
+ k ^UPRN,^UPRNS,^UPRNX
+ W !,"IMPORTING."
+ D IMPORT^UPRN1A("/tmp/")
+ quit
  
 C ; RAN IN LIVE 9.5.2024
  ; ABP AUTO DOWNLOADS

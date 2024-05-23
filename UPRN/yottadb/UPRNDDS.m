@@ -189,6 +189,8 @@ BLOCK()
  set uprn=$get(data(1))
  set classcode=$get(data(2))
  set algorithm=$get(data(3))
+ set table=$get(data(4))
+ set key=$get(data(5))
  s building=$get(patterns("Building")),flat=$get(patterns("Flat"))
  s number=$get(patterns("Number"))
  s postcode=$get(patterns("Postcode"))
@@ -227,6 +229,8 @@ MATCHED(best,commerce,data,patterns)
  set qual=$$qual^UPRN2(matchrec,commerce)
  set data(0)=qual
  set data(1)=uprn
+ set data(4)=table
+ set data(5)=key
  I $D(^UPRN("CLASS",uprn)) d
  . set classcode=$tr($p(^UPRN("CLASS",uprn),"~"),"""")
  . set data(2)=classcode
