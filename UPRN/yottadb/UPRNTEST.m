@@ -1,4 +1,4 @@
-UPRNTEST(vold,vnew,from,to,diffonly) ;Command line for processing a batch of adresses [ 07/28/2023  11:17 AM ]
+UPRNTEST(vold,vnew,from,to,diffonly,NODE) ;Command line for processing a batch of adresses [ 07/28/2023  11:17 AM ]
 	;vold= old version,vnew= current version, from = from adno, to= to adno 
 	;diffonly = different matches only in result file
 	K ^UPRNI("stats")
@@ -8,10 +8,13 @@ UPRNTEST(vold,vnew,from,to,diffonly) ;Command line for processing a batch of adr
 	S from=$g(from)
 	s to=$g(to)
 	i to="" s to=1000000000
+	S NODE=$G(NODE,"D")
+	s ^start=$h
 	d match(vold,vnew,from,to)
-	d out(vold,vnew,from,to,$g(diffonly))
-	q
-	q
+	d out(vold,vnew,from,to,$g(diffonly),NODE)
+	s ^TIME=$$DIFDISP^UPRNL1(^start,$h)
+	U 0 w !,^TIME
+	;	
 	;		
 stats ;End of run stats
 	U 0 W !!
@@ -27,17 +30,19 @@ stats ;End of run stats
 	;	
 	q
 	;
-out(vold,vnew,from,to,diffonly)   ;Processes a batch of addresses for a list of areas
-	N diff,file,d,i,adno,bestuprn,bestalg,bestmatch,bestclass,olduprn,same,nownot,nowmatch,nomatch,adrec
-	n bestaddr,oldaddr,oldalg,oldmatch,oldclass,total,matched,oldmatched,export,txt,score,uarn,row
+out(vold,vnew,from,to,diffonly,NODE)   ;Processes a batch of addresses for a list of areas
+	N file,d,i,adno,bestuprn,bestalg,bestmatch,bestclass,olduprn,same,nownot,nowmatch,nomatch,adrec
+	n diff,bestaddr,oldaddr,oldalg,oldmatch,oldclass,total,matched,oldmatched,export,txt,score,uarn,row
 	n unfile
 	;
 	s d=$c(9)
 	s unfile=^UPRNF("assurancepath")_"/"_"unmatched-"_from_"-"_$TR(vnew,".","_")_".txt"
 	o unfile:newversion
 	d
-	. S diff=$tr(vold,".","_")_"-"_$tr(vnew,".","_")_"-diff.txt"
-	. s file=^UPRNF("assurancepath")_"/"_"Diff-"_$TR(vold,".","_")_"-"_$TR(vnew,".","_")_".txt"
+	. i diffonly d
+	. . s file=^UPRNF("assurancepath")_"/"_"Diff"_$TR(vold,".","_")_"-"_$TR(vnew,".","_")_".txt"
+	. e  d
+	. . s file=^UPRNF("assurancepath")_"/"_"Results"_$TR(vold,".","_")_"-"_$TR(vnew,".","_")_".txt"
 	. o file:(newversion:stream:nowrap:chset="M")
 	. u file
 	. w "Number or UARN",d
@@ -73,9 +78,10 @@ out(vold,vnew,from,to,diffonly)   ;Processes a batch of addresses for a list of 
 	s to=$g(to)
 	i to="" s to=100000000
 	s row=1
-	for  set adno=$O(^UPRNI("D",adno)) q:adno=""  q:(adno>to)  d
-	. I '(adno#1000) I txt'="" d
-	. . U 0 W !,adno
+	for  set adno=$O(^UPRNI(NODE,adno)) q:adno=""  q:(adno>to)  d
+	. s row=row+1
+	. I '(row#100) I txt'="" d
+	. . U 0 W !,row
 	. . u file w txt s txt=""
 	. S uarn=$g(^UPRNI("UARN",adno))
 	. s adrec=$tr(^UPRNI("D",adno),"~",",")
@@ -103,7 +109,6 @@ out(vold,vnew,from,to,diffonly)   ;Processes a batch of addresses for a list of 
 	. d stat(1,matched,same,nomatch,nownot,diff,nowmatch)
 	. i bestuprn="" d
 	. . u unfile w adno,$c(9),^UPRNI("D",adno),!      
-	. s row=row+1
 	. S score=$G(^UPRNI("SCORE",vold,adno))
 	. i bestuprn'="" d addr(bestuprn,.bestaddr)
 	. i olduprn'="" d addr(olduprn,.oldaddr)
@@ -113,7 +118,7 @@ out(vold,vnew,from,to,diffonly)   ;Processes a batch of addresses for a list of 
 	. . s txt=txt_adno_d_$tr(adrec,"""")_d
 	. e  d
 	. . s txt=txt_uarn_d_$tr(adrec,"")_d
-	. s txt=txt_bestuprn_d_olduprn_d_bestclass_d_bestalg_d_bestmatch_d
+	. s txt=txt_bestuprn_d_$s(vold="":"",1:olduprn_d)_bestclass_d_bestalg_d_bestmatch_d
 	. f i=1:1:3 d
 	. . s txt=txt_$g(bestaddr(i))_d
 	. i vold'="" d
@@ -125,9 +130,8 @@ out(vold,vnew,from,to,diffonly)   ;Processes a batch of addresses for a list of 
 	. i vold="FLAP"	 s txt=txt_score
 	. s txt=txt_$c(10)
 	. s export=export+1
-	i $g(diffonly) d
-	. i txt'="" u file w $e(txt,1,$l(txt)-1)
-	. c file
+	i txt'="" u file w $e(txt,1,$l(txt)-1)
+	c file
 	c unfile
 	d stats
 	q
@@ -150,7 +154,7 @@ match(vold,vnew,from,to)	;Runs the batch match
 	set begin=$p($h,",",2)
 	s d=$c(9)
 	s matched=0,batch=1,batchmatch=0
-	for  set adno=$O(^UPRNI("D",adno)) q:adno=""  q:(adno>to)  d
+	for  set adno=$O(^UPRNI(NODE,adno)) q:adno=""  q:(adno>to)  d
 	. S ^ADNO=adno
 	. S diff="",olduprn="",uprn="",nownot="",nomatch="",same="",matched="",nowmatch=""
 	. s start=$p($h,",",2)

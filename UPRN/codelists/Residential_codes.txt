@@ -314,7 +314,7 @@ N	CZ01	Advertising Hoarding	C	Z	1		Commercial	Information	Advertising Hoarding
 N	CZ02	Tourist Information Signage	C	Z	2		Commercial	Information	Tourist Information Signage	
 N	CZ02VI	Visitor Information	C	Z	2	VI	Commercial	Information	Tourist Information Signage	Visitor Information
 N	CZ03	Traffic Information Signage	C	Z	3		Commercial	Information	Traffic Information Signage	
-N	L	Land	L				Land			
+	L	Land	L				Land			
 N	LA	Agricultural - Applicable to land in farm ownership and not run as a separate business enterprise	L	A			Land	Agricultural - Applicable to land in farm ownership and not run as a separate business enterprise		
 N	LA01	Grazing Land	L	A	1		Land	Agricultural - Applicable to land in farm ownership and not run as a separate business enterprise	Grazing Land	
 N	LA02	Permanent Crop / Crop Rotation	L	A	2		Land	Agricultural - Applicable to land in farm ownership and not run as a separate business enterprise	Permanent Crop / Crop Rotation	

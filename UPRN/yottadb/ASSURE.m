@@ -1,5 +1,26 @@
 ASSURE ;
 	Q
+SCOT ;
+	k ^UPRNI("SCOT")
+		n adno,done
+		s adno="",done=0,live=0,dead=0
+		f i=1:1 s adno=$O(^UPRNI("D",adno)) q:adno=""  d  q:done
+		. s alg=""
+		. I $G(^UPRNI("M","5.5.2",adno))'="" d
+		. . S table=$O(^UPRNI("M","5.5.2",adno,""))
+		. . S key=$O(^UPRNI("M","5.5.2",adno,table,""))
+		. . s alg=^UPRNI("M","5.5.2",adno,table,key,"A")
+		. i alg'="",$P(alg,"-",2)="match1" q
+		. i '(i#501) d
+		. . i i<1000000 s live=live+1
+		. . I i>1000000 s dead=dead+1
+		. . i live<500 d
+		. . . S ^UPRNI("SCOT",adno)=^UPRNI("D",adno)
+		. . . S ^UPRNI("SCOT",adno,"status")="live"
+		. . i live>500,dead>0,dead<501 d
+		. . . S ^UPRNI("SCOT",adno)=^UPRNI("D",adno)
+		. . . S ^UPRNI("SCOT",adno,"status")="dead"
+		q
 IMPORT(source,vold) ;
 	d files(source,vold)
 	D UNMATCHED(source)

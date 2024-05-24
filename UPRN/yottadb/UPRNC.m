@@ -901,6 +901,19 @@ bs   ; building and street
 	. i $p(tflat,"f")=bno,$p(tflat,"f",2)=flat d
 	. . s matchrec="Pe,Se,N<F,Be,Fp",alg="a204"
 	. . d possible
+	i tbno?1n.n1"-"1n.n do
+	. i tflat="",$p(tbno,"-",2)=bno,$$flateq^UPRNU($p(tbno,"-"),flat) d
+	. . s matchrec="Pe,Se,N<Fp,Be,Fp",alg="a208"
+	. . d probable
+	. i $p(tbno,"-")=bno,$p(tbno,"-",2)=flat d
+	. . s matchrec="Pe,Se,Np,Be,F<Np",alg="a206"
+	. . d possible
+	i tflat="",bno="",tbno?1n.n,flat?1n.n1"-"1n.n d
+	. i tbno'<$p(flat,"-")&(tbno'>$p(flat,"-",2)) d
+	. . s matchrec="Pe,Se,N>F,Be,F<Np",alg="a210"
+	. . d possible
+	i tflat="",bno
+	;	
 	q
 b    ;Building
 	i tbuild'="" do

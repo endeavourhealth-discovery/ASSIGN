@@ -1,4 +1,5 @@
 EXP1 ;
-	D REDO^UPRNIND
+	D SCOT^ASSURE
+	;w $$DIFDISP^UPRNL1(^end,$h)
 	Q
 	;

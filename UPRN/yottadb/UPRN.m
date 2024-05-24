@@ -110,7 +110,7 @@ GETUPRN(adrec,qpost,orgpost,country,summary) ;Returns the result of a matching r
 	;qpost is deprecated
 	;country is deprecated
 	;orgpost is the post code of a local organisatoin to narrow down search
-	k ^TUPRN($J)
+	k ^TUPRN($J),^TALT($J)
 	;	
 	s adrec=$tr(adrec,",","~")
 	s adrec=$tr(adrec,"""")
@@ -1514,6 +1514,9 @@ match6(tpost,tstreet,tbno,tbuild,tflat)
 	. for  s bno=$O(^UPRNX("X5",tpost,tstreet,bno)) q:bno=""  d  q:$d(^TUPRN($J,"MATCHED"))
 	. . i tbno="",tbuild'="" d match6a q
 	. . s $p(matchrec,",",3)=""
+	. . i tbno?1n.n,bno?1n.n1l,tbno*1=(bno*1) d
+	. . . i $D(^UPRNX("X5",tpost,tstreet,bno,tbuild,tflat)) d 
+	. . . . M ^TALT($J)=^UPRNX("X5",tpost,tstreet,bno,tbuild,tflat)
 	. . i $$mno1(tbno,bno,.approx) do
 	. . . s $p(matchrec,",",3)="N"_approx
 	. . i $p(matchrec,",",3)="" q
@@ -2567,7 +2570,7 @@ match55(tpost,tstreet,tbno,tbuild,tflat,tloc) ;2 field match
 	Q $D(^TUPRN($J,"MATCHED"))
 match56(tpost,tstreet,tbno,tbuild,tflat,tloc) ;2 field match 
 	I tbuild=""&(tflat="") D
-	. i tstreet'="",tbno'="" d
+	. i tstreet'="",tbno'="",tbno?1n.n1l d
 	. . I $D(^UPRNX("X5",tpost,tstreet,tbno*1,"","")) d
 	. . . s matchrec="Pe,Se,Np,Bd,Fc"
 	. . . s $P(ALG,"-",2)="match56"
@@ -2630,7 +2633,9 @@ match60(tpost,tstreet,tbno,tbuild,tflat,tloc)
 	Q $G(^TUPRN($J,"MATCHED"))
 	;	
 match62(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc) 
-		;area post code, the rest match
+	;area post code, the rest match
+	;Not if exact post code and close number match though
+	I $D(^TALT($J)) q ""
 	s post="",matched=0
 	for  s post=$O(^UPRNX("X3",ZONE,tstreet,tbno,post)) q:post=""  d  q:matched
 	. s near=$$justarea(post,adpost)
@@ -2852,31 +2857,8 @@ mno1(tbno,bno,approx) ;Matches two numbers
 	s matched=0
 	s approx="e"
 	i tbno=bno q 1
+	q 0
 	;94a to 94
-	i tbno?1n.n1l,bno?1n.n,(bno*1=(tbno*1)) d
-	. s matched=1
-	. s approx="c"
-	i tbno?1n.n,bno?1n.n1l,(bno*1)=tbno*1 d
-	. s matched=1
-	. s approx="a"
-	i tbno?1n.n1"-"1n.n d
-	. i bno?1n.n1"-"1n.n d  q
-	. . i $p(tbno,"-")'<$p(bno,"-") d
-	. . . i $p(tbno,"-",2)'>$p(bno,"-",2) d
-	. . . . s approx="p"
-	. . . . s matched=1
-	. i bno'<$p(tbno,"-"),bno'>$p(tbno,"-",2) d
-	. . s matched=1
-	i bno?1n.n1"-"1n.n d
-	. i tbno?1n.n1"-"1n.n d  q
-	. . i $p(bno,"-")'<$p(tbno,"-") d
-	. . . i $p(bno,"-",2)'>$p(tbno,"-",2) d
-	. . . . s approx="p"
-	. . . . s matched=1
-	. i tbno'<$p(bno,"-"),tbno'>$p(bno,"-",2) d
-	. . s approx="p"
-	. . s matched=1
-	q matched
 	;
 nomatch ;Records no match
 	s ^TUPRN($J,"NOMATCH")=""

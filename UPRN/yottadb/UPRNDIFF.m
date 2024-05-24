@@ -2,9 +2,9 @@ UPRNDIFF	;
 	;d IMPORT^ASSURE("SCOTNHS","NHS")
 	;s from=^TEST("START"),to=^TEST("END"),every="",out="",diffout=1
 	s from="",to="",diffonly=1
-	;s from="5564187",to="5579135",diffonly=1
-	D ^UPRNTEST("5.5.1","5.5.2",from,to,diffonly)
-	;d out^UPRNTEST("5.5.1","5.5.2",584750,637741,diffonly)
+	;s from="",to="200000",diffonly=1
+	;D ^UPRNTEST("","5.5.2",from,to,diffonly)
+	d out^UPRNTEST("","5.5.2","","",0,"SCOT")
 	q
 UNMATCHED(from,to) ;
 	n adno,file
