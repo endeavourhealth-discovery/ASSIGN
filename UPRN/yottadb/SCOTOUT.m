@@ -70,16 +70,28 @@ NOMATCH ;
  
 INVALID ;
  quit
+
+SERIAL ;
+ K ^XOUT
+ set (q,sno)=""
+ f  s q=$o(^OUT(q)) q:q=""  do
+ .f  s sno=$o(^OUT(q,sno)) q:sno=""  do
+ ..s ^XOUT(sno,q)=""
+ ..quit
+ quit
  
 OUTPUT ;
+ do SERIAL
  S f="/tmp/scot-output.txt"
  close f
  o f:(newversion)
  use f
  set (q,sno)="",d=$c(9)
  write "serial_number",d,"uprn",d,"abp_address",d,"class_code",d,"matching_quality",d,"address_quality",!
- f  s q=$o(^OUT(q)) q:q=""  do
- .f  s sno=$o(^OUT(q,sno)) q:sno=""  do
+ ;f  s q=$o(^OUT(q)) q:q=""  do
+ ;.f  s sno=$o(^OUT(q,sno)) q:sno=""  do
+ f  S sno=$o(^XOUT(sno)) q:sno=""  do
+ .f  s q=$o(^XOUT(sno,q)) q:q=""  do
  ..set rec=^OUT(q,sno,1)
  ..set abp=^OUT(q,sno,2)
  ..set abp=$$TR^LIB(abp,"~",",")

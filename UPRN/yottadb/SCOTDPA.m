@@ -92,7 +92,7 @@ GO(q) ;
  ;k ^OUT(q)
  set ^GO(q)=$job
  ; add this line back in if starting from scratch
- set ^ZI(q,2)=$$HT^STDDATE($P($H,",",2))
+ set ^ZI(q,2)=$H
  set id="",t=1
  f  s id=$order(^Q(q,id)) q:id=""  do
  .i t#100=0 w !,t
@@ -111,7 +111,7 @@ GO(q) ;
  .I $data(^TUPRN($J,"NOMATCH")) merge ^UQUAL(q,id)=^TUPRN($job)
  .s t=t+1
  .quit
- set ^ZI(q,3)=$$HT^STDDATE($P($H,",",2))
+ set ^ZI(q,3)=$H
  quit
  
 STOP ;

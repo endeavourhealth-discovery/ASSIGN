@@ -16,10 +16,12 @@ TESTCSV2 ;
  new a,r
  kill ^TMP($job)
  s a("adrec")="10 Downing St,Westminster,London,SW1A2AA"
+ s a("adrec")="9 SALISBURY VIEW,MAYFIELD,,EH225JH"
  s a("delim")="~"
  s a("ids")="123"
  D GETCSV2(.r,.a)
  write !,^TMP($J,1)
+ write !,^TMP($J,2)
  ;D GETCSV(.r,.a)
  ;write !,^TMP($J,1)
  quit
@@ -39,7 +41,8 @@ GETCSV2(result,arguments) ;
  .S ^AUDIT(ID)=adrec_"|"_$HOROLOG
  .quit
  
- D GETUPRN^UPRNMGR(adrec,"","","",0,0)
+ ;D GETUPRN^UPRNMGR(adrec,"","","",0,0)
+ D GETUPRN^UPRN(adrec,"","","")
  set rec=$$BLOCK()
  S (LOCALITY,NUMBER,ORG,POSTCODE,STREET,TOWN,QUALITY,POINT)=""
  ; 1.  uprn
@@ -169,7 +172,9 @@ TEST ;
  kill
  
  set adrec="10 Downing St,Westminster,London,SW1A2AA"
- D GETUPRN^UPRNMGR(adrec,"","","",0,0)
+ set adrec="9 SALISBURY VIEW,MAYFIELD,,EH225JH"
+ ;D GETUPRN^UPRNMGR(adrec,"","","",0,0)
+ D GETUPRN^UPRN(adrec,"","","")
  set rec=$$BLOCK()
  ;write !,rec
  w !

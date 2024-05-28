@@ -13,6 +13,27 @@ YN read yn#1
  if "\y\n\"'[("\"_yn_"\") G YN
  quit yn
 
+E ; SCOT INSTANCE (FIXES FOR 5.5.2)
+ new yn,rtn,d
+
+ kill
+
+ set yn=$$STT()
+ i yn="n" quit
+ s abp="/tmp"
+ D RESIDE^UPRN1A
+ W !,"Successfully imported new Residential file."
+
+ kill d
+ s d("ASSURE.m")=""
+ s d("UPRN.m")=""
+ s d("UPRNC.m")=""
+ s d("UPRNDIFF.m")=""
+ s d("UPRNL1.m")=""
+ s d("UPRNTEST.m")=""
+ d GO(.d)
+ quit
+
 D ; SCOT INSTANCE (5.5.2)
  new yn,rtn,d
  set yn=$$STT()
