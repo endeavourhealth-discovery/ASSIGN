@@ -54,6 +54,7 @@ export ydb_crypt_config="/home/fred/apiuprn/ydbcrypt_config_fred.libconfig"
 $ydb_dist/mupip SET -NULL_SUBSCRIPTS=true -region DEFAULT
 $ydb_dist/mupip set - journal=off -region 'DEFAULT'
 $ydb_dist/mupip set -access_method=mm -region DEFAULT
+$ydb_dist/mupip set -key_size=510 -region DEFAULT
 ```
 
 Restore the ASSIGN code by downloading WGET.m from the ASSIGN github repository:
