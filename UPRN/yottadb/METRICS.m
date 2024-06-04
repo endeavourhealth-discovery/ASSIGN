@@ -55,8 +55,14 @@ STT ;
  set status2="QUEUED"
  if $d(^ZQZ1(2,nextupdate)) set status2="COMPLETED"
  
+ set nextfull=$$NEXTQ(3)
+ set t3=$get(^ZQZ(3,nextfull))
+ set status3="QUEUED"
+ if $d(^ZQZ1(3,nextfull)) set status3="COMPLETED"
+ 
  W !,"next scheduled download run: ",$$HD^STDDATE(nextdown)," at ",$$HT^STDDATE(t1)," ",status1
  write !,"next scheduled database update run: ",$$HD^STDDATE(nextupdate)," at ",$$HT^STDDATE(t2)," ",status2
+ w !,"next full: ",$$HD^STDDATE(nextfull)," at ",$$HT^STDDATE(t3)," ",status3
  
  w !,"last index run:"
  set start=$get(^STATS("START"))

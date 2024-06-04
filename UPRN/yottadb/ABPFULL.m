@@ -49,7 +49,7 @@ INTRUPT ; get a partition dump to find out how far the code is progressing.
 ZQZ ;
  set ^ZQZ(3)="FULL GB ABP import"
  set zh=+$h+1
- set z=$$TH^STDDATE("03:00"),^ZQZ(3,zh)=z,^ZQZ(3,zh,"RTN")="GB^ABPFULL"
+ set z=$$TH^STDDATE("01:00"),^ZQZ(3,zh)=z,^ZQZ(3,zh,"RTN")="GB^ABPFULL"
  kill ^ZQZ1(3,zh)
  quit
  
@@ -64,7 +64,7 @@ STT(folder,zip)
  write !,"getting code lists from github.com"
  set cmd="rm /tmp/Counties.txt; rm /tmp/Residential_codes.txt; rm /tmp/Saints.txt"
  zsystem cmd
- if $zsystem'=0 w !,"unable to delete code lists" quit
+ ;if $zsystem'=0 w !,"unable to delete code lists" quit
  
  set cmd="wget -q -P /tmp ""https://raw.githubusercontent.com/endeavourhealth-discovery/uprn-match/master/UPRN/codelists/Counties.txt"""
  zsystem cmd
