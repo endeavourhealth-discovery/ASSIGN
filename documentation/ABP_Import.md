@@ -52,7 +52,12 @@ https://github.com/endeavourhealth-discovery/ASSIGN/tree/master/UPRN/codelists
 ```
   
 Copy Residential_codes.txt, Counties.txt, Saints.txt to /tmp/
-Move the downloaded csv's to /tmp/ 
+
+Then, move the downloaded csv's to /tmp/ using the linux mv (move) command
+```
+cd /opt/all/[id]
+mv *.csv /tmp/
+``` 
 
 ```
 su fred
