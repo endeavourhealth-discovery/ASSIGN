@@ -14,6 +14,8 @@ PATCH() ; patch all the UPRN routines
  D DECODE^VPRJSON($name(j),$name(b),$name(err))
  s l="",q=0
  K ^TRTN($J)
+ ; cleardown any existing UPRN routines
+ zsystem "rm /tmp/UPRN*.m*"
  f  s l=$o(b(l)) q:l=""  do  q:q=1
  .s rtn=b(l,"name")
  .s z=$length(rtn,".")
