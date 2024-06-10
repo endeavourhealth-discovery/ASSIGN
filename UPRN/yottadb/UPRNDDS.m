@@ -38,7 +38,7 @@ GETCSV2(result,arguments) ;
  S log=$GET(^ICONFIG("UPRN-LOG"))
  if log'="" do
  .S zID=$$GETID()
- .S ^AUDIT(ID)=adrec_"|"_$HOROLOG
+ .S ^AUDIT(ID)=adrec_"|"_$HOROLOG_"|"_ids
  .quit
  
  ;D GETUPRN^UPRNMGR(adrec,"","","",0,0)
@@ -88,7 +88,8 @@ GETCSV2(result,arguments) ;
  ;s zloc=$p(rec,"~",21),ztown=$p(rec,"~",22),zpost=$p(rec,"~",23)
  ;s zorg=$p(rec,"~",24)
  set abp=$p(rec,del,15,99)
- s ^TMP($J,2)=abp
+ ; if not a pipeline request
+ if ids="" s ^TMP($J,2)=abp
  set result("mime")="text/plain, */*"
  set result=$na(^TMP($j))
  quit
