@@ -70,6 +70,7 @@ ALL ;
  ;W !,json
  set J=json
  D DECODE^VPRJSON($name(J),$name(b),$name(err))
+ if $get(b("fault","faultstring"))'="" do SLACK^POURC("os api error: "_$get(b("fault","faultstring"))) quit
  s l=""
  set cegutil=""
  f  s l=$o(b(l)) q:l=""  do
