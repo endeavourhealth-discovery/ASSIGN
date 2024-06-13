@@ -79,7 +79,8 @@ GETCSV2(result,arguments) ;
  S QUALITY=$GET(^TUPRN($J,"INVALID"))
  s csv=csv_QUALITY_del_$g(LAT)_del_$g(LONG)_del_$g(POINT)_del_$g(X)_del_$g(Y)_del_$g(CLASS)_del_UPRN
  S ALGVERSION=$GET(^ICONFIG("ALG-VERSION"))
- S EPOCH=$GET(^ICONFIG("EPOCH-PIPELINE"))
+ ;S EPOCH=$GET(^ICONFIG("EPOCH-PIPELINE"))
+ S EPOCH=$O(^DSYSTEM("COU",""),-1)
  S csv=csv_del_ALGVERSION_del_EPOCH
  s ^TMP($J,1)=csv
  ; abp address fields
