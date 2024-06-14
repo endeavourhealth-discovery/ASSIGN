@@ -559,20 +559,30 @@ match61(tpost,tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth)
 	d options
 	q $G(^TUPRN($J,"MATCHED"))
 options	;Processes probables or possibles
-	i $G(^TPROBABLE($J))=1 d
-	. s uprn=$O(^TPROBABLE($J,""))
-	. s table=$O(^TPROBABLE($J,uprn,""))
-	. s key=$O(^TPROBABLE($j,uprn,table,""))
-	. s matchrec=^(key)
-	. s alg=$G(^TPROBABLE($J,uprn,table,key,"A"))_"-one-probable"
-	. s matched=$$m61set()
-	e  i '$D(^TPROBABLE($J)),$G(^TPOSSIBLE($J))=1 d
-	. s uprn=$O(^TPOSSIBLE($J,""))
-	. s table=$O(^TPOSSIBLE($J,uprn,""))
-	. s key=$O(^TPOSSIBLE($j,uprn,table,""))
-	. s matchrec=^(key)
-	. s alg=$G(^TPOSSIBLE($J,uprn,table,key,"A"))_"-one-possible"
-	. s matched=$$m61set()
+	I $D(^TPROBABLE($J)) d
+	. i $G(^TPROBABLE($J))=1 d
+	. . s uprn=$O(^TPROBABLE($J,""))
+	. . s table=$O(^TPROBABLE($J,uprn,""))
+	. . s key=$O(^TPROBABLE($j,uprn,table,""))
+	. . s matchrec=^(key)
+	. . s alg=$G(^TPROBABLE($J,uprn,table,key,"A"))_"-one-probable"
+	. . s matched=$$m61set()
+	e  i $D(^TPOSSIBLE($J)) d
+	. i $G(^TPOSSIBLE($J))=1 d
+	. . s uprn=$O(^TPOSSIBLE($J,""))
+	. . s table=$O(^TPOSSIBLE($J,uprn,""))
+	. . s key=$O(^TPOSSIBLE($j,uprn,table,""))
+	. . s matchrec=^(key)
+	. . s alg=$G(^TPOSSIBLE($J,uprn,table,key,"A"))_"-one-possible"
+	. . s matched=$$m61set()
+	e  i $d(^TFIRSTFLAT($J)) D
+	. I '$D(^THASFLAT($J,tbno)),$G(^TFIRSTFLAT($J))=1 d
+	. . s uprn=$O(^TFIRSTFLAT($J,""))
+	. . s table=$O(^TFIRSTFLAT($J,uprn,""))
+	. . s key=$O(^TFIRSTFLAT($j,uprn,table,""))
+	. . s matchrec=^(key)
+	. . s alg=$G(^TFIRSTFLAT($J,uprn,table,key,"A"))_"-one-possible"
+	. . s matched=$$m61set()
 	q
 	;	
 common(abp,candidate) ;
@@ -826,6 +836,7 @@ fnsb1  ; Match on flat number and street, not null building
 	i build'="" d  i matched!probable q
 	. n mincount
 	. s mincount=$s($l(tbuild," ")>$l(build," "):$l(tbuild," ")-1,1:$l(build," ")-1)
+	. i mincount=1 s mincount=2
 	. i $p(tbuild," ",1,mincount)=build d  q
 	. . s matchrec="Se,Ne,Bp,Fe",alg="a93"
 	. . d probable
@@ -875,15 +886,12 @@ bns ; building, number and street match
 	. i $tr(tflat,"/","f")=flat d
 	. . s matchrec="Pe,Se,Ne,Be,Fp",alg="a205"
 	. . d possible
-	i tflat'="",flat="" d
-	. I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild)) d
-	. . I $o(^UPRNX("X5",tpost,tstreet,tbno,tbuild,""))="" d
-	. . . s xuprn=$O(^UPRNX("X5",tpost,tstreet,tbno,tbuild,"",""))
-	. . . i xuprn'=uprn q
-	. . . i $O(^UPRNX("X5",tpost,tstreet,tbno,tbuild,"",xuprn))="" d
-	. . . . I $G(^UPRN("CLASSIFICATION",^UPRN("CLASS",uprn),"residential"))="Y" d
-	. . . . . s matchrec="Pe,Se,Ne,Be,Fc",alg="c1"
-	. . . . . d possible
+	i tflat?1n.n1l1n,flat?1n.n1l,$e(tflat,1,$l(flat))=flat d
+	. s matchrec="Pe,Se,Ne,Bl,Fp",alg="304"
+	. d possible
+	i flat="",bno'="",$$first^UPRNU(tflat) d
+	. s matchrec="Pe,Se,Ne,Be,Fd",alg="303"
+	. d firstflat
 	;	
 	q
 bs   ; building and street
@@ -933,8 +941,14 @@ b    ;Building
 	q
 ns  ;Number street
 	I tflat'="" d  i matched!probable q
+	. i $$equiv^UPRNU(tbuild,build) d  q:(matched!probable)
+	. . i tflat?1n.n1l1n,flat?1n.n1l,$e(tflat,1,$l(flat))=flat d
+	. . . s matchrec="Pe,Se,Ne,Bl,Fp",alg="304"
+	. . . d possible
 	. i $$equiv^UPRNU(build,tflat_" "_tbuild) d
 	. . s matched=$$m61("Pe,Se,Ne,B<FB,F>B","a153")
+	. i flat'="",flat=(thouse_" "_tflat),$$equiv^UPRNU(tbuild_" "_tflat,build_" "_flat) d
+	. . s matched=$$m61("Pe,Se,Ne,B>Fp,Fp","305")
 	. i flat="",bno="",tbuild="",tflat?1n.n1"/"1l d
 	. . i build?1n.n1"/"1n.n d
 	. . . i $p(build,"/")=(tflat*1),$G(^UPRNS("SCOTLEVEL","/"_$p(build,"/",2)))=$p(tflat,"/",2) d
@@ -1134,6 +1148,7 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	s fe=(tflat=flat),be=(tbuild=build),se=$tr(tstreet,"-"," ")=$tr(street,"-"," "),ne=(tbno=bno)
 	s house="",fhouse=""
 	s tres=0,res=0
+	I flat'="",bno'="" S ^THASFLAT($J,bno)=""
 	i build'="" s house=$$house($p(build," ",$l(build," ")))
 	i flat'="" s fhouse=$$house($p(flat," ",$l(flat,"S ")))
 	i thouse'="" s tres=$D(^UPRNS("RESIDENTIAL",thouse))
@@ -1273,8 +1288,7 @@ match61a(tstreet,tbno,tbuild,tflat,tloc,tdeploc,ttown,tdepth,thouse,uprn,table,k
 	. . s matchrec="Pe,Se,N<F,Be,Fe",alg="a127" d probable
 	i 'fe,'be,'se,ne,tflat?1n.n1"/"1n.n,flat="",build=tflat,street=tbuild d
 	. s matchrec="Pe,S<B,Ne,B<F,Fe",alg="a128" d probable
-	i 'fe,'be,ne,se,tbuild'="",tflat'="",build'="",flat'="",$$equiv^UPRNU(tbuild_" "_tflat,build_" "_flat) d  i matched q 1
-	. s matched=$$m61("Pe,Se,Ne,Bl,Fl","a129")
+	;	
 	i 'fe,'se,ne,'be,tflat'="",flat="",tflat=build,tstreet="",tbuild'="",$$equiv^UPRNU(tbuild,street) d  i matched q 1
 	. s matched=$$m61("Pe,S<B,Ne,B>S,F>B","a130")
 	i 'fe,be,ne,'se,bno'="",$$flateq^UPRNU(tflat,flat),$$equiv^UPRNU(tstreet,street,8,2) d
@@ -1306,6 +1320,14 @@ possible	;
 	S ^TPOSSIBLE($J,uprn,table,key)=matchrec
 	i $g(alg)'="" d
 	. S ^TPOSSIBLE($J,uprn,table,key,"A")=alg
+	q
+firstflat	;
+	I $D(^THASFLAT($J,bno)) Q
+	s probable=1
+	I '$D(^TFIRSTFLAT($J,uprn)) s ^TFIRSTFLAT($J)=$G(^TPOSSIBLE($J))+1
+	S ^TFIRSTFLAT($J,uprn,table,key)=matchrec
+	i $g(alg)'="" d
+	. S ^TFIRSTFLAT($J,uprn,table,key,"A")=alg
 	q
 parse(tflat,tbuild,tbno,flat,bno) ;
 	n same

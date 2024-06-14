@@ -1,4 +1,4 @@
-UPRNTEST(vold,vnew,from,to,diffonly,NODE) ;Command line for processing a batch of adresses [ 07/28/2023  11:17 AM ]
+UPRNTEST(vold,vnew,from,count,diffonly,NODE) ;Command line for processing a batch of adresses [ 07/28/2023  11:17 AM ]
 	;vold= old version,vnew= current version, from = from adno, to= to adno 
 	;diffonly = different matches only in result file
 	K ^UPRNI("stats")
@@ -6,12 +6,12 @@ UPRNTEST(vold,vnew,from,to,diffonly,NODE) ;Command line for processing a batch o
 	K ^TPARAMS($J)
 	K ^TUPRN($J)
 	S from=$g(from)
-	s to=$g(to)
-	i to="" s to=1000000000
+	s count=$g(count)
+	i count="" s to=1000000000
 	S NODE=$G(NODE,"D")
 	s ^start=$h
-	d match(vold,vnew,from,to)
-	d out(vold,vnew,from,to,$g(diffonly),NODE)
+	d match(vold,vnew,from,count)
+	d out(vold,vnew,from,count,$g(diffonly),NODE)
 	s ^TIME=$$DIFDISP^UPRNL1(^start,$h)
 	U 0 w !,^TIME
 	;	
@@ -30,7 +30,7 @@ stats ;End of run stats
 	;	
 	q
 	;
-out(vold,vnew,from,to,diffonly,NODE)   ;Processes a batch of addresses for a list of areas
+out(vold,vnew,from,matchcount,diffonly,NODE)   ;Processes a batch of addresses for a list of areas
 	N file,d,i,adno,bestuprn,bestalg,bestmatch,bestclass,olduprn,same,nownot,nowmatch,nomatch,adrec
 	n diff,bestaddr,oldaddr,oldalg,oldmatch,oldclass,total,matched,oldmatched,export,txt,score,uarn,row
 	n unfile
@@ -75,10 +75,8 @@ out(vold,vnew,from,to,diffonly,NODE)   ;Processes a batch of addresses for a lis
 	s total=0,matched=0,export=0,txt=""
 	s adno=$g(from)
 	;	
-	s to=$g(to)
-	i to="" s to=100000000
-	s row=1
-	for  set adno=$O(^UPRNI(NODE,adno)) q:adno=""  q:(adno>to)  d
+	s row=0
+	for  set adno=$O(^UPRNI(NODE,adno)) q:adno=""  q:(row>matchcount)  d
 	. s row=row+1
 	. I '(row#100) I txt'="" d
 	. . U 0 W !,row
@@ -143,9 +141,9 @@ stat(total,matched,same,nomatch,nownot,diff,nowmatch)          ;
 	i $d(^TUPRN($J,"OUTOFAREA")) d
 	. s ^UPRNI("stats","out of area")=$g(^UPRNI("stats","out of area"))+1
 	Q
-match(vold,vnew,from,to)	;Runs the batch match
+match(vold,vnew,from,matchcount)	;Runs the batch match
 	K ^UPRNI("stats")
-	n xh,start,d,adno,begin,total,end,uprn,matched,unfile,olduprn,diff
+	n xh,start,d,adno,begin,total,end,uprn,matched,row,olduprn,diff
 	n batch,batchmatch,batchstart,nownot,nomatch,same,nowmatch
 	s xh=$p($H,",",2)
 	set adno=from
@@ -153,11 +151,14 @@ match(vold,vnew,from,to)	;Runs the batch match
 	set total=0
 	set begin=$p($h,",",2)
 	s d=$c(9)
+	s row=0
 	s matched=0,batch=1,batchmatch=0
-	for  set adno=$O(^UPRNI(NODE,adno)) q:adno=""  q:(adno>to)  d
+	for  set adno=$O(^UPRNI(NODE,adno)) q:adno=""  q:(row>matchcount)  d
+	. s row=row+1
 	. S ^ADNO=adno
 	. S diff="",olduprn="",uprn="",nownot="",nomatch="",same="",matched="",nowmatch=""
 	. s start=$p($h,",",2)
+	. ;w !,adno
 	. d tomatch^UPRN(adno,vnew) ;Match 1 address
 	. s total=total+1
 	. i '(total#10000) d

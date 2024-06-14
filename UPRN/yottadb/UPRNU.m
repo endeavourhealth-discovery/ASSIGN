@@ -1240,12 +1240,17 @@ MPART(test,tomatch,mincount)         ;
 	. I word'="" I $D(^UPRNS("ROAD",word))!($D(^UPRNS("BUILDING",word))) q
 	. f j=i:1:$l(@to," ") d
 	. . set tword=$p(@to," ",j)
-	. . i tword=word s count=count+1
+	. . i tword=word,i'=j s count=count+1
 	. . i tword'="",$D(^UPRNS("ROAD",tword))!($d(^UPRNS("BUILDING",word))) q
 	. . I $$levensh(word,tword) d
 	. . . set count=count+1
 	I count'<mincount q 1
 	q matched
+first(tflat)	;
+	I tflat?1"/1" q 1
+	I tflat?1"/0" q 1
+	i tflat=1 q 0
+	q 0
 plural(text)       ;
 	;Function to remove trailing s
 	f i=1:1:$l(text," ") d
@@ -1255,6 +1260,7 @@ plural(text)       ;
 	. . set word=$e(word,1,$l(word)-1)
 	. . i word="" q
 	. . set $p(text," ",i)=word
+	if text["nn" s text=$$tr^UPRNL(text,"nn","n")
 	q text
 dupl(text)         ;Removes duplicate
 	n wordlist

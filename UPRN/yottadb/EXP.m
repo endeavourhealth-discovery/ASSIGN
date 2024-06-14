@@ -13,7 +13,7 @@ STT
 	;s adrec="8 WEST VICTORIA DOCK ROAD,PANMURE COURT,CITY QUAY, DUNDEE,DD1 3BH"
 	;s adrec=^UPRNI("D",7078366)
 	;D ^ZLINK
-	s adno=147473
+	s adno=3461
 	S adrec=^UPRNI("D",adno)
 	S ^ADNO=adno
 	W !,adrec,!

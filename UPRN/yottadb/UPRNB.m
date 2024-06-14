@@ -426,9 +426,6 @@ bestfito ;
 	. . . i tbuild=build,flat?1l.l.e,flat["house" d
 	. . . . s matchrec="Pe,Se,Ne,Bp,Fe"
 	. . . . s ^TBEST($J,matchrec,tbno,build,flat)=""
-	. . . i $$equiv^UPRNU(tbuild,flat_" "_build) d
-	. . . . s matchrec="Pe,Se,Ne,B>F,Fe"
-	. . . . s ^TBEST($J,matchrec,tbno,build,flat)=""
 	q
 	;	
 bestfitf ;Judge between a flat building match and a number street match
@@ -687,11 +684,7 @@ bestfitb        ;
 	. s build=$p(tbuild," ",2,10)
 	i tflat?1l1n.n d
 	. s tstflat=$e(tflat,2,20)
-	i tstflat="" d  q
-	. I tbuild'="" d
-	. . i $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,"")) d
-	. . . s matchrec="Pe,Se,Ne,Be,Fc"
-	. . . S ^TBEST($J,matchrec,tbno,tbuild,tstflat)=""
+	i tstflat="" q
 	i $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,tstflat)) d
 	. s matchrec="Pe,Se,Ne,Bd,Fl"
 	. S ^TBEST($J,matchrec,tbno,tbuild,tstflat)=""
@@ -866,9 +859,6 @@ sufnum1 i tflat?1n d
 	;	
 	s qual=^UPRNS("VERTICALS",tflat)
 	i $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild)) d
-	. I $D(^UPRNX("X5",tpost,tstreet,tbno,tbuild,"")) d
-	. . s matchrec="Pe,Se,Ne,Be,Fc"
-	. . S ^TBEST($j,matchrec,tbno,tbuild,"")=""
 	. S flat=""
 	. for  s flat=$O(^UPRNX("X5",tpost,tstreet,tbno,tbuild,flat)) q:flat=""  d  q:matched
 	. . s fflat=$$correct^UPRNU(flat)
