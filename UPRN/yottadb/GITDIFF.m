@@ -40,7 +40,7 @@ STT ;
  ; D PATCH^GITDIFF("CQCSCHED.m")
 PATCH(rtn) ; 
  new cmd
- set cmd="rm /tmp/git/"_rtn
+ set cmd="sudo rm /tmp/git/"_rtn
  zsystem cmd
  set cmd="wget -q -P /tmp/git ""https://raw.githubusercontent.com/endeavourhealth-discovery/uprn-match/master/UPRN/yottadb/"_rtn_""""
  zsystem cmd
