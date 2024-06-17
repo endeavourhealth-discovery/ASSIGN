@@ -13,6 +13,21 @@ YN read yn#1
  if "\y\n\"'[("\"_yn_"\") G YN
  quit yn
 
+F ; 5-5-3 update
+ s z=$$PATCH^ABPFULL()
+ i z'=0 w !,"Something went wrong whilst patching the UPRN routines" quit
+ do ^UPRNIND
+ set hostname=$get(^ICONFIG("HOSTNAME"))
+ do SLACK^POURC("5-5-3 update complete ("_hostname_")")
+ quit
+
+SCHED553 ;
+ set ^ZQZ(4)="5-5-3 update"
+ set zh=+$h
+ set zt=$$TH^STDDATE("23:00")
+ set ^ZQZ(4,zh)=zt,^ZQZ(4,zh,"RTN")="F^PATCHER"
+ kill ^ZQZ1(4,zh)
+ quit
 E ; SCOT INSTANCE (FIXES FOR 5.5.2)
  new yn,rtn,d
 
