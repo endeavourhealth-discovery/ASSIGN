@@ -71,4 +71,5 @@ STT ;
  s e1=$p(end,","),t2=$p(end,",",2)
  w !,"started: ",$$HD^STDDATE(s1)," at ",$$HT^STDDATE(t1)
  w !,"finished: ",$$HD^STDDATE(e1)," at ",$$HT^STDDATE(t2)
+ write !,$$DIFDISP^UPRNL1(start,end)
  quit
