@@ -3,19 +3,19 @@ ABPFULL ; ; 5/31/24 12:39pm
  quit
  
 PATCH() ; patch all the UPRN routines
- s cmd="curl -H ""Accept: application/vnd.github.v3+json"" -o /tmp/git.json https://api.github.com/repos/endeavourhealth-discovery/ASSIGN/contents/UPRN/yottadb"
+ s cmd="curl -H ""Accept: application/vnd.github.v3+json"" -o /tmp/git"_$job_".json https://api.github.com/repos/endeavourhealth-discovery/ASSIGN/contents/UPRN/yottadb"
  zsystem cmd
- s f="/tmp/git.json"
+ s f="/tmp/git"_$job_".json"
  c f
  o f:(readonly)
  set j=""
  f  u f r str q:$zeof  s j=j_str
- c f
+ c f:delete
  D DECODE^VPRJSON($name(j),$name(b),$name(err))
  s l="",q=0
  K ^TRTN($J)
  ; cleardown any existing UPRN routines
- zsystem "rm /tmp/UPRN*.m*"
+ zsystem "sudo rm /tmp/UPRN*.m*"
  f  s l=$o(b(l)) q:l=""  do  q:q=1
  .s rtn=b(l,"name")
  .s z=$length(rtn,".")
