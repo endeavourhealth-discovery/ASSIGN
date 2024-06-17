@@ -2,19 +2,19 @@ GITDIFF ; ; 4/10/24 11:41am
  quit
  
 STT ;
- s cmd="curl -H ""Accept: application/vnd.github.v3+json"" -o /tmp/git.json https://api.github.com/repos/endeavourhealth-discovery/ASSIGN/contents/UPRN/yottadb"
+ s cmd="curl -H ""Accept: application/vnd.github.v3+json"" -o /tmp/git"_$job_".json https://api.github.com/repos/endeavourhealth-discovery/ASSIGN/contents/UPRN/yottadb"
  zsystem cmd
- s f="/tmp/git.json"
+ s f="/tmp/git"_$job_".json"
  close f
  o f:(readonly)
  set j=""
  f  u f r str q:$zeof  s j=j_str
- close f
+ close f:delete
  
  s cmd="mkdir /tmp/git/; mkdir /tmp/git/diffs"
  zsystem cmd
  
- s cmd="rm /tmp/git/*.*; rm /tmp/git/diffs/*.*"
+ s cmd="sudo rm /tmp/git/*.*; sudo rm /tmp/git/diffs/*.*"
  zsystem cmd
  
  D DECODE^VPRJSON($name(j),$name(b),$name(err))
