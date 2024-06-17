@@ -60,7 +60,7 @@ REENT for  s uprn=$O(^UPRN("U",uprn)) q:uprn=""  d
 	. . . s ptype=$p(rec,d,12)
 	. . . d setind
 	. . . s i=i+1
-	. . . I '(i#10000) w i," "
+	. . . I '(i#10000) w i," " set ^I=i
 	q
 setind ;Sets indexes
 	d setind1
