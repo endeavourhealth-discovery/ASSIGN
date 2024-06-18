@@ -19,6 +19,7 @@ F ; 5-5-3 update
  do ^UPRNIND
  set hostname=$get(^ICONFIG("HOSTNAME"))
  do SLACK^POURC("5-5-3 update complete ("_hostname_")")
+ set ^ICONFIG("ALG-VERSION")="5.5.3"
  quit
 
 SCHED553 ;
