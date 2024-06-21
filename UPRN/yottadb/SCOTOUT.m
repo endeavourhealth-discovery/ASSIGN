@@ -81,6 +81,8 @@ SERIAL ;
  quit
  
 OUTPUT ;
+ new rec,out
+ k ^R
  do SERIAL
  S f="/tmp/scot-output.txt"
  close f
@@ -100,14 +102,32 @@ OUTPUT ;
  ..set quality1=$get(^UQUAL(q,sno,"POSTCODE"))
  ..set quality2=$get(^UQUAL(q,sno,"INVALID"))
  ..;set qmatch=$piece(rec,"~",7) ; algorithm?
- ..set qmatch=$p(rec,"~",8) ; qualifier
- ..set out=sno_d_uprn_d_abp_d_class_d_qmatch_d_quality1_$s(quality2'="":" and ",1:"")_quality2
+ ..;set qmatch=$p(rec,"~",8) ; qualifier
+ ..set qmatch=$$MQUAL(rec)
+ ..set out=sno_d_uprn_d_abp_d_class_d_qmatch_d_quality1_$s(quality1'=""&(quality2'=""):" and ",1:"")_quality2
+ ..set r=quality1_$s(quality1'=""&(quality2'=""):" and ",1:"")_quality2
+ ..s:'$d(^R(r)) ^R(r)=""
  ..;write sno,d,abp,d,class,d,qmatch,d,quality1,quality2,!
  ..write out,!
  ..quit
  close f
  quit
  
+MQUAL(rec) ; matching quality
+ new out,i
+ set out=""
+ f i=9:1:13 do
+ .s prefix="building"
+ .if i=10 set prefix="flat"
+ .if i=11 set prefix="number"
+ .if i=12 set prefix="postcode"
+ .if i=13 set prefix="street"
+ .if $p(rec,"~",i)'="",$p(rec,"~",i)'="equivalent" s out=out_$p(rec,"~",i)_"("_prefix_"),"
+ .quit
+ set out=$p(out,",",$l(out,",")-1)
+ set out=$p(rec,"~",7)_$s(out'="":":"_out,1:"")
+ quit out
+
 STATS ;
  ;new i,match,tot
  kill tot
@@ -143,7 +163,7 @@ STATS ;
  .set invalid=$p(rec,"~",3)
  .set gtot=gtot+tot,gmatch=gmatch+match
  .set ginvalid=ginvalid+invalid
- .w !,i," ",$j((match/tot)*100,0,2)
+ .w:tot>0 !,i," ",$j((match/tot)*100,0,2)
  .quit
  w !,"overall: ",$j((gmatch/gtot)*100,0,2)," total processed:",gtot," matches: ",gmatch
  w !,"%invalid: ",$j((ginvalid/gtot)*100,0,2)," invalid: ",ginvalid
