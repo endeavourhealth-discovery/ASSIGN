@@ -89,7 +89,14 @@ OUTPUT ;
  o f:(newversion)
  use f
  set (q,sno)="",d=$c(9)
- write "serial_number",d,"uprn",d,"abp_address",d,"class_code",d,"matching_quality",d,"address_quality",!
+ ;write "serial_number",d,"uprn",d,"abp_address",d,"class_code",d,"matching_quality",d,"address_quality",!
+ 
+ write "serial_number",d,"uprn",d,"abp_address",d,"class_code",d
+ w "match_pattern_building",d,"match_pattern_flat",d
+ w "match_pattern_number",d,"match_pattern_postcode",d
+ w "match_pattern_street",d,"address_quality"
+ w !
+ 
  ;f  s q=$o(^OUT(q)) q:q=""  do
  ;.f  s sno=$o(^OUT(q,sno)) q:sno=""  do
  f  S sno=$o(^XOUT(sno)) q:sno=""  do
@@ -103,8 +110,14 @@ OUTPUT ;
  ..set quality2=$get(^UQUAL(q,sno,"INVALID"))
  ..;set qmatch=$piece(rec,"~",7) ; algorithm?
  ..;set qmatch=$p(rec,"~",8) ; qualifier
- ..set qmatch=$$MQUAL(rec)
- ..set out=sno_d_uprn_d_abp_d_class_d_qmatch_d_quality1_$s(quality1'=""&(quality2'=""):" and ",1:"")_quality2
+ ..set mpbuild=$p(rec,"~",9)
+ ..set mpflat=$p(rec,"~",10)
+ ..set mpnumber=$p(rec,"~",11)
+ ..set mppostcode=$p(rec,"~",12)
+ ..set mpstreet=$p(rec,"~",13)
+ ..;set qmatch=$$MQUAL(rec)
+ ..;set out=sno_d_uprn_d_abp_d_class_d_qmatch_d_quality1_$s(quality1'=""&(quality2'=""):" and ",1:"")_quality2
+ ..set out=sno_d_uprn_d_abp_d_class_d_mpbuild_d_mpflat_d_mpnumber_d_mppostcode_d_mpstreet_d_quality1_$s(quality1'=""&(quality2'=""):" and ",1:"")_quality2
  ..set r=quality1_$s(quality1'=""&(quality2'=""):" and ",1:"")_quality2
  ..s:'$d(^R(r)) ^R(r)=""
  ..;write sno,d,abp,d,class,d,qmatch,d,quality1,quality2,!
