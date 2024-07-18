@@ -327,7 +327,7 @@ qual(matchrec,commerce)     ;
 	i matchrec["c" q "Child"
 	i matchrec["a" q "Parent"
 	i matchrec["s" q "Sibling"
-	s qual=$s(commerce:"commercial",1:"residential")
+	s qual="Property"
 	Q qual
 	q
 EXPORT ;
