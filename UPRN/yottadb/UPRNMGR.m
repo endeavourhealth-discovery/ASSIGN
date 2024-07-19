@@ -133,7 +133,7 @@ MATCHED(best,commerce)  ;Matches either commercial or residential
 	I $D(^UPRN("CLASS",uprn)) d
 	. s classcode=$tr($p(^UPRN("CLASS",uprn),"~"),"""")
 	. s json=json_",""Classification"":"""_$tr($p(^UPRN("CLASS",uprn),"~"),"""")_""","
-	. s json=json_"""ClassTerm"":"""_$g(^UPRN("CLASSIFICATION",classcode,"term"))_""""
+	. s json=json_"""ClassTerm"":"""_$$ESC^VPRJSON($g(^UPRN("CLASSIFICATION",classcode,"term")))_""""
 	I $G(summary) s json=json_"}" q
 	s json=json_","
 	s alg=$get(@glob@($J,"MATCHED",uprn,table,key,"A"))
