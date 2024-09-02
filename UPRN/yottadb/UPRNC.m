@@ -925,14 +925,14 @@ bs   ; building and street
 	q
 b    ;Building
 	i tbuild'="" do
-	. i tflat=bno,flat="",street'="",tdepth=street d  i matched q 1
+	. i tflat=bno,flat="",street'="",tdepth=street d  i matched q
 	. . s matched=$$m61("Pe,S<D,N<F,Be,F>N","a43")
 	i $D(^UPRNS("ROAD",$p(tstreet," ",$l(tstreet," ")))) D  i matched!probable q
 	. i $p(tstreet," ",0,$l(tstreet," ")-1)=$p(street," ",0,$l(street," ")-1) d
 	. . i tflat["-",bno=$p(tflat,"-"),$$flateq^UPRNU($p(tflat,"-",2),flat) d
 	. . . s matchrec="Pe,Sp,Ne,Be,Fe",alg="a109"
 	. . . d probable
-	i build'="",bno=(tflat_"-"_tbno),tstreet'="",$e(street,1,$l(tstreet))=tstreet d  i matched q 1
+	i build'="",bno=(tflat_"-"_tbno),tstreet'="",$e(street,1,$l(tstreet))=tstreet d  i matched q
 	. s matched=$$m61("Pe,Sp,N<NF,Be,F>N","a60")
 	i tbuild="" d
 	. i tbno["-",$p(tbno,"-")=bno,$p(tbno,"-",2)=flat d
