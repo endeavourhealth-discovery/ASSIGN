@@ -233,6 +233,12 @@ f16 f var="adflat","adbuild","adstreet","adepth","adeploc","adloc","adtown" d
 	;	
 	;
 	q
+
+f16a f var="adflat","adbuild","adstreet","adepth","adeploc","adloc","adtown" d
+	. s @var=$$lt^UPRNL(@var)
+	. quit
+	quit
+	
 fields ;Attempt to correct
 	;	
 	;	
@@ -877,6 +883,7 @@ f153 ;Building is complex street and flat
 	;	
 	;	
 setadd ;set address object values
+	do f16a
 	s address("town")=$g(adtown)
 	s address("flat")=adflat
 	s address("building")=adbuild
