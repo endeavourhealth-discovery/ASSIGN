@@ -452,7 +452,7 @@ N	OR	Royal Mail Infrastructure	O	R			Other (Ordnance Survey Only)	Royal Mail Inf
 N	OR01	Postal Box	O	R	1		Other (Ordnance Survey Only)	Royal Mail Infrastructure	Postal Box	
 N	OR02	Postal Delivery Box / Pouch	O	R	2		Other (Ordnance Survey Only)	Royal Mail Infrastructure	Postal Delivery Box / Pouch	
 N	OR03	PO Box	O	R	3		Other (Ordnance Survey Only)	Royal Mail Infrastructure	PO Box	
-Y	OR04	Additional Mail / Packet Addressee	O	R	4		Other (Ordnance Survey Only)	Royal Mail Infrastructure	Additional Mail / Packet Addressee	
+N	OR04	Additional Mail / Packet Addressee	O	R	4		Other (Ordnance Survey Only)	Royal Mail Infrastructure	Additional Mail / Packet Addressee	
 N	OS	Scientific / Observation Support	O	S			Other (Ordnance Survey Only)	Scientific / Observation Support		
 N	OS01	Meteorological Station / Equipment	O	S	1		Other (Ordnance Survey Only)	Scientific / Observation Support	Meteorological Station / Equipment	
 N	OS02	Radar / Satellite Infrastructure	O	S	2		Other (Ordnance Survey Only)	Scientific / Observation Support	Radar / Satellite Infrastructure	
