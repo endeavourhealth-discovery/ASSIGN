@@ -1,4 +1,4 @@
-UPRN1A ;Import routine V54
+UPRN1A ;Import routine V6.0
 	; YOTTADB version!
 	;
 	d files

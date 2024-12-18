@@ -1,5 +1,6 @@
 # ASSIGN
 This project contains the source code for the ASSIGN UPRN application
+The current version is version 5.6.0
 ## Architecture and technologies
 The software consists of 7 main architectural components
 

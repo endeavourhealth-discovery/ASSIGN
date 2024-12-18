@@ -1,5 +1,5 @@
 UPRN ;Command line for processing a batch of adresses [ 08/07/2023  9:02 AM ]
-	S version="5.5.3"
+	S version="6.0.0"
 	K ^UPRN("MX") ;[ 05/11/2023  12:26 PM ]
 	K ^UPRN("UX")
 	K ^UPRNI("UM")
@@ -11,7 +11,7 @@ CONT ;Re-entry point
 	s from=""
 	s to=1000000000
 	s ui=0
-	s ^VERSION="5.4.1"
+	s ^VERSION="6.0.0"
 setarea d batch(from,to)
 	d stats
 	q
