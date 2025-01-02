@@ -562,3 +562,19 @@ Y	ZW99SU	Stupa	Z	W	99	SU	Object of Interest	Place Of Worship		Stupa
 Y	ZW99SY	Synagogue	Z	W	99	SY	Object of Interest	Place Of Worship		Synagogue
 Y	ZW99TP	Temple	Z	W	99	TP	Object of Interest	Place Of Worship		Temple
 Y	ZW99LG	Lych Gate	Z	W	99	LG	Object of Interest	Place Of Worship		Lych Gate
+?	CM06	Pharmacy	C				Commercial	Pharmacy		
+N	CR02EV	Electric Car Charging Station	C				Commercial	Electric Car Charging Station		
+?	CR06BA	Bar	C				Commercial	Bar		
+?	CR06NC	Nightclub	C				Commercial	Nightclub		
+?	CR06PH	Public House	C				Commercial	Public House		
+?	CR08CS	Convenience Store	C				Commercial	Convenience Store		
+	CR08SM	Supermarket	C				Commercial	Supermarket		
+?	CR09BS	Betting Shop	C				Commercial	Betting Shop		
+?	CR09OL	Off-licence	C				Commercial	Off-licence		
+N	CT11CA	Road Bridge Over Canal	C				Commercial	Road Bridge Over Canal		
+N	CT11MU	Road Bridge Over Multiple	C				Commercial	Road Bridge Over Multiple		
+N	CT11NN	Road Bridge Over No Network	C				Commercial	Road Bridge Over No Network		
+N	CT11PA	Road Bridge Over Path	C				Commercial	Road Bridge Over Path		
+N	CT11RA	Road Bridge Over Railway	C				Commercial	Road Bridge Over Railway		
+N	CT11RO	Road Bridge Over Road	C				Commercial	Road Bridge Over Road		
+N	CT11WA	Road Bridge Over Water	C				Commercial	Road Bridge Over Water		
