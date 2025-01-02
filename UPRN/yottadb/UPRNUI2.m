@@ -142,8 +142,10 @@ UPLOAD(arguments,body,result)
  open file:(readonly)
  s ok=1,qf=0,ZZ=""
  ;f i=1:1:10 use file r str q:$zeof  i $p(str,$c(9))'?1n.n s ok=0
+ set error="",start=1
  for i=1:1 use file r str q:$zeof  do  quit:'ok!(qf)
  .I str=$C(13) use file r str
+ .if start=1 set str=$$RemoveBOM(str,.error),start=0
  .if str["------WebKitFormBoundary" s qf=1
  .; python
  .if $e(str,$l(str)-3,$l(str))["--" s qf=1
@@ -155,15 +157,24 @@ UPLOAD(arguments,body,result)
  ..S ZZ=str
  ..f i=1:1 use file r str q:$zeof  S ZZ=ZZ_str
  ..quit
- .if $p(str,$c(9))'?1n.n s ok=0
+ .if $p(str,$c(9))'?1n.n s ok=0,error="row "_i_" - id column not rumeric"
  .quit
  close file
  
  S ^ok=ok
  
+ if qf=0,ok=1 set error="Unable to locate Boundary",ok=0
+ 
  i 'ok S ^TMP($J,1)="{""upload"": { ""status"": ""NOK""}}"
  ; S ok=1
  i ok s ^TMP($J,1)="{""upload"": { ""status"": ""OK""}}"
+ 
+ i error'="" do
+ . set ze="error"
+ . i error["BOM" s ze="warning"
+ . s ^TMP($J,1)="{""upload"": { ""status"": "_$s(ok:"""OK""",1:"""NOK""")_", """_ze_""": """_error_"""}}"
+ . quit
+ 
  set result=$na(^TMP($J))
  I 'ok quit 1
  
@@ -178,6 +189,30 @@ UPLOAD(arguments,body,result)
  Job PROCESS(file,USER,$GET(ZCOGID))
  quit 1
  
+RemoveBOM(str,error) ;
+ set error=""
+ I $A(str)=239,$A($E(str,2))=187,$A($E(str,3))=191 D  ; UTF-8 BOM
+ .S str=$E(str,4,$L(str))
+ .set error="UTF-8 BOM detected and removed"
+ .quit
+ I $A(str)=255,$A($E(str,2))=254 D  ; UTF-16 LE BOM
+ .S str=$E(str,3,$L(str))
+ .set error="UTF-16 LE BOM detected and removed"
+ .quit
+ I $A(str)=254,$A($E(str,2))=255 D  ; UTF-16 BE BOM
+ .S str=$E(str,3,$L(str))
+ .set error="UTF-16 BE BOM detected and removed"
+ .quit
+ I $A(str)=255,$A($E(str,2))=254,$A($E(str,3))=0,$A($E(str,4))=0 D  ; UTF-32 LE BOM
+ .S str=$E(str,5,$L(str))
+ .set error="UTF-32 LE BOM detected and removed"
+ .quit
+ I $A(str)=0,$A($E(str,2))=0,$A($E(str,3))=254,$A($E(str,4))=255 D  ; UTF-32 BE BOM
+ .S str=$E(str,5,$L(str))
+ .set error="UTF-32 BE BOM detected and removed"
+ .quit
+ quit str
+
 ETCODE ;
  ;;S HTTPLOG("DT")=+$H
  ;;S HTTPLOG("ID")=99999
