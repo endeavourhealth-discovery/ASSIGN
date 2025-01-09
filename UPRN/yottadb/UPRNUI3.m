@@ -22,7 +22,7 @@ DOWNLOAD(result,arguments)
  s hdr=hdr_"match_building"_d_"match_flat"_d_"match_number"_d_"match_postcode"_d
  s hdr=hdr_"match_street"_d_"abp_number"_d_"abp_postcode"_d_"abp_street"_d
  s hdr=hdr_"abp_town"_d_"qualifier"_d_"adr_candiddate"_d_"abp_building"_d
- s hdr=hdr_"latitude"_d_"longitude"_d_"point"_d_"x"_d_"y"_d_"ralf"_d_"classification_term"_$c(10)
+ s hdr=hdr_"latitude"_d_"longitude"_d_"point"_d_"x"_d_"y"_d_"ralf"_d_"classification_term"_d_"abp_flat"_$c(10)
  
  I file'["/opt/" S file="/opt/files/"_file
  set ^TMP($J,1)=hdr
@@ -62,7 +62,7 @@ TRANSFER(user,file) ; test ^TSV stuff
  quit
  
  ; download the output as a file
-ROW(user,file,zid,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q) 
+ROW(user,file,zid,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r) 
  ; a=uprn,b=addformat,c=alg,d=class,e=matchb,f=matchf,g=matchn
  ; h=matchp,i=matchs,j=abpn,k=abpp,l=abps,m=abpt,n=qual
  ; o=adrec,p=abpb,q=cterm
@@ -71,6 +71,7 @@ ROW(user,file,zid,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q)
  set row(1)=a,row(2)=b,row(3)=c,row(4)=d,row(5)=e,row(6)=f
  set row(7)=g,row(8)=h,row(9)=i,row(10)=j,row(11)=k,row(12)=l
  set row(13)=m,row(14)=n,row(15)=o,row(16)=p,row(17)=q
+ set row(18)=r
  D STT(user,file,zid,.row)
  quit
  
@@ -84,6 +85,8 @@ STT(user,file,zid,row) ;
  set matchb=row(5),matchf=row(6),matchn=row(7),matchp=row(8)
  set matchs=row(9),abpn=row(10),abpp=row(11),abps=row(12),abpt=row(13)
  set qual=row(14),adr=row(15),abpb=row(16),cterm=row(17)
+ set abpflat=row(18)
+ 
  set ralf=$get(^TRALFS($job,uprn))
  set (lat,long,point,x,y)=""
  if uprn'="" do
@@ -93,6 +96,6 @@ STT(user,file,zid,row) ;
  .quit
  set rec=zid_d_uprn_d_addformat_d_alg_d_class_d_matchb_d_matchf_d
  set rec=rec_matchn_d_matchp_d_matchs_d_abpn_d_abpp_d_abps_d_abpt_d_qual_d
- set rec=rec_adr_d_abpb_d_lat_d_long_d_point_d_x_d_y_d_ralf_d_cterm
+ set rec=rec_adr_d_abpb_d_lat_d_long_d_point_d_x_d_y_d_ralf_d_cterm_d_abpflat
  set ^TSV(user,file,zid)=rec
  quit
