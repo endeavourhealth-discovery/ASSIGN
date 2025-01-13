@@ -1430,7 +1430,7 @@ s	. . . S $p(matchrec,",",3)=$s(bno=tbno:"Ne",bno=""&(tbno'=""):"Nd",1:"Ni")
 	. . . i $p(matchrec,",",4)="" q
 	. . . i tflat=bno,tbno=flat,street="" d
 	. . . . i ttown'="",$D(^UPRNS("TOWN",ttown)),lprec'[("~"_ttown_"~") q
-	. . . . s $p(matchrec,",",2)="Ne"
+	. . . . s $p(matchrec,",",2)="Se"
 	. . . . s $p(matchrec,",",5)="Fe"
 	. . . . s $P(ALG,"-",2)="match8e"
 	. . . . s matched=$$set(uprn,table,key)
@@ -1855,7 +1855,7 @@ match11f ;Already matched pretty close
 	. . . s matched=$$set(uprn,table,key)
 	. i $$equiv^UPRNU(build,tbuild) d
 	. . i $$mflat1(tflat,flat,.approx) d
-	. . . s $p(matchrec,",",2,5)="Ne,Be,F"_approx
+	. . . s $p(matchrec,",",3,5)="Ne,Be,F"_approx
 	. . . s $P(ALG,"-",2)="match11fb"
 	. . . s matched=$$set(uprn,table,key)
 	q
@@ -2020,7 +2020,7 @@ match14(tpost,tstreet,tbno,tbuild,tflat,skipbld)          ;
 	;
 	;	
 matchall(indrec)   ;
-	s matchrec="Pe,Ne,Be,Fe"
+	s matchrec="Pe,Se,Ne,Be,Fe"
 	i $D(^UPRNX("X",indrec)) d  Q $G(^TUPRN($J,"MATCHED"))
 	. S ALG="1-match"
 	. s matched=$$setuprns("X",indrec)

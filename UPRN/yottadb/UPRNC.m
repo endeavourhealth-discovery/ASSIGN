@@ -881,7 +881,7 @@ bns ; building, number and street match
 	. s matchred="Pe,Se,Ne,Be,Fp",alg="a206"
 	. d possible
 	I $G(^UPRNS("SCOTLEVEL",flat))=tflat d  i matched q
-	. s matched=$$m61("Pe,De,Ne,Be,Fe","a121")
+	. s matched=$$m61("Pe,Se,Ne,Be,Fe","a121")
 	i tflat'="",flat'="",bno'="" d
 	. i $tr(tflat,"/","f")=flat d
 	. . s matchrec="Pe,Se,Ne,Be,Fp",alg="a205"
