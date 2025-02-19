@@ -248,7 +248,7 @@ PROCESS(file,user,ZCOGID) ;
  close file
  o file:(readonly):0
  S cnt=1,qf=0
- f  u file r str q:$zeof  do  quit:cnt>100000!(qf)
+ f  u file r str q:$zeof  do  quit:cnt>$get(^UI2,100000)!(qf)
  .S str=$$STRIP(str)
  .I str=$c(13) quit
  .if str["------WebKitFormBoundary" set qf=1 quit
