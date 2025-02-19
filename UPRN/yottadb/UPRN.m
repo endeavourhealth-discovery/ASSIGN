@@ -2216,9 +2216,10 @@ mno(tpost,tstreet,tbno,bno)      ;
 	S tbno=$tr(tbno,"/","-")
 	i tbno["-" d
 	. n no
+	. if $p(tbno,"-",2)>500 set $p(tbno,"-",2)=500
 	. f no=$p(tbno,"-",1):1:$p(tbno,"-",2) d  q:matched
 	. . i $D(^UPRNX("X5",tpost,tstreet,no)) d
-	. . . s bno=no
+	. . . s bno=no,matched=1
 	q matched
 	;	
 match3(tpost,tstreet,tbno,tbuild,tflat)          ;Try from building and flat
