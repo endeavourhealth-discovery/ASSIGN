@@ -142,7 +142,8 @@ SAVE(f,glob) ;
  o f:(readonly:nowrap:chset="M")
  f  u f r str q:$zeof  do
  .use 0 w !,str
- .set str=$$TR^LIB(str,$c(9),"")
+ .;set str=$$TR^LIB(str,$c(9),"")
+ .if str[$c(9) set str=$s($e(str)'=$c(9):$$TR^LIB(str,$C(9)," "),1:$$TR^LIB(str,$c(9),""))
  .set str=$$TR^LIB(str,$c(13),"")
  .set str=$$LT^LIB(str)
  .S @glob@(rtn,l)=str
