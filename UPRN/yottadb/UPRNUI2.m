@@ -1,4 +1,4 @@
-UPRNUI2 ; ; 9/21/20 12:33pm
+UPRNUI2 ; ; 7/18/25 11:19am
  set ^%W(17.6001,"B","POST","api/fileupload2","UPLOAD^UPRNUI2",565)=""
  set ^%W(17.6001,565,0)="POST"
  set ^%W(17.6001,565,1)="api/fileupload2"
@@ -212,7 +212,7 @@ RemoveBOM(str,error) ;
  .set error="UTF-32 BE BOM detected and removed"
  .quit
  quit str
-
+ 
 ETCODE ;
  ;;S HTTPLOG("DT")=+$H
  ;;S HTTPLOG("ID")=99999
@@ -281,8 +281,10 @@ PROCESS(file,user,ZCOGID) ;
  .S CTERM=$G(B("BestMatch","ClassTerm"))
  .set CTERM=CTERM_$get(B("BestMatch","ClassTerm","\",1))
  .set ABPF=$GET(B("BestMatch","ABPAddress","Flat"))
+ .set BLPUSTAT=$GET(B("BestMatch","BLPUStatus"))
+ .set BLPUTERM=$GET(B("BestMatch","BLPUTerm"))
  .S J=$$JSON(UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,$$ESC^VPRJSON(adrec),ZID,ABPB,CTERM)
- .I $D(^BUSER("USER",user))!($GET(ZCOGID)'="") D ROW^UPRNUI3(user,file,ZID,UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,adrec,ABPB,CTERM,ABPF)
+ .I $D(^BUSER("USER",user))!($GET(ZCOGID)'="") D ROW^UPRNUI3(user,file,ZID,UPRN,ADDFORMAT,ALG,CLASS,MATCHB,MATCHF,MATCHN,MATCHP,MATCHS,ABPN,ABPP,ABPS,ABPT,QUAL,adrec,ABPB,CTERM,ABPF,BLPUSTAT,BLPUTERM)
  .S cnt=cnt+1
  .I '$D(^NGX(user,file,ZID)) set ^NGX(user,file,ZID)=J QUIT
  .I $D(^NGX(user,file,ZID)) DO
