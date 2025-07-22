@@ -132,9 +132,8 @@ MATCHED(best,commerce)  ;Matches either commercial or residential
  s json=json_"""Qualifier"":"""_$$qual^UPRN2(matchrec,commerce)_""""
  if $data(^UPRN("U",uprn)) do
  .set blpustat=$piece(^UPRN("U",uprn),"~",3)
- .set blputerm=$select(blpustat=1:"Approved",blpustat=6:"Provisional",1:"Historical")
- .set json=json_",""BLPUStatus"":"""_blpustat_""","
- .set json=json_"""BLPUTerm"":"""_blputerm_""""
+ .; 1= "Approved", 6 = "Provisional", 8 = "Historical"
+ .set json=json_",""LogicalStatus"":"""_blpustat_""""
  .quit
  I $D(^UPRN("CLASS",uprn)) d
  . s classcode=$tr($p(^UPRN("CLASS",uprn),"~"),"""")
