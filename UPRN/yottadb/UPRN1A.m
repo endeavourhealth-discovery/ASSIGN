@@ -40,6 +40,7 @@ IMPORT(folder)     ;
 	s ^IMPORT("FOLDER")=$$ESCAPE(abp)
 	D IMPSAINT
 	D RESIDE
+	D COMMRESIDE
 	D IMPCLASS
 	d IMPCOUNT
 	D IMPSTR
@@ -146,6 +147,22 @@ RESIDE ;Imports residential codes
 	. S ^UPRN("CLASSIFICATION",code,"residential")=include
 	close file
 	q
+	;	
+COMMRESIDE ;
+	S ^IMPORT("LOAD")="Commercial Residential code file"
+	set file=abp_"/PropertyClassification.txt"
+	close file
+	open file:(readonly)
+	use file read rec
+	for  use file read rec q:rec=""!($zeof)  do
+	. set include=$p(rec,$c(9),1)
+	. set code=$piece(rec,$c(9),3)
+	. set term=$p(rec,$c(9),4)
+	. set ^UPRN("COMMCLASS",code,"term")=term
+	. set ^UPRN("COMMCLASS",code,"commercial")=include
+	. quit
+	close file
+	quit
 	;	
 LEVENSTR ;
 	;K ^UPRNW("SFIX")

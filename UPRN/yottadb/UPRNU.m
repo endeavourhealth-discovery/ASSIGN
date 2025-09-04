@@ -223,6 +223,11 @@ GETABP(uprn,table,key,flat,build,bno,depth,street,deploc,loc,town,post,org)     
 	n rec,status
 	s rec=^UPRN("U",uprn,table,key,"O")
 	d getfields
+	if $get(^TPARAMS($J,"commercials")),org="" do
+	. s zkey=$o(^UPRN("U",uprn,"D",""))
+	. q:zkey=""
+	. set org=$piece($get(^UPRN("U",uprn,"D",zkey,"O")),"~",10)
+	. quit
 	Q  
 	;	
 GETADR(uprn,table,key,flat,build,bno,depth,street,deploc,loc,town,post,org)       ;

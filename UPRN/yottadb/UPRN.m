@@ -3041,6 +3041,7 @@ set(uprn,table,key,dualuse) ;
 	s class=$G(^UPRN("CLASS",uprn))
 	i class="" q ""
 	S reside=$G(^UPRN("CLASSIFICATION",class,"residential"))
+	if $get(^TPARAMS($J,"commercials")) set reside=$G(^UPRN("COMMCLASS",class,"commercial"))
 	i reside="N" q 0
 	i reside="?" d
 	. i $g(dualuse) s reside=1
