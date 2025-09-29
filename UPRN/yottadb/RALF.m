@@ -69,9 +69,12 @@ GETRALFS(file,userid)
  .S ZID=$$TR^LIB($P(str,$C(9),1),"""","")
  .;U 0 W !,ZID
  .I ZID=""!(ZID=$C(13)) QUIT
- .s adrec=$$TR^LIB($p(str,$C(9),2,99),$C(13),"")
+ .s adrec=$$TR^LIB($p(str,$C(9),2),$C(13),"")
  .set adrec=$$TR^LIB(adrec,$c(9)," ")
  .s qpost=$$TR^LIB($p(str,$c(9),3),$C(13),"")
+ .s commercial=$$TR^LIB($p(str,$c(9),4),$C(13),"")
+ .kill ^TPARAMS($J,"commercials")
+ .if $$UC^LIB(commercial)="Y" set ^TPARAMS($J,"commercials")=1
  .D GETUPRN^UPRNMGR(adrec,qpost,"","",0,0)
  .s json=^temp($j,1)
  .K B,C
