@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "assign-uprn"
+  site-url: "https://joeldn.srht.site/assign-uprn"
+  description: "python wrapper for assign api functions"
+  repo-branch: main
+  repo-url: "https://git.sr.ht/~joeldn/assign-uprn"
