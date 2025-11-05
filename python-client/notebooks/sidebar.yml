@@ -1,6 +1,0 @@
-website:
-  sidebar:
-    contents:
-      - index.ipynb
-      - 01_api_calls.ipynb
-      - 02_api_calls_tests.ipynb
