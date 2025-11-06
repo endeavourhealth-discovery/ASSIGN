@@ -73,8 +73,9 @@ GETRALFS(file,userid)
  .set adrec=$$TR^LIB(adrec,$c(9)," ")
  .s qpost=$$TR^LIB($p(str,$c(9),3),$C(13),"")
  .s commercial=$$TR^LIB($p(str,$c(9),4),$C(13),"")
- .kill ^TPARAMS($J,"commercials")
- .if $$UC^LIB(commercial)="Y" set ^TPARAMS($J,"commercials")=1
+ .kill ^TPARAMS($J)
+ .if $$UC^LIB(commercial)="C" set ^TPARAMS($J,"commercials")=1
+ .if $$UC^LIB(commercial)="N" set ^TPARAMS($J,"neutral")=1
  .D GETUPRN^UPRNMGR(adrec,qpost,"","",0,0)
  .s json=^temp($j,1)
  .K B,C
