@@ -11,7 +11,15 @@ class AssignAPIClient:
     A client for interacting with the ASSIGN API.
     Handles environment setup and provides methods for address search, upload, and download.
 
-    Example: `client = AssignAPIClient(dotenv_path = '.env')`
+    Args: 
+        dotenv_path (str): Path to the .env file. Defaults to '.env'
+    
+    Returns:
+        an instance of the AssignAPIClient class
+    
+    Example: 
+    
+        client = AssignAPIClient(dotenv_path = '.env')
 
     """
     
@@ -19,8 +27,7 @@ class AssignAPIClient:
         """
         Initialize the client with environment variables from the specified .env file.
 
-        Args:
-
+        Args: 
             dotenv_path (str): Path to the .env file. Defaults to '.env'.
         """
         import os
@@ -38,16 +45,13 @@ class AssignAPIClient:
         Tries: 1. Existing env var; 2. a .env file; 3. Raise error.
 
         Args:
-
             var_name (str): Name of the environment variable.
             dotenv_path (str): Path to the .env file.
         
         Returns:
-
             str: Value of the environment variable.
 
         Raises:
-
             ValueError: If the environment variable is not found.
         """
         import os
@@ -66,12 +70,10 @@ class AssignAPIClient:
         """
         Search for a UPRN by address.
         
-        Args:
-
+        Args: 
             address (str): An address on a single line, each element separated with a comma.
         
         Returns:
-
             requests.Response: JSON representation of the matching AddressBase Premium record.
         
         Example:
@@ -109,15 +111,18 @@ class AssignAPIClient:
         Upload a text file of TSV address records to the ASSIGN API, or upload an encrypted salt.
 
         For address uploads, format is two columns: id and address, e.g.:
-        1	10 Downing St,Westminster,London,SW1A2AA
-        1	11 Downing St,Westminster,London,SW1A2AA
 
+        ```tsv
+        1 ⭾ 10 Downing St,Westminster,London,SW1A2AA
+        2 ⭾ Bridge Street,London,SW1A 2LW
+        3 ⭾ 221b Baker St,Marylebone,London,NW1 6XE
+        4 ⭾ 3 Abbey Rd,St Johns Wood,London,NW8 9AY
+        ```
+        
         Args:
-
             infilepath (str): Filepath containing multiple addresses to upload.
 
         Returns:
-
             requests.Response: API response confirming whether upload was successful.
         
         Example:
@@ -147,18 +152,17 @@ class AssignAPIClient:
         Download TSV data matching a previously uploaded file of TSV addresses.
 
         Args:
-        
             infilepath (str): Filename of the previously uploaded file.
-            outfilepath (str): Filepath to store the response in.
+            outfilepath (str): Filepath to store the response in, defaults to '../data/processed/assign-uprn.tsv'
 
         Returns:
-
             requests.Response: API response containing content to output to TSV file.
         
         Example:
     
             > infilepath = '../data/external/test-addresses.txt'
-            > client.download(infilepath=infilepath).status_code
+            > outfilepath = '../data/processed/assign-uprn.tsv'
+            > client.download(infilepath, outfilepath).status_code
             200
         """
         import os
