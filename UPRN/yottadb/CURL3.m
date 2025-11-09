@@ -27,6 +27,8 @@ EMAILCHK(b)
  set zok=-2
  set email=$$LC^LIB($get(b("email")))
  set domain=$$LC^LIB($p(email,"@",2))
+ set secdomain=$$LC^LIB($P(domain,".",2,3))
+ i $get(^ICONFIG("COG-SECONDARY-DOMAIN",secdomain))'="" set zok=1
  i $get(^ICONFIG("COG-DOMAIN",domain))'="" set zok=1
  i $get(^ICONFIG("COG-EMAIL",email))'="" set zok=1
  quit zok

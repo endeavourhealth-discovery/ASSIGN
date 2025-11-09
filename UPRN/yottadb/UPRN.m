@@ -3036,12 +3036,21 @@ setuprns(index,n1,n2,n3,n4,n5)
 	;	
 set(uprn,table,key,dualuse) ;
 		;dualuse=1 allows ambigous residentials 
-	n status,xuprn
+	n status,xuprn,reside1,reside2
 	s status=$p(^UPRN("U",uprn),"~",3)
 	s class=$G(^UPRN("CLASS",uprn))
 	i class="" q ""
 	S reside=$G(^UPRN("CLASSIFICATION",class,"residential"))
 	if $get(^TPARAMS($J,"commercials")) set reside=$G(^UPRN("COMMCLASS",class,"commercial"))
+	
+	if $get(^TPARAMS($J,"neutral")) do
+	.s reside1=$get(^UPRN("CLASSIFICATION",class,"residential"))
+	.s reside2=$G(^UPRN("COMMCLASS",class,"commercial"))
+	.if reside1="N",reside2="N" set reside="N" quit
+	.if reside1'="N" set reside=reside1 quit
+	.set reside=reside2
+	.quit
+	
 	i reside="N" q 0
 	i reside="?" d
 	. i $g(dualuse) s reside=1

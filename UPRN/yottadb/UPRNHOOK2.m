@@ -70,9 +70,10 @@ GETMUPRN(result,arguments)
 	set noassert=$Get(arguments("noassert"))
 	set HOOK2=1
 	
-	K ^TPARAMS($J,"commercials")
+	K ^TPARAMS($J)
 	set comm=$Get(arguments("commercial"))
-	if comm set ^TPARAMS($J,"commercials")=1
+	if comm="010" set ^TPARAMS($J,"commercials")=1
+	if comm="001" set ^TPARAMS($J,"neutral")=1
 	
 	set qpost=$Get(arguments("qpost"))
 	set country=$Get(arguments("country"))
