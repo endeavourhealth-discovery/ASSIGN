@@ -3046,6 +3046,8 @@ set(uprn,table,key,dualuse) ;
 	if $get(^TPARAMS($J,"neutral")) do
 	.s reside1=$get(^UPRN("CLASSIFICATION",class,"residential"))
 	.s reside2=$G(^UPRN("COMMCLASS",class,"commercial"))
+	.if reside1="" s reside1="N"
+	.if reside2="" s reside2="N"
 	.if reside1="N",reside2="N" set reside="N" quit
 	.if reside1'="N" set reside=reside1 quit
 	.set reside=reside2
