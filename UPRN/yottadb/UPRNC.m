@@ -918,7 +918,7 @@ bns ; building, number and street match
 	i $$eqflat^UPRNB(tflat,flat) d  i matched!probable q
 	. s matched=$$m61("Pe,Se,Ne,Be,Fe","a17")
 	i $$flateq^UPRNU(tflat,flat) d  i matched!probable q
-	. s matchred="Pe,Se,Ne,Be,Fp",alg="a206"
+	. s matchrec="Pe,Se,Ne,Be,Fp",alg="a206"
 	. d possible
 	I $G(^UPRNS("SCOTLEVEL",flat))=tflat d  i matched q
 	. s matched=$$m61("Pe,Se,Ne,Be,Fe","a121")
@@ -1025,7 +1025,7 @@ f   ;Flat
 	. i $$flateq^UPRNU(tbno,build) d	 
 	. . i $$equiv^UPRNU(tstreet,street) d
 	. . . s matched=$$m61("Pe,Sl,N>B,B<N,Fe","a188")
-	i tbuild'="",tbno'="",tstreet'="",street="",bno="",$$equiv^UPRNU(tbuild,build) d  q
+	i tbuild'="",tbno'="",tstreet'="",street="",bno="",$$equiv^UPRNU(tbuild,build) d  q 0
 	. s matchrec="Pe,Sd,Nd,Be,Fe",alg="a37"
 	. d probable
 	q

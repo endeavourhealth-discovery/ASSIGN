@@ -156,6 +156,8 @@ eqflatnum(tflat,flat,tbno,bno) ;
 	;	
 eqflat(tflat,flat) ;Are they equivalent flats?
 	n (tflat,flat)
+	i tflat'="",flat="" q 0
+	i flat'="",tflat="" q 0
 	i $tr(tflat," ")=$tr(flat," ") q 1
 	i tflat?1n.n,flat'?1n.n q 0
 	i tflat?1n.n1"/"1n.n1"r",$tr(tflat,"r")=flat q 1
@@ -256,6 +258,10 @@ farpost ;No post code match
 	. . . . . . . I $E(post,1,2)=$e(tpost,1,2) d
 	. . . . . . . . i $$levensh^UPRNU(post,tpost,5,1) d
 	. . . . . . . . . s matchrec="Pl,Se,Ni,Bl,Fe"
+	. . . . . . . . . S ^TBEST($J,matchrec)=post
+	. . . . . . . . . S ^TBEST($J,matchrec,bno,build,tflat)=""
+	. . . . . . . . i $e(post,1,4)=$e(tpost,1,4),$$levensh^UPRNU(post,tpost,5,2),tbno[bno d
+	. . . . . . . . . s matchrec="Pl,Se,Np,Bl,Fe"
 	. . . . . . . . . S ^TBEST($J,matchrec)=post
 	. . . . . . . . . S ^TBEST($J,matchrec,bno,build,tflat)=""
 	i tflat="",tbuild'="",tbno'="" d
@@ -362,6 +368,7 @@ bestfito ;
 	;Block number flat number alternative
 	;First Drops building
 	;Then goes for fuzzy building
+	n verticals
 	i tbno="" d
 	. i $p(tflat," ",2)?1n.n d
 	. . i $p(tflat," ",3)?1l d
@@ -386,6 +393,7 @@ bestfito ;
 	. . . S ^TBEST($J,matchrec,tbno*1,tbuild,tbno)=""
 	. . . s matched=1
 	. i matched q
+	. s verticals=0
 	. i tflat="" d
 	. . s flat=""
 	. . for  s flat=$O(^UPRNX("X5",tpost,tstreet,tbno*1,tbuild,flat)) q:flat=""  d
@@ -395,7 +403,16 @@ bestfito ;
 	. . . i $d(^UPRNS("FLOOR",flat,suffix)) d
 	. . . . s matchrec="Pe,Se,N>Ff,Be,Ff"
 	. . . . S ^TBEST($J,matchrec,tbno*1,tbuild,flat)=""
+	. . . s floor=$O(^UPRNS("FLOOR",flat,""))
+	. . . i floor'="" d
+	. . . . s verticals=verticals+1
+	. . . . s verticals(floor)=$O(^UPRNX("X5",tpost,tstreet,tbno*1,tbuild,flat,""))
+	. . . . s verticals(floor,"flat")=flat
+	. i $d(verticals(fnum)) d
+	. . s matchrec="Pe,Se,N>Ff,Be,Fv"
+	. . S ^TBEST($J,matchrec,tbno*1,tbuild,verticals(fnum,"flat"))=""
 	i matched q
+	;	
 	;	
 	;Best of the fuzzy building matches
 	;Unit stratford / unite building
@@ -877,10 +894,6 @@ sufnum1 i tflat?1n d
 	. . . . . s matchrec="Pe,Se,Ne,Be,Fvv"
 	. . . . . s ^TBEST($J,matchrec,tbno,tbuild,flat)=""
 	. . . . . s matched=1
-	. . . . e  d
-	. . . . . s matchrec="Pe,Se,Ne,Be,Fv"
-	. . . . . s ^TBEST($J,matchrec,tbno,tbuild,flat)=""
-	. . . . . s matched=1
 	. . i $D(^UPRNS("FLOOR",tflat)) d
 	. . . s fnum=""
 	. . . for  s fnum=$O(^UPRNS("FLOOR",tflat,fnum)) q:fnum=""  d  q:matched
@@ -939,11 +952,15 @@ vchar1 i qual'="low" f char=102:-1:97 d  q:matched
 getflats(matchrec,qual,tpost,tstreet,tbno,tbuild,tflat) 
 	;Collects a list of candidate flats
 	;for a building
-	n flat
-	s flat=""
+	n flat,level,abpqual,type,ffound,levels
+	s level=$o(^UPRNS("FLOOR",tflat,""))
+	s flat="",levels=0
 	for  s flat=$O(^UPRNX("X5",tpost,tstreet,tbno,tbuild,flat)) q:flat=""  d
 	. I $D(^UPRNS("VERTICALS",flat)) d
+	. . S levels=levels+1,levels(levels)=$O(^UPRNX("X5",tpost,tstreet,tbno,tbuild,flat,""))
 	. . s abpqual=^UPRNS("VERTICALS",flat)
+	. . I abpqual'=qual q
+	. . i level'="",'$d(^UPRNS("FLOOR",flat,level)) q
 	. . I qual="high" f type="top","upper" d
 	. . . i $e(flat,1,$l(type))=type d
 	. . . . S ^TBEST($J,matchrec,tbno,tbuild,flat)=""
@@ -962,13 +979,13 @@ set(matchrec,post,street,bno,build,flat)         ;Attempts a residential set
 	q $$setuprns(matchrec,"X5",post,street,bno,build,flat)
 	;	
 setuprns(matchrec,index,n1,n2,n3,n4,n5) 
-	n uprn,table,key
+	n uprn,table,key,matched
 	S matched=0
 	s (uprn,table,key)=""
-	for  s uprn=$O(^UPRNX(index,n1,n2,n3,n4,n5,uprn)) q:uprn=""  d
+	for  s uprn=$O(^UPRNX(index,n1,n2,n3,n4,n5,uprn)) q:uprn=""  d  q:matched
 	. S $P(ALG,"-",2)="bestfit"
-	. for  s table=$O(^UPRNX(index,n1,n2,n3,n4,n5,uprn,table)) q:table=""  d
-	. . for  s key=$O(^UPRNX(index,n1,n2,n3,n4,n5,uprn,table,key)) q:key=""  d
+	. for  s table=$O(^UPRNX(index,n1,n2,n3,n4,n5,uprn,table)) q:table=""  d  q:matched
+	. . for  s key=$O(^UPRNX(index,n1,n2,n3,n4,n5,uprn,table,key)) q:key=""  d  Q:matched
 	. . . S matched=$$set^UPRN(uprn,table,key)
 	q matched
 	;	

@@ -230,6 +230,14 @@ GETABP(uprn,table,key,flat,build,bno,depth,street,deploc,loc,town,post,org)     
 	. quit
 	Q  
 	;	
+GETADDRESS(uprn,table,key)	   ;
+	;Returns address variables from UPRN record
+	n rec,status,flat,build,bno,depth,street,deploc,loc,town,post,org,adr
+	s rec=^UPRN("U",uprn,table,key)
+	d getfields
+	s adr=flat_" "_build_" "_bno_" "_depth_" "_street_" "_deploc_" "_loc_" "_town_" "_post_" "_org
+	q adr
+	Q
 GETADR(uprn,table,key,flat,build,bno,depth,street,deploc,loc,town,post,org)       ;
 	;Returns address variables from UPRN record
 	n rec,status
@@ -647,6 +655,7 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	S ^UPRNS("BESTFIT",fix)="Pe,Si,Ne,Be,Fev" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,Si,Ne,Be,Fe" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pl,Se,Ne,Bp,Fe" s fix=fix+1
+	S ^UPRNS("BESTFIT",fix)="Pl,Se,Np,Bl,Fe" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pl,Se,Ni,Bl,Fev" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pl,Se,Ni,Bl,Fe" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Bd,Fev" s fix=fix+1
@@ -654,10 +663,11 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Be,Fev" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pp,Se,Ne,Be,Fe" s fix=fix+1
 	S ^UPRNS("BESTFIT",fix)="Pe,S<B,N<F,B>S,F>N" s fix=fix+1
+	s ^UPRNS("BESTFIT",fix)="Pe,Se,N>Ff,Be,Fv" s fix=fix+1
 	K ^UPRNS("FLOOR")
-	S ^UPRNS("FLOOR","basement","a")=""
-	S ^UPRNS("FLOOR","ground floor","a")=""
-	S ^UPRNS("FLOOR","first floor","b")=""
+	;S ^UPRNS("FLOOR","basement","a")=""
+	;S ^UPRNS("FLOOR","ground floor","a")=""
+	;S ^UPRNS("FLOOR","first floor","b")=""
 	S ^UPRNS("FLOOR","basement",0)=""
 	S ^UPRNS("FLOOR","ground floor",1)=""
 	S ^UPRNS("FLOOR","first floor",2)=""
@@ -787,14 +797,14 @@ fs1 f i=1:1:9 S ^UPRNS("FLATNUMSUF",i)=$c(96+i)
 	s ^UPRNS("FLOOR","6th",7)=""
 	S ^UPRNS("FLOOR","4th",5)=""
 	S ^UPRNS("FLOOR","5th",6)=""
-	S ^UPRNS("FLOORNUM",1)="ground"
-	S ^UPRNS("FLOORNUM",2)="first"
-	S ^UPRNS("FLOORNUM",3)="Second"
-	S ^UPRNS("FLOORNUM",0)="basement"
-	S ^UPRNS("FLOORCHAR","a")="ground"
-	S ^UPRNS("FLOORCHAR","b")="first"
-	S ^UPRNS("FLOORCHAR","c")="Second"
-	S ^UPRNS("FLOORCHAR","d")="third"
+	;S ^UPRNS("FLOORNUM",1)="ground"
+	;S ^UPRNS("FLOORNUM",2)="first"
+	;S ^UPRNS("FLOORNUM",3)="Second"
+	;S ^UPRNS("FLOORNUM",0)="basement"
+	;S ^UPRNS("FLOORCHAR","a")="ground"
+	;S ^UPRNS("FLOORCHAR","b")="first"
+	;S ^UPRNS("FLOORCHAR","c")="Second"
+	;S ^UPRNS("FLOORCHAR","d")="third"
 	S ^UPRNS("FLOORCHAR",$c(96))="basement"
 scots ;	
 	K ^UPRNS("SCOTFLOORSIDE"),^UPRNS("SCOTFLOOR"),^UPRNS("SCOTSIDE")

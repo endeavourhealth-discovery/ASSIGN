@@ -111,11 +111,11 @@ setind1 ;Sets indexes
 	s same=0
 	i pstreet=street,pbuild=build,pdepth=depth s same=1
 	s indrec=post_" "_flat_" "_build_" "_bno_" "_depth_" "_street_" "_deploc_" "_loc
-	s indrec=$tr(indrec," ","")
+	s indrec=$$concat^UPRN(indrec)
 	S ^UPRNX("X",indrec,uprn,table,key)=""
 	i 'same d
 	. s indrec=post_" "_flat_" "_pbuild_" "_bno_" "_pdepth_" "_pstreet_" "_deploc_" "_loc
-	. s indrec=$tr(indrec," ","")
+	. s indrec=$$concat^UPRN(indrec)
 	. S ^UPRNX("X",indrec,uprn,table,key)=""
 	i deploc'="" d
 	. s ^UPRNX("X5",post,street_" "_deploc,bno,build,flat,uprn,table,key)=""

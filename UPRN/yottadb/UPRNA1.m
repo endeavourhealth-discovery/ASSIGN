@@ -1,10 +1,14 @@
 UPRNA1(adflat,adbuild,adbno,adstreet,adloc,adeploc,adtown,adepth) ;Additional preformatting routine [ 08/02/2023  11:55 AM ]
 	;
-	N i
+	N i,xbuild
 	s adtown=$g(adtown)
 	;	
 f153a ;Move some thngs around
 	;		
+	i $D(^UPRNX("X.BLD",ZONE,adflat)),$$isflat^UPRNU(adbuild) d
+	. s xbuild=adflat
+	. s adflat=adbuild
+	. s adbuild=xbuild
 	i adtown="",adloc'="",adeploc="" d
 	. I '$D(^UPRNS("TOWN",adloc)) d
 	. . I $D(^UPRNS("TOWN",adstreet)),'$D(^UPRNX("X.STR",ZONE,adstreet)) d
@@ -251,6 +255,9 @@ f156 ;
 	. . . . s adstreet=$p(adbuild," ",2,blen-1)
 	. . . . s adbuild=""
 	. . . . S done=""
+	I adbno="",adflat?1"room flat "1n.n1" "1n.n.l do
+	. s adbno=$p(adflat," ",$l(adflat," "))
+	. s adflat=$p(adflat," ",2,3)
 	i adbno="",adeploc?1n.n!(adeploc?1n.n1l) d
 	. s adbno=adeploc
 	. s adeploc="" 

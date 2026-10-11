@@ -1,5 +1,5 @@
 UPRN ;Command line for processing a batch of adresses [ 08/07/2023  9:02 AM ]
-	S version="7.0.0"
+	S version="7.1.0"
 	K ^UPRN("MX") ;[ 05/11/2023  12:26 PM ]
 	K ^UPRN("UX")
 	K ^UPRNI("UM")
@@ -184,6 +184,7 @@ MATCHONE(adrec,orgpost,ui)    ;matches one address
 	s quit=0
 	K ^TPOSS($J)
 	K ^TCUPRN($J)
+	K ^TFORCE($J)
 	S ^LOG=adrec
 	set adrec=$$lt^UPRNL($$LC^LIB(adrec))
 	set adrec=$tr(adrec,"}{""","")
@@ -258,6 +259,10 @@ try1 D match(.address,adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,
 	. D match(.address,adflat,adbuild,adbno,adepth,"mac"_$e(adstreet,3,50),adeploc,adloc,adpost,adf2,adb2,adtown)
 	I $D(^TUPRN($J,"MATCHED")) d  q
 	. d matched	
+	;Last try will match property shell
+	S ^TFORCE($J)=""
+	D match(.address,adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2,adtown)
+	K ^TFORCE($J)
 	I '$d(^TUPRN($J,"MATCHED")) D  Q
 	. d nomatch
 	q
@@ -274,7 +279,18 @@ SETADS ;
 	;
 	;	
 	Q
-	;	
+	;	or
+concat(text);
+	N i,lastword,ntext,word
+	s lastword=""
+	s ntext=""
+	f i=1:1:$l(text," ") d
+	. s word=$p(text," ",i)
+	. i word="" q
+	. i $e(word)?1n,$e(lastword,$l(lastword))?1n s ntext=ntext_" "_word q
+	. s ntext=ntext_word
+	. s lastword=word
+	q ntext;
 	;	
 match(address,adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb2,adtown) ;
 	;Match algorithms
@@ -286,17 +302,17 @@ match(address,adflat,adbuild,adbno,adepth,adstreet,adeploc,adloc,adpost,adf2,adb
 	set adplural=0
 	i adpstreet'=adstreet s adplural=1
 	if adpbuild'=adbuild s adplural=1
-	s indrec=$tr(adpost_" "_adflat_" "_adbuild_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc_" "_adloc," ","")
+	s indrec=$$concat(adpost_" "_adflat_" "_adbuild_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc_" "_adloc)
 	i adstreet'="" d
-	. s indrec2=$tr(adpost_" "_adflat_" "_adbuild_" "_adbno_" "_adepth_" "_adstreet," ","")
+	. s indrec2=$$concat(adpost_" "_adflat_" "_adbuild_" "_adbno_" "_adepth_" "_adstreet)
 	i adeploc'="" d
-	. s indrec3=$tr(adpost_" "_adflat_" "_adbuild_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc," ","")
+	. s indrec3=$$concat(adpost_" "_adflat_" "_adbuild_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc)
 	i adplural d
-	. s indprec=$tr(adpost_" "_adflat_" "_adpbuild_" "_adbno_" "_adepth_" "_adpstreet_" "_adeploc_" "_adloc," ","")
+	. s indprec=$$concat(adpost_" "_adflat_" "_adpbuild_" "_adbno_" "_adepth_" "_adpstreet_" "_adeploc_" "_adloc)
 	. i adpstreet'="" d
-	. . s indprec2=$tr(adpost_" "_adflat_" "_adbuild_" "_adbno_" "_adepth_" "_adpstreet," ","")
+	. . s indprec2=$$concat(adpost_" "_adflat_" "_adbuild_" "_adbno_" "_adepth_" "_adpstreet)
 	. i adeploc'="" d
-	. . s indprec3=$tr(adpost_" "_adflat_" "_adbuild_" "_adbno_" "_adepth_" "_adpstreet_" "_adeploc," ","")
+	. . s indprec3=$$concat(adpost_" "_adflat_" "_adbuild_" "_adbno_" "_adepth_" "_adpstreet_" "_adeploc)
 	;	
 	;	
 	K ^UPRNT("Considered")
@@ -3079,6 +3095,7 @@ set(uprn,table,key,dualuse) ;
 	n status,xuprn,reside1,reside2
 	s status=$p(^UPRN("U",uprn),"~",3)
 	s class=$G(^UPRN("CLASS",uprn))
+	I class="PP",matchrec'="Pe,Se,Ne,Be,Fe",'$D(^TFORCE($J)) q ""
 	i class="" q ""
 	S reside=$tr($G(^UPRN("CLASSIFICATION",class,"residential"))," ","")
 	if $get(^TPARAMS($J,"commercials")) set reside=$tr($G(^UPRN("COMMCLASS",class,"commercial"))," ","")

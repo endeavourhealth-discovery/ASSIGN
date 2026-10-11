@@ -186,7 +186,7 @@ f12 i addlines=4 d
 	. s adbuild=$p(address,d,2)
 	. s adstreet=$p(address,d,3)
 	. s adloc=$p(address,d,4)
-	. I $D(^UPRNX("X.BLD",ZONE,adflat)),'$D(^UPRNX("X.FLAT",ZONE,adflat)) d
+	. I $D(^UPRNX("X.BLD",ZONE,adflat)),'$$isflat^UPRNU(adflat),'$D(^UPRNX("X.FLAT",ZONE,adflat)) d
 	. . s adtown=adloc
 	. . s adloc=adstreet
 	. . s adstreet=adbuild
@@ -232,14 +232,14 @@ f16 f var="adflat","adbuild","adstreet","adepth","adeploc","adloc","adtown" d
 	. . s @var=$$tr^UPRNL(@var,"  "," ")
 	;	
 04021 ;
-	set address("original1")=$tr(adpost_" "_$$flat^UPRNU(adflat)_" "_$$flat^UPRNU(adbuild)_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc_" "_adloc," ","")
-	set address("original")=$tr(adpost_" "_adflat_" "_adbuild_" "_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc_" "_adloc," ","")
+	set address("original1")=$$concat^UPRN(adpost_" "_$$flat^UPRNU(adflat)_" "_$$flat^UPRNU(adbuild)_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc_" "_adloc)
+	set address("original")=$$concat^UPRN(adpost_" "_adflat_" "_adbuild_" "_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc_" "_adloc)
 	I adstreet'="" d
-	. set address("original2")=$tr(adpost_" "_adflat_" "_adbuild_" "_" "_adbno_" "_adepth_" "_adstreet," ","")
-	. set address("original3")=$tr(adpost_" "_$$flat^UPRNU(adflat)_" "_$$flat^UPRNU(adbuild)_" "_" "_adbno_" "_adepth_" "_adstreet," ","")
+	. set address("original2")=$$concat^UPRN(adpost_" "_adflat_" "_adbuild_" "_" "_adbno_" "_adepth_" "_adstreet)
+	. set address("original3")=$$concat^UPRN(adpost_" "_$$flat^UPRNU(adflat)_" "_$$flat^UPRNU(adbuild)_" "_" "_adbno_" "_adepth_" "_adstreet)
 	I adeploc'="" d
-	. set address("original4")=$tr(adpost_" "_adflat_" "_adbuild_" "_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc," ","")
-	. set address("original5")=$tr(adpost_" "_$$flat^UPRNU(adflat)_" "_$$flat^UPRNU(adbuild)_" "_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc," ","")
+	. set address("original4")=$$concat^UPRN(adpost_" "_adflat_" "_adbuild_" "_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc)
+	. set address("original5")=$$concat^UPRN(adpost_" "_$$flat^UPRNU(adflat)_" "_$$flat^UPRNU(adbuild)_" "_" "_adbno_" "_adepth_" "_adstreet_" "_adeploc)
 	;	
 	;
 	q
@@ -357,6 +357,10 @@ f35a ;Brackets
 	. s adbuild=$tr(adbuild,")","")
 	. s adbuild=$$lt^UPRNL($$tr^UPRNL(adbuild,"  "," "))
 	;
+	if adbuild?."room "1"flat"1" "1n.n,adbno="",adflat'="" d
+	. s adbno=adflat
+	. s adflat="flat "_$p(adbuild," ",$l(adbuild," "))
+	. s adbuild=""
 	i adflat="" do flatbld(.adflat,.adbuild,.adbno,.adepth,.adstreet)
 	i adbuild'="" d
 	. s address("obuild")=adbuild
@@ -368,7 +372,11 @@ f35a ;Brackets
 	i adbno=""&(adepth?1n.n!(adepth?1n.n1l)) do
 	. s adbno=adepth
 	. s adepth=""
-	i adflat'="" d
+	i adflat'="",adflat?1n.n.l d
+	. i adbuild?1"flat"1" "1n.n1" ".e,adbno="" d
+	. . s adbno=adflat
+	. . s adflat=$p(adbuild," ",1,2)
+	. . s adbuild=$p(adbuild," ",3,20)
 	. i adbuild?1"flat"." "."no"1" "1n.n."-".n,adflat?1n.n.l,adbno="",adstreet'="" d
 	. . s adbno=adflat
 	. . s adflat=$p(adbuild," ",$l(adbuild," "))
@@ -980,6 +988,8 @@ flatbld(adflat,adbuild,adbno,adepth,adstreet) ;
 	i adbuild?1"no"1n.n.e s adbuild=$e(adflat,3,100)
 	I $D(^UPRNS("FLAT",$p(adbuild," "))) d
 	. s $p(adbuild," ")="flat"
+	I adflat="",$D(^UPRNS("FLAT",$p(adepth," "))),$p(adepth," ",2)?1n.n.l d
+	. s adflat=adepth,adepth=""
 fn  ;building line Starts with number
 	i adbuild?1n.e d
 	. i adbuild?1n.n.l d
@@ -1329,6 +1339,10 @@ numstr(adbno,adstreet,adflat,adbuild,adepth,adeploc,adloc,adtown,adpost) ;
 	. . s adbno=$p(adbuild," ")
 	. . s adflat=$p(adbuild," ",2)
 	. . s adbuild=""	
+	i adbno="",adflat'="",adbuild["flat",$p(adbuild,"flat ",2)?1l d
+	. s adbno=adflat,adflat=$p(adbuild,"flat ",2),adbuild=$p(adbuild," flat",1)
+	. i $D(^UPRNS("FLAT",$p(adbuild," "))) d
+	. . s adbuild=""
 	i adflat["flat",adepth["flat" d
 	. i adepth?1n.n.l." "1"flat "1n.n.l d
 	. . s adflat=$p(adepth,"flat ",2)
